@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MapPin, Phone, Mail, WeChat, Weibo } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle, Share2 } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -17,10 +17,10 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors cursor-pointer">
-                <WeChat className="h-5 w-5" />
+                <MessageCircle className="h-5 w-5" />
               </div>
               <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer">
-                <Weibo className="h-5 w-5" />
+                <Share2 className="h-5 w-5" />
               </div>
             </div>
           </div>
