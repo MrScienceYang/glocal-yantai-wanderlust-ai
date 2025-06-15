@@ -20,7 +20,7 @@ const Hero = () => {
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
           发现真正的
           <span className="block text-gradient bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">
-            烟台味道
+            本地味道
           </span>
         </h1>
         
@@ -32,7 +32,7 @@ const Hero = () => {
           <Link to="/ai-planning">
             <Button size="lg" className="gradient-ocean text-white hover:opacity-90 transition-opacity">
               <MapPin className="mr-2 h-5 w-5" />
-              开始我的烟台之旅
+              开始我的本地之旅
             </Button>
           </Link>
           <Link to="/shop">
@@ -51,7 +51,7 @@ const Hero = () => {
                 <Search className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-lg font-semibold mb-2">AI智能行程</h3>
-              <p className="text-gray-300 text-sm">根据你的兴趣和预算，AI为你量身定制专属烟台行程</p>
+              <p className="text-gray-300 text-sm">根据你的兴趣和预算，AI为你量身定制专属本地行程</p>
             </div>
           </Link>
           
@@ -61,7 +61,7 @@ const Hero = () => {
                 <Users className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-lg font-semibold mb-2">本地达人</h3>
-              <p className="text-gray-300 text-sm">真正的烟台人带你体验最地道的本土文化和隐藏美食</p>
+              <p className="text-gray-300 text-sm">真正的本地人带你体验最地道的本土文化和隐藏美食</p>
             </div>
           </Link>
           

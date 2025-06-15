@@ -10,10 +10,10 @@ const Footer = () => {
           {/* 品牌信息 */}
           <div className="col-span-1 md:col-span-2">
             <div className="text-3xl font-bold mb-4 text-gradient bg-gradient-to-r from-ocean-400 to-sunset-400 bg-clip-text text-transparent">
-              Glocal烟台
+              Glocal
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              发现真正的烟台味道，AI智能规划与本地达人带路的完美结合，为您打造独一无二的烟台体验。
+              发现真正的本地味道，AI智能规划与本地达人带路的完美结合，为您打造独一无二的本地体验。
             </p>
             <div className="flex space-x-4">
               <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors cursor-pointer">
@@ -43,7 +43,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center">
                 <MapPin className="h-5 w-5 mr-3 text-ocean-400" />
-                <span className="text-gray-300">山东省烟台市芝罘区</span>
+                <span className="text-gray-300">全国服务</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-ocean-400" />
@@ -51,7 +51,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-ocean-400" />
-                <span className="text-gray-300">hello@glocalyantai.com</span>
+                <span className="text-gray-300">hello@glocal.com</span>
               </li>
             </ul>
           </div>
@@ -60,7 +60,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2024 Glocal烟台. 保留所有权利.
+              © 2024 Glocal. 保留所有权利.
             </div>
             <div className="flex space-x-6 text-sm">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">隐私政策</a>

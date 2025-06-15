@@ -1,154 +1,128 @@
 
 import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, ShoppingCart, Heart, Truck, Shield, Award, Minus, Plus } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { Star, ShoppingCart, Heart, Share2, MapPin, Clock, Users } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
-  const [selectedSpec, setSelectedSpec] = useState('standard');
+  const [selectedSpec, setSelectedSpec] = useState('标准版');
 
-  // 模拟产品数据
+  // 模拟商品数据
   const product = {
-    id: '1',
-    name: '烟台大鲍鱼预制菜',
-    description: '新鲜大鲍鱼，急冻锁鲜，开袋即食，营养丰富',
-    price: 168,
-    originalPrice: 228,
-    memberPrice: 150,
+    id,
+    name: '烟台苹果礼盒装',
+    price: 128,
+    originalPrice: 168,
     rating: 4.8,
-    reviews: 156,
-    sales: 267,
+    reviews: 256,
+    sold: 1240,
     images: [
-      '/api/placeholder/500/500',
-      '/api/placeholder/300/300',
-      '/api/placeholder/300/300',
-      '/api/placeholder/300/300'
+      '/api/placeholder/600/400',
+      '/api/placeholder/600/400',
+      '/api/placeholder/600/400'
     ],
-    specs: [
-      { id: 'standard', name: '标准装 (6只)', price: 168 },
-      { id: 'large', name: '豪华装 (12只)', price: 298 },
-      { id: 'gift', name: '礼盒装 (8只)', price: 238 }
-    ],
+    description: '精选烟台富士苹果，口感脆甜，营养丰富，采用精美礼盒包装，是送礼和自用的绝佳选择。',
+    specs: ['标准版 5kg', '豪华版 8kg', '至尊版 10kg'],
     features: [
-      '野生大鲍鱼',
-      '急冻锁鲜技术',
-      '开袋即食',
-      '冷链配送',
-      '营养丰富'
+      '产地直供，新鲜保障',
+      '精选优质苹果',
+      '专业包装，防撞防损',
+      '全国顺丰包邮'
     ],
-    details: {
-      origin: '烟台长岛海域',
-      weight: '每只约80-100g',
-      storage: '冷冻保存，保质期12个月',
-      cooking: '解冻后直接食用或简单加热'
-    },
-    reviews: [
-      {
-        id: 1,
-        user: '美食爱好者',
-        rating: 5,
-        date: '2024-12-01',
-        content: '鲍鱼很新鲜，肉质紧实，味道鲜美，包装也很精美。',
-        images: ['/api/placeholder/100/100']
-      },
-      {
-        id: 2,
-        user: '王先生',
-        rating: 4,
-        date: '2024-11-28',
-        content: '第二次购买了，品质稳定，送礼很有面子。'
-      }
-    ]
-  };
-
-  const handleQuantityChange = (type: 'increase' | 'decrease') => {
-    if (type === 'increase') {
-      setQuantity(prev => prev + 1);
-    } else if (type === 'decrease' && quantity > 1) {
-      setQuantity(prev => prev - 1);
+    seller: {
+      name: '烟台果园直营店',
+      rating: 4.9,
+      location: '山东烟台'
     }
   };
 
-  const selectedSpecData = product.specs.find(spec => spec.id === selectedSpec);
-  const totalPrice = (selectedSpecData?.price || product.price) * quantity;
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-          {/* 左侧图片 */}
-          <div>
-            <div className="mb-4">
-              <img
-                src={product.images[0]}
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* 面包屑导航 */}
+        <div className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+          <Link to="/" className="hover:text-primary">首页</Link>
+          <span>/</span>
+          <Link to="/shop" className="hover:text-primary">特色商城</Link>
+          <span>/</span>
+          <span className="text-gray-900">{product.name}</span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* 商品图片 */}
+          <div className="space-y-4">
+            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+              <img 
+                src={product.images[0]} 
                 alt={product.name}
-                className="w-full h-96 object-cover rounded-lg"
+                className="w-full h-full object-cover"
               />
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-4">
               {product.images.slice(1).map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt=""
-                  className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80"
-                />
+                <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-80">
+                  <img 
+                    src={image} 
+                    alt={`${product.name} ${index + 2}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               ))}
             </div>
           </div>
 
-          {/* 右侧信息 */}
+          {/* 商品信息 */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-              <p className="text-gray-600 mb-4">{product.description}</p>
-              
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                  <span className="font-medium">{product.rating}</span>
-                </div>
-                <span className="text-gray-500">已售{product.sales}件</span>
-                <span className="text-gray-500">{product.reviews.length}条评价</span>
-              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <p className="text-gray-600">{product.description}</p>
+            </div>
 
-              <div className="flex flex-wrap gap-2">
-                {product.features.map((feature, index) => (
-                  <Badge key={index} variant="secondary">
-                    {feature}
-                  </Badge>
-                ))}
+            {/* 评分和销量 */}
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center">
+                <div className="flex items-center mr-2">
+                  {[1,2,3,4,5].map((star) => (
+                    <Star 
+                      key={star} 
+                      className={`h-4 w-4 ${star <= product.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600">{product.rating} ({product.reviews}条评价)</span>
+              </div>
+              <div className="text-sm text-gray-600">
+                已售 {product.sold} 件
               </div>
             </div>
 
             {/* 价格 */}
-            <div className="border-b pb-4">
-              <div className="flex items-center space-x-4 mb-2">
-                <span className="text-3xl font-bold text-red-600">¥{selectedSpecData?.price || product.price}</span>
-                <span className="text-lg text-gray-500 line-through">¥{product.originalPrice}</span>
-                <Badge className="bg-red-100 text-red-700">限时优惠</Badge>
-              </div>
-              <div className="text-sm text-green-600">会员价：¥{product.memberPrice}</div>
+            <div className="flex items-center space-x-4">
+              <span className="text-3xl font-bold text-red-600">¥{product.price}</span>
+              <span className="text-lg text-gray-400 line-through">¥{product.originalPrice}</span>
+              <Badge variant="destructive">限时特价</Badge>
             </div>
 
             {/* 规格选择 */}
             <div>
-              <h3 className="font-medium mb-3">选择规格</h3>
-              <div className="grid grid-cols-1 gap-2">
+              <h3 className="text-lg font-medium mb-3">选择规格</h3>
+              <div className="flex space-x-3">
                 {product.specs.map((spec) => (
                   <Button
-                    key={spec.id}
-                    variant={selectedSpec === spec.id ? "default" : "outline"}
-                    className="justify-between"
-                    onClick={() => setSelectedSpec(spec.id)}
+                    key={spec}
+                    variant={selectedSpec === spec ? "default" : "outline"}
+                    onClick={() => setSelectedSpec(spec)}
+                    className="min-w-24"
                   >
-                    <span>{spec.name}</span>
-                    <span>¥{spec.price}</span>
+                    {spec}
                   </Button>
                 ))}
               </div>
@@ -156,170 +130,106 @@ const ProductDetail = () => {
 
             {/* 数量选择 */}
             <div>
-              <h3 className="font-medium mb-3">购买数量</h3>
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuantityChange('decrease')}
-                  disabled={quantity <= 1}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="font-medium text-lg w-8 text-center">{quantity}</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuantityChange('increase')}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* 服务保障 */}
-            <div className="grid grid-cols-3 gap-4 py-4 border-y">
-              <div className="text-center">
-                <Truck className="h-6 w-6 text-blue-500 mx-auto mb-1" />
-                <div className="text-xs">冷链配送</div>
-              </div>
-              <div className="text-center">
-                <Shield className="h-6 w-6 text-green-500 mx-auto mb-1" />
-                <div className="text-xs">品质保证</div>
-              </div>
-              <div className="text-center">
-                <Award className="h-6 w-6 text-purple-500 mx-auto mb-1" />
-                <div className="text-xs">满包邮</div>
-              </div>
-            </div>
-
-            {/* 购买按钮 */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-lg font-bold">
-                <span>总计</span>
-                <span className="text-red-600">¥{totalPrice}</span>
-              </div>
-              <div className="flex space-x-3">
+              <h3 className="text-lg font-medium mb-3">数量</h3>
+              <div className="flex items-center space-x-3">
                 <Button 
                   variant="outline" 
-                  className="flex-1"
+                  size="sm"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  加入购物车
+                  -
                 </Button>
-                <Button className="flex-1 gradient-ocean text-white">
-                  立即购买
+                <span className="text-lg font-medium min-w-12 text-center">{quantity}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setQuantity(quantity + 1)}
+                >
+                  +
                 </Button>
               </div>
-              <Button variant="outline" className="w-full">
-                <Heart className="h-4 w-4 mr-2" />
-                收藏商品
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex space-x-4">
+              <Button size="lg" className="flex-1 gradient-ocean text-white">
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                立即购买
+              </Button>
+              <Button size="lg" variant="outline" className="flex-1">
+                加入购物车
+              </Button>
+              <Button size="lg" variant="outline">
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button size="lg" variant="outline">
+                <Share2 className="h-5 w-5" />
               </Button>
             </div>
+
+            {/* 商家信息 */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">{product.seller.name}</h4>
+                    <div className="flex items-center text-sm text-gray-600 mt-1">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {product.seller.location}
+                      <Star className="h-4 w-4 ml-3 mr-1 text-yellow-400 fill-current" />
+                      {product.seller.rating}
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    进入店铺
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        {/* 详情选项卡 */}
-        <Card>
-          <Tabs defaultValue="details">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="details">商品详情</TabsTrigger>
-              <TabsTrigger value="reviews">用户评价</TabsTrigger>
-              <TabsTrigger value="qa">常见问题</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="details" className="p-6">
+        {/* 商品详情 */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-6">商品详情</h2>
+          <Card>
+            <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-semibold mb-4">产品信息</h3>
-                  <dl className="space-y-2">
-                    <div className="flex justify-between">
-                      <dt className="text-gray-600">产地：</dt>
-                      <dd>{product.details.origin}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-gray-600">重量：</dt>
-                      <dd>{product.details.weight}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-gray-600">保存：</dt>
-                      <dd>{product.details.storage}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-gray-600">食用：</dt>
-                      <dd>{product.details.cooking}</dd>
-                    </div>
-                  </dl>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-4">特色亮点</h3>
+                  <h3 className="text-lg font-medium mb-4">产品特色</h3>
                   <ul className="space-y-2">
                     {product.features.map((feature, index) => (
                       <li key={index} className="flex items-center">
-                        <span className="text-green-500 mr-2">✓</span>
+                        <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
                         {feature}
                       </li>
                     ))}
                   </ul>
                 </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="reviews" className="p-6">
-              <div className="space-y-6">
-                {product.reviews.map((review) => (
-                  <div key={review.id} className="border-b pb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium">{review.user}</span>
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`h-3 w-3 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <span className="text-sm text-gray-500">{review.date}</span>
+                <div>
+                  <h3 className="text-lg font-medium mb-4">配送信息</h3>
+                  <div className="space-y-2 text-gray-600">
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2" />
+                      24小时内发货
                     </div>
-                    <p className="text-gray-600 mb-2">{review.content}</p>
-                    {review.images && (
-                      <div className="flex space-x-2">
-                        {review.images.map((img, index) => (
-                          <img 
-                            key={index}
-                            src={img} 
-                            alt="" 
-                            className="w-16 h-16 object-cover rounded" 
-                          />
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      全国包邮（港澳台除外）
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-2" />
+                      7天无理由退换
+                    </div>
                   </div>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="qa" className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Q: 这个鲍鱼需要怎么处理？</h4>
-                  <p className="text-gray-600">A: 解冻后直接食用或简单加热即可，无需复杂处理。</p>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Q: 配送范围是哪里？</h4>
-                  <p className="text-gray-600">A: 全国配送，冷链物流确保新鲜度。</p>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Q: 保质期多长？</h4>
-                  <p className="text-gray-600">A: 冷冻保存12个月，开袋后请尽快食用。</p>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

@@ -34,7 +34,7 @@ const Navbar = () => {
                 <MapPin className="h-5 w-5 text-white" />
               </div>
               <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-ocean-600 to-sunset-500 bg-clip-text text-transparent">
-                Glocal烟台
+                Glocal
               </span>
             </Link>
 
