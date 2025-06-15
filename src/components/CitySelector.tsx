@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Globe, ChevronDown } from 'lucide-react';
+import { useCityContext } from './CityProvider';
 
 // 城市数据结构
 const cityData = {
@@ -41,10 +41,8 @@ interface CitySelectorProps {
   onCityChange?: (country: string, province: string, city: string) => void;
 }
 
-const CitySelector = ({ onCityChange }: CitySelectorProps) => {
-  const [selectedCountry, setSelectedCountry] = useState('中国');
-  const [selectedProvince, setSelectedProvince] = useState('山东省');
-  const [selectedCity, setSelectedCity] = useState('烟台市');
+const CitySelector = () => {
+  const { selectedCountry, selectedProvince, selectedCity, updateCity } = useCityContext();
   const [isOpen, setIsOpen] = useState(false);
 
   const getProvinces = () => {
@@ -58,30 +56,21 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
   };
 
   const handleCountryChange = (country: string) => {
-    setSelectedCountry(country);
     const provinces = Object.keys(cityData[country]);
-    if (provinces.length > 0) {
-      setSelectedProvince(provinces[0]);
-      const cities = cityData[country][provinces[0]];
-      if (cities.length > 0) {
-        setSelectedCity(cities[0]);
-        onCityChange?.(country, provinces[0], cities[0]);
-      }
-    }
+    const newProvince = provinces.length > 0 ? provinces[0] : '';
+    const cities = newProvince ? cityData[country][newProvince] : [];
+    const newCity = cities.length > 0 ? cities[0] : '';
+    updateCity(country, newProvince, newCity);
   };
 
   const handleProvinceChange = (province: string) => {
-    setSelectedProvince(province);
     const cities = cityData[selectedCountry][province];
-    if (cities.length > 0) {
-      setSelectedCity(cities[0]);
-      onCityChange?.(selectedCountry, province, cities[0]);
-    }
+    const newCity = cities.length > 0 ? cities[0] : '';
+    updateCity(selectedCountry, province, newCity);
   };
 
   const handleCityChange = (city: string) => {
-    setSelectedCity(city);
-    onCityChange?.(selectedCountry, selectedProvince, city);
+    updateCity(selectedCountry, selectedProvince, city);
     setIsOpen(false);
   };
 
@@ -112,7 +101,7 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
 
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-2">省/州/地区</label>
-            <Select value={selectedProvince} onValueChange={handleProvinceChange}>
+            <Select value={selectedProvince} onValueChange={handleProvinceChange} disabled={!selectedCountry || getProvinces().length === 0}>
               <SelectTrigger>
                 <SelectValue placeholder="选择省份" />
               </SelectTrigger>
@@ -126,7 +115,7 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
 
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-2">城市</label>
-            <Select value={selectedCity} onValueChange={handleCityChange}>
+            <Select value={selectedCity} onValueChange={handleCityChange} disabled={!selectedProvince || getCities().length === 0}>
               <SelectTrigger>
                 <SelectValue placeholder="选择城市" />
               </SelectTrigger>
