@@ -1,0 +1,88 @@
+
+{
+  "lang_name": "English",
+  "upgrade_to_vip": "Upgrade Now",
+  "banner_ad_title": "Explore the Glocal World - Ad-Free",
+  "banner_ad_description": "Upgrade to VIP for an ad-free experience and more exclusive perks.",
+  "footer_brand_description": "Discover authentic local flavors with the perfect blend of AI smart planning and local expert guides for a unique local experience.",
+  "footer_language_selector_title": "Select Language",
+  "footer_share": "Share with Friends",
+  "footer_quick_links": "Quick Links",
+  "footer_official_links": "Official Links",
+  "footer_contact_us": "Contact Us",
+  "footer_link_ai_trip": "Smart Itinerary",
+  "footer_link_local_experts": "Local Experts",
+  "footer_link_shop": "Specialty Shop",
+  "footer_link_mystery_box": "Mystery Box Trip",
+  "footer_link_community": "User Community",
+  "features_headline_prefix": "Why Choose",
+  "features_subheadline": "Combining AI recommendations with local human touch to create a unique {{city}} experience for you",
+  "learn_more": "Learn More",
+  "experience_full_features": "Experience Full Features Now",
+  "features": {
+    "ai_trip": {
+      "title": "AI Smart Itinerary Customization",
+      "description": "Get personalized travel plans based on your interests and budget",
+      "details": "Ticket Booking • Transport Arrangements • Hotel Recommendations"
+    },
+    "local_experts": {
+      "title": "Local Expert Services",
+      "description": "Experience {{city}} culture in-depth with professional guides",
+      "details": "Historical Narration • Food Recommendations • Photography Guidance"
+    },
+    "shop": {
+      "title": "Specialty Product Shop",
+      "description": "One-stop shop for {{city}}'s pre-cooked meals and cultural products",
+      "details": "Specialty Foods • Handicrafts • Cultural Souvenirs"
+    },
+    "mystery_box": {
+      "title": "Mystery Box Travel Experience",
+      "description": "Surprise travel packages with random combinations",
+      "details": "¥300 • ¥500 • ¥800 options"
+    },
+    "community": {
+      "title": "User Community",
+      "description": "Share travel experiences and discover more amazing things",
+      "details": "Travelogues • Food Reviews • Tip Sharing"
+    },
+    "membership": {
+      "title": "Membership Subscription",
+      "description": "Enjoy exclusive discounts and monthly surprise gift boxes",
+      "details": "Priority Booking • Exclusive Discounts • Monthly Gift Box"
+    }
+  },
+  "local_experts_title": "Local Experts",
+  "local_experts_subtitle": "Discover the true charm of the city with real locals",
+  "book_expert": "Book Expert",
+  "view_more_experts": "View More Experts",
+  "no_experts_message": "No local expert services available in the current city yet. Stay tuned!",
+  "experts": {
+    "yantai": {
+      "1": {
+        "title": "Yantai History & Culture Expert",
+        "description": "A seasoned local guide with deep knowledge of Yantai's history and culture. Travel back in time to feel the charm of the ancient city."
+      },
+      "2": {
+        "title": "Gourmet Exploration Master",
+        "description": "A Yantai native who knows every food street and alley. Let me show you the most authentic taste of Yantai."
+      },
+      "3": {
+        "title": "Photography Guidance Expert",
+        "description": "A professional photographer familiar with the best photo spots in Yantai, helping you capture the most beautiful travel moments."
+      },
+      "4": {
+        "title": "Maritime Culture Guide",
+        "description": "From a family of fishermen for three generations, I have a deep understanding of Yantai's maritime culture. Experience the real fisherman's life."
+      }
+    }
+  },
+  "ad_modal": {
+    "title": "Sponsored Ad",
+    "description": "Watch a 15-second ad to earn 10 points, which can be used for features like PDF export.",
+    "video_playing": "Ad video is playing...",
+    "wait_button": "Please wait... ({{seconds}}s)",
+    "claim_button": "Close & Claim 10 Points",
+    "wait_warning": "Please watch for {{seconds}} more seconds!",
+    "success_message": "Congratulations! You've earned 10 points!"
+  }
+}

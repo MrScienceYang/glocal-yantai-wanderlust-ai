@@ -1,65 +1,71 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Star, ShoppingCart, Users, Heart, Calendar } from 'lucide-react';
 import { useCityContext } from './CityProvider';
+import { useTranslation } from 'react-i18next';
 
 const Features = () => {
   const { selectedCity, selectedCountry } = useCityContext();
+  const { t } = useTranslation();
 
-  const features = [
+  const getFeatures = (t, selectedCountry, selectedCity) => [
     {
       icon: MapPin,
-      title: 'AI智能行程定制',
-      description: '输入兴趣和预算，获得个性化旅行方案',
-      details: '门票预订 • 交通安排 • 酒店推荐',
+      title: t('features.ai_trip.title'),
+      description: t('features.ai_trip.description'),
+      details: t('features.ai_trip.details'),
       color: 'ocean'
     },
     ...(selectedCountry === '中国' ? [{
       icon: Users,
-      title: '本地达人服务',
-      description: `专业导览员带你深度体验${selectedCity}文化`,
-      details: '历史讲解 • 美食推荐 • 摄影指导',
+      title: t('features.local_experts.title'),
+      description: t('features.local_experts.description', { city: selectedCity }),
+      details: t('features.local_experts.details'),
       color: 'sunset'
     }, {
       icon: ShoppingCart,
-      title: '特色产品商城',
-      description: `${selectedCity}预制菜和文创产品一站式购买`,
-      details: '特色美食 • 手工艺品 • 文创纪念品',
+      title: t('features.shop.title'),
+      description: t('features.shop.description', { city: selectedCity }),
+      details: t('features.shop.details'),
       color: 'ocean'
     }] : []),
     {
       icon: Star,
-      title: '盲盒旅行体验',
-      description: '随机组合的惊喜旅行套餐',
-      details: '¥300 • ¥500 • ¥800 三档选择',
+      title: t('features.mystery_box.title'),
+      description: t('features.mystery_box.description'),
+      details: t('features.mystery_box.details'),
       color: 'sunset'
     },
     {
       icon: Heart,
-      title: '用户社区',
-      description: '分享旅行心得，发现更多精彩',
-      details: '游记分享 • 美食评价 • 攻略交流',
+      title: t('features.community.title'),
+      description: t('features.community.description'),
+      details: t('features.community.details'),
       color: 'ocean'
     },
     {
       icon: Calendar,
-      title: '会员订阅',
-      description: '专享折扣和每月惊喜礼盒',
-      details: '优先预订 • 专属折扣 • 月度礼盒',
+      title: t('features.membership.title'),
+      description: t('features.membership.description'),
+      details: t('features.membership.details'),
       color: 'sunset'
     }
   ];
+
+  const features = getFeatures(t, selectedCountry, selectedCity);
 
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            为什么选择 <span className="text-gradient">Glocal{selectedCity}</span>
+            {t('features_headline_prefix')}{' '}
+            <span className="text-gradient">Glocal{selectedCity}</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            结合AI智能推荐与本地人情味，为你打造独一无二的{selectedCity}体验
+            {t('features_subheadline', { city: selectedCity })}
           </p>
         </div>
 
@@ -91,7 +97,7 @@ const Features = () => {
                   size="sm" 
                   className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
                 >
-                  了解更多
+                  {t('learn_more')}
                 </Button>
               </CardContent>
             </Card>
@@ -100,7 +106,7 @@ const Features = () => {
 
         <div className="text-center mt-16">
           <Button size="lg" className="gradient-ocean text-white">
-            立即体验完整功能
+            {t('experience_full_features')}
           </Button>
         </div>
       </div>

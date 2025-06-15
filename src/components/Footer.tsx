@@ -1,11 +1,25 @@
 import React from 'react';
 import { MapPin, Phone, Mail, MessageCircle, Share2, ExternalLink } from 'lucide-react';
 import { useCityContext } from './CityProvider';
+import { useTranslation } from 'react-i18next';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Footer = () => {
   const { selectedCountry } = useCityContext();
+  const { t, i18n } = useTranslation();
 
-  // 不同国家的使馆链接
+  const languages = [
+    { code: 'zh', name: t('lang_name', { lng: 'zh' }) },
+    { code: 'en', name: t('lang_name', { lng: 'en' }) },
+    { code: 'ar', name: t('lang_name', { lng: 'ar' }) },
+    { code: 'de', name: t('lang_name', { lng: 'de' }) },
+    { code: 'yue', name: t('lang_name', { lng: 'yue' }) },
+    { code: 'ja', name: t('lang_name', { lng: 'ja' }) },
+    { code: 'ko', name: t('lang_name', { lng: 'ko' }) },
+    { code: 'fr', name: t('lang_name', { lng: 'fr' }) },
+  ];
+
+  // Different countries' embassy links
   const embassyLinks = {
     '中国': [
       { name: '国家移民管理局', url: 'https://www.nia.gov.cn/' },
@@ -45,18 +59,33 @@ const Footer = () => {
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* 品牌信息 */}
+          {/* Brand Info */}
           <div className="col-span-1 md:col-span-1">
             <div className="text-3xl font-bold mb-4 text-gradient bg-gradient-to-r from-ocean-400 to-sunset-400 bg-clip-text text-transparent">
               Glocal
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              发现真正的本地味道，AI智能规划与本地达人带路的完美结合，为您打造独一无二的本地体验。
+              {t('footer_brand_description')}
             </p>
             
-            {/* 分享选项 */}
+            {/* Language Selector */}
             <div className="mb-6">
-              <h4 className="text-sm font-semibold mb-3">分享给朋友</h4>
+              <h4 className="text-sm font-semibold mb-3">{t('footer_language_selector_title')}</h4>
+              <Select value={i18n.language.split('-')[0]} onValueChange={(value) => i18n.changeLanguage(value)}>
+                <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map((lang) => (
+                    <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Share Options */}
+            <div className="mb-6">
+              <h4 className="text-sm font-semibold mb-3">{t('footer_share')}</h4>
               <div className="flex space-x-2">
                 {socialShareOptions.map((option) => (
                   <div 
@@ -71,25 +100,25 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* 快速链接 */}
+          {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">快速链接</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer_quick_links')}</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">智能行程</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_ai_trip')}</a></li>
               {selectedCountry === '中国' && (
                 <>
-                  <li><a href="#" className="text-gray-300 hover:text-white transition-colors">本地达人</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white transition-colors">特色商城</a></li>
+                  <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_local_experts')}</a></li>
+                  <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_shop')}</a></li>
                 </>
               )}
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">盲盒旅行</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">用户社区</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_mystery_box')}</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_community')}</a></li>
             </ul>
           </div>
 
-          {/* 官方链接 */}
+          {/* Official Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">官方链接</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer_official_links')}</h3>
             <ul className="space-y-2">
               {embassyLinks[selectedCountry]?.map((link, index) => (
                 <li key={index}>
@@ -107,9 +136,9 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* 联系信息 */}
+          {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">联系我们</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer_contact_us')}</h3>
             <ul className="space-y-3">
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-ocean-400" />

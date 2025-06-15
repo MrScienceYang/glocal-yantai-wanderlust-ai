@@ -1,0 +1,88 @@
+
+{
+  "lang_name": "简体中文",
+  "upgrade_to_vip": "立即升级",
+  "banner_ad_title": "探索 Glocal 世界 - 无广告体验",
+  "banner_ad_description": "升级为VIP会员，享受纯净浏览和更多专属特权。",
+  "footer_brand_description": "发现真正的本地味道，AI智能规划与本地达人带路的完美结合，为您打造独一无二的本地体验。",
+  "footer_language_selector_title": "选择语言",
+  "footer_share": "分享给朋友",
+  "footer_quick_links": "快速链接",
+  "footer_official_links": "官方链接",
+  "footer_contact_us": "联系我们",
+  "footer_link_ai_trip": "智能行程",
+  "footer_link_local_experts": "本地达人",
+  "footer_link_shop": "特色商城",
+  "footer_link_mystery_box": "盲盒旅行",
+  "footer_link_community": "用户社区",
+  "features_headline_prefix": "为什么选择",
+  "features_subheadline": "结合AI智能推荐与本地人情味，为你打造独一无二的{{city}}体验",
+  "learn_more": "了解更多",
+  "experience_full_features": "立即体验完整功能",
+  "features": {
+    "ai_trip": {
+      "title": "AI智能行程定制",
+      "description": "输入兴趣和预算，获得个性化旅行方案",
+      "details": "门票预订 • 交通安排 • 酒店推荐"
+    },
+    "local_experts": {
+      "title": "本地达人服务",
+      "description": "专业导览员带你深度体验{{city}}文化",
+      "details": "历史讲解 • 美食推荐 • 摄影指导"
+    },
+    "shop": {
+      "title": "特色产品商城",
+      "description": "{{city}}预制菜和文创产品一站式购买",
+      "details": "特色美食 • 手工艺品 • 文创纪念品"
+    },
+    "mystery_box": {
+      "title": "盲盒旅行体验",
+      "description": "随机组合的惊喜旅行套餐",
+      "details": "¥300 • ¥500 • ¥800 三档选择"
+    },
+    "community": {
+      "title": "用户社区",
+      "description": "分享旅行心得，发现更多精彩",
+      "details": "游记分享 • 美食评价 • 攻略交流"
+    },
+    "membership": {
+      "title": "会员订阅",
+      "description": "专享折扣和每月惊喜礼盒",
+      "details": "优先预订 • 专属折扣 • 月度礼盒"
+    }
+  },
+  "local_experts_title": "本地达人",
+  "local_experts_subtitle": "与真正的本地人一起，发现这座城市的真实魅力",
+  "book_expert": "预约达人",
+  "view_more_experts": "查看更多达人",
+  "no_experts_message": "当前城市暂无本地达人服务，敬请期待！",
+  "experts": {
+    "yantai": {
+      "1": {
+        "title": "烟台历史文化专家",
+        "description": "本地资深导游，对烟台历史文化有着深厚的了解，带您穿越时光感受古城魅力。"
+      },
+      "2": {
+        "title": "美食探索达人",
+        "description": "土生土长的烟台人，熟知每一条美食街巷，带您品尝最正宗的烟台味道。"
+      },
+      "3": {
+        "title": "摄影指导专家",
+        "description": "专业摄影师，熟悉烟台最佳拍摄点位，助您记录最美的旅行时光。"
+      },
+      "4": {
+        "title": "海洋文化向导",
+        "description": "三代渔民世家，对烟台海洋文化了如指掌，带您体验真正的渔家生活。"
+      }
+    }
+  },
+  "ad_modal": {
+    "title": "赞助商广告",
+    "description": "观看15秒广告即可赚取10积分，用于兑换PDF导出等功能。",
+    "video_playing": "广告视频正在播放...",
+    "wait_button": "请稍候... ({{seconds}}s)",
+    "claim_button": "关闭并领取10积分",
+    "wait_warning": "请再观看 {{seconds}} 秒！",
+    "success_message": "恭喜！您已获得10积分！"
+  }
+}
