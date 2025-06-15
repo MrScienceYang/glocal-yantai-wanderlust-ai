@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { toast } from 'sonner';
 
 const hardcodedUsers = [
   { user: "17375411453", password: "123456", isPermanentVip: false },
@@ -30,6 +30,8 @@ interface UserContextType {
   spendPoints: (amount: number) => boolean;
   toggleVip: () => void;
   login: (username: string, pass: string) => boolean;
+  socialLogin: (provider: string) => boolean;
+  loginWithCode: (identifier: string, code: string) => boolean;
   logout: () => void;
   checkIn: () => number | null;
 }
@@ -78,10 +80,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (!currentUser || currentUser.isPermanentVip) return;
     setCurrentUser(prev => prev ? { ...prev, isVip: !prev.isVip } : null);
   };
-  
-  const login = (username: string, pass: string): boolean => {
-    const foundUser = hardcodedUsers.find(u => u.user === username && u.password === pass);
-    if (foundUser) {
+
+  const performLogin = (username: string, isPermanentVip: boolean) => {
       const storedUsers = JSON.parse(localStorage.getItem('glocal-user-registry') || '{}');
       const hasLoggedInBefore = storedUsers[username];
       
@@ -99,20 +99,43 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       };
 
       const newUser: CurrentUser = {
-        username: foundUser.user,
+        username: username,
         points: userData.points + initialPoints,
-        isVip: foundUser.isPermanentVip || userData.isVip || false,
-        isPermanentVip: foundUser.isPermanentVip,
+        isVip: isPermanentVip || userData.isVip || false,
+        isPermanentVip: isPermanentVip,
         lastCheckInDate: userData.lastCheckInDate,
         consecutiveCheckInDays: userData.consecutiveCheckInDays,
       };
 
       setCurrentUser(newUser);
       setIsLoggedIn(true);
+  }
+
+  const login = (username: string, pass: string): boolean => {
+    const foundUser = hardcodedUsers.find(u => u.user === username && u.password === pass);
+    if (foundUser) {
+      performLogin(foundUser.user, foundUser.isPermanentVip);
       return true;
     }
     return false;
   };
+  
+  const socialLogin = (provider: string): boolean => {
+    const username = `${provider.toLowerCase()}_user`;
+    // For demo, we assume social login is successful and the user is not a permanent VIP.
+    performLogin(username, false);
+    toast.success(`Logged in with ${provider}`);
+    return true;
+  }
+
+  const loginWithCode = (identifier: string, code: string): boolean => {
+    // For demo, any code is "valid" as long as it's not empty.
+    if (identifier && code) {
+      performLogin(identifier, false);
+      return true;
+    }
+    return false;
+  }
   
   const logout = () => {
     if (currentUser) {
@@ -170,6 +193,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       spendPoints, 
       toggleVip,
       login,
+      socialLogin,
+      loginWithCode,
       logout,
       checkIn,
     }}>

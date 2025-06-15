@@ -93,7 +93,17 @@
     "submit": "Login",
     "logout": "Logout",
     "success": "Login successful! Welcome back.",
-    "failure": "Invalid username or password."
+    "failure": "Invalid username or password.",
+    "password_login": "Password Login",
+    "code_login": "Verification Code Login",
+    "third_party_login": "Or continue with",
+    "phone_or_email": "Phone / Email",
+    "verification_code": "Verification Code",
+    "get_code": "Get Code",
+    "code_sent": "Verification code sent!",
+    "resend_code": "Resend",
+    "invalid_code": "Invalid verification code.",
+    "code_success": "Login successful!"
   },
   "check_in": {
     "title": "Daily Check-in",
