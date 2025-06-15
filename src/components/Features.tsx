@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Star, ShoppingCart, Users, Heart, Calendar } from 'lucide-react';
-import { useCityContext } from './Navbar';
+import { useCityContext } from './CityProvider';
 
 const Features = () => {
   const { selectedCity, selectedCountry } = useCityContext();

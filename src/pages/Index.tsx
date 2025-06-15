@@ -6,7 +6,7 @@ import Features from '@/components/Features';
 import PopularDestinations from '@/components/PopularDestinations';
 import LocalExperts from '@/components/LocalExperts';
 import MysteryBox from '@/components/MysteryBox';
-import { useCityContext } from '@/components/Navbar';
+import { useCityContext } from '@/components/CityProvider';
 
 const Index = () => {
   const { selectedCountry } = useCityContext();

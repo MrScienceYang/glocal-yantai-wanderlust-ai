@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { MapPin, Phone, Mail, MessageCircle, Share2, ExternalLink } from 'lucide-react';
-import { useCityContext } from './Navbar';
+import { useCityContext } from './CityProvider';
 
 const Footer = () => {
   const { selectedCountry } = useCityContext();
