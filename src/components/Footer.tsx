@@ -112,16 +112,12 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">联系我们</h3>
             <ul className="space-y-3">
               <li className="flex items-center">
-                <MapPin className="h-5 w-5 mr-3 text-ocean-400" />
-                <span className="text-gray-300">全球服务</span>
-              </li>
-              <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-ocean-400" />
-                <span className="text-gray-300">400-123-4567</span>
+                <span className="text-gray-300">(+86) 173-7541-1453</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-ocean-400" />
-                <span className="text-gray-300">hello@glocal.com</span>
+                <span className="text-gray-300">glocal@yeah.net</span>
               </li>
             </ul>
           </div>
