@@ -14,7 +14,7 @@ const PopularDestinations = () => {
       {
         id: 1,
         name: '蓬莱阁',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop',
         rating: 4.8,
         reviews: 2840,
         category: '历史文化',
@@ -25,7 +25,7 @@ const PopularDestinations = () => {
       {
         id: 2,
         name: '养马岛',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 1560,
         category: '自然风光',
@@ -36,7 +36,7 @@ const PopularDestinations = () => {
       {
         id: 3,
         name: '烟台山景区',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
         rating: 4.7,
         reviews: 980,
         category: '城市景观',
@@ -47,7 +47,7 @@ const PopularDestinations = () => {
       {
         id: 4,
         name: '张裕酒文化博物馆',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.5,
         reviews: 756,
         category: '文化体验',
@@ -58,7 +58,7 @@ const PopularDestinations = () => {
       {
         id: 5,
         name: '龙口南山景区',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 1120,
         category: '自然风光',
@@ -69,7 +69,7 @@ const PopularDestinations = () => {
       {
         id: 6,
         name: '海昌鲸鲨海洋公园',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=300&fit=crop',
         rating: 4.4,
         reviews: 2100,
         category: '家庭娱乐',
@@ -82,7 +82,7 @@ const PopularDestinations = () => {
       {
         id: 1,
         name: '栈桥',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 3200,
         category: '历史文化',
@@ -93,7 +93,7 @@ const PopularDestinations = () => {
       {
         id: 2,
         name: '八大关',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.7,
         reviews: 2800,
         category: '历史文化',
@@ -104,7 +104,7 @@ const PopularDestinations = () => {
       {
         id: 3,
         name: '崂山',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
         rating: 4.5,
         reviews: 1900,
         category: '自然风光',
@@ -117,7 +117,7 @@ const PopularDestinations = () => {
       {
         id: 1,
         name: '浅草寺',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop',
         rating: 4.7,
         reviews: 3200,
         category: '历史文化',
@@ -128,7 +128,7 @@ const PopularDestinations = () => {
       {
         id: 2,
         name: '东京塔',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.5,
         reviews: 2800,
         category: '城市地标',
@@ -139,7 +139,7 @@ const PopularDestinations = () => {
       {
         id: 3,
         name: '新宿御苑',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 1900,
         category: '自然风光',
@@ -150,7 +150,7 @@ const PopularDestinations = () => {
       {
         id: 4,
         name: '明治神宫',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop',
         rating: 4.8,
         reviews: 2400,
         category: '历史文化',
@@ -161,7 +161,7 @@ const PopularDestinations = () => {
       {
         id: 5,
         name: '银座',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.4,
         reviews: 3500,
         category: '购物娱乐',
@@ -172,7 +172,7 @@ const PopularDestinations = () => {
       {
         id: 6,
         name: '筑地外市场',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 2200,
         category: '美食体验',
@@ -185,7 +185,7 @@ const PopularDestinations = () => {
       {
         id: 1,
         name: '埃菲尔铁塔',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.9,
         reviews: 5000,
         category: '城市地标',
@@ -196,7 +196,7 @@ const PopularDestinations = () => {
       {
         id: 2,
         name: '卢浮宫',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.8,
         reviews: 4200,
         category: '历史文化',
@@ -207,7 +207,7 @@ const PopularDestinations = () => {
       {
         id: 3,
         name: '凯旋门',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 3100,
         category: '历史文化',
@@ -218,7 +218,7 @@ const PopularDestinations = () => {
       {
         id: 4,
         name: '巴黎圣母院',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop',
         rating: 4.7,
         reviews: 3800,
         category: '历史文化',
@@ -229,7 +229,7 @@ const PopularDestinations = () => {
       {
         id: 5,
         name: '塞纳河游船',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop',
         rating: 4.5,
         reviews: 2600,
         category: '观光体验',
@@ -240,7 +240,7 @@ const PopularDestinations = () => {
       {
         id: 6,
         name: '蒙马特高地',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 2900,
         category: '艺术文化',
@@ -253,7 +253,7 @@ const PopularDestinations = () => {
       {
         id: 1,
         name: '自由女神像',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
         rating: 4.7,
         reviews: 4500,
         category: '历史地标',
@@ -264,7 +264,7 @@ const PopularDestinations = () => {
       {
         id: 2,
         name: '中央公园',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop',
         rating: 4.8,
         reviews: 3600,
         category: '自然休闲',
@@ -275,7 +275,7 @@ const PopularDestinations = () => {
       {
         id: 3,
         name: '时代广场',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.4,
         reviews: 5200,
         category: '城市地标',
@@ -288,7 +288,7 @@ const PopularDestinations = () => {
       {
         id: 1,
         name: '景福宫',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 2800,
         category: '历史文化',
@@ -299,7 +299,7 @@ const PopularDestinations = () => {
       {
         id: 2,
         name: 'N首尔塔',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.5,
         reviews: 3200,
         category: '城市地标',
@@ -310,7 +310,7 @@ const PopularDestinations = () => {
       {
         id: 3,
         name: '明洞',
-        image: '/api/placeholder/400/300',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
         rating: 4.4,
         reviews: 4100,
         category: '购物娱乐',
@@ -326,7 +326,7 @@ const PopularDestinations = () => {
     {
       id: 1,
       name: `${selectedCity}著名景点`,
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=300&fit=crop',
       rating: 4.5,
       reviews: 1000,
       category: '热门景点',
@@ -337,7 +337,7 @@ const PopularDestinations = () => {
     {
       id: 2,
       name: `${selectedCity}特色体验`,
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=300&fit=crop',
       rating: 4.3,
       reviews: 800,
       category: '文化体验',
@@ -348,7 +348,7 @@ const PopularDestinations = () => {
     {
       id: 3,
       name: `${selectedCity}美食街区`,
-      image: '/api/placeholder/400/300',
+      image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop',
       rating: 4.4,
       reviews: 1200,
       category: '美食体验',
