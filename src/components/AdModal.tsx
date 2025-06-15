@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -40,7 +39,7 @@ export const AdModal = ({ isOpen, onClose }: AdModalProps) => {
       toast.warning(t('ad_modal.wait_warning', { seconds: countdown }));
       return;
     }
-    addPoints(10);
+    addPoints(15);
     toast.success(t('ad_modal.success_message'));
     onClose();
   };

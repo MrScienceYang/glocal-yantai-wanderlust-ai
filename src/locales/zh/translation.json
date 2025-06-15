@@ -78,11 +78,11 @@
   },
   "ad_modal": {
     "title": "赞助商广告",
-    "description": "观看15秒广告即可赚取10积分，用于兑换PDF导出等功能。",
-    "video_playing": "广告视频正在播放...",
+    "description": "观看15秒广告即可赚取15积分，用于兑换PDF导出等功能。",
+    "video_playing": "广告位招租",
     "wait_button": "请稍候... ({{seconds}}s)",
-    "claim_button": "关闭并领取10积分",
+    "claim_button": "关闭并领取15积分",
     "wait_warning": "请再观看 {{seconds}} 秒！",
-    "success_message": "恭喜！您已获得10积分！"
+    "success_message": "恭喜！您已获得15积分！"
   }
 }

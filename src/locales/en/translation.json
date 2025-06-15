@@ -78,11 +78,11 @@
   },
   "ad_modal": {
     "title": "Sponsored Ad",
-    "description": "Watch a 15-second ad to earn 10 points, which can be used for features like PDF export.",
-    "video_playing": "Ad video is playing...",
+    "description": "Watch a 15-second ad to earn 15 points, which can be used for features like PDF export.",
+    "video_playing": "Ad Space for Rent",
     "wait_button": "Please wait... ({{seconds}}s)",
-    "claim_button": "Close & Claim 10 Points",
+    "claim_button": "Close & Claim 15 Points",
     "wait_warning": "Please watch for {{seconds}} more seconds!",
-    "success_message": "Congratulations! You've earned 10 points!"
+    "success_message": "Congratulations! You've earned 15 points!"
   }
 }
