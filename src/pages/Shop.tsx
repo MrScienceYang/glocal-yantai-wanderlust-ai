@@ -1,15 +1,16 @@
-
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart, Star, Search, Filter, Truck, Award } from 'lucide-react';
 import { useCityContext } from '@/components/CityProvider';
+import { useCart } from '@/components/CartProvider';
 
 const Shop = () => {
   const { selectedCity, selectedCountry } = useCityContext();
   const [activeCategory, setActiveCategory] = useState('all');
-  const [cartItems, setCartItems] = useState<number[]>([]);
+  const { addToCart, cartItemCount } = useCart();
 
   const categories = [
     { id: 'all', label: '全部商品' },
@@ -230,10 +231,6 @@ const Shop = () => {
     activeCategory === 'all' || product.category === activeCategory
   );
 
-  const addToCart = (productId: number) => {
-    setCartItems(prev => [...prev, productId]);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 py-20">
@@ -303,46 +300,48 @@ const Shop = () => {
         {/* 商品列表 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
-            <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-              <CardHeader className="p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.originalPrice > product.price && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
-                      限时优惠
+            <Link key={product.id} to={`/product/${product.id}`} className="group block h-full">
+              <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
+                <CardHeader className="p-0">
+                  <div className="relative overflow-hidden rounded-t-lg">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {product.originalPrice > product.price && (
+                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
+                        限时优惠
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 flex flex-col flex-grow">
+                  <div className="space-y-3 flex-grow">
+                    <CardTitle className="text-lg line-clamp-2">{product.name}</CardTitle>
+                    <CardDescription className="text-sm line-clamp-2">
+                      {product.description}
+                    </CardDescription>
+
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-medium">{product.rating}</span>
+                      <span className="text-sm text-gray-500">已售{product.sales}</span>
                     </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <CardTitle className="text-lg line-clamp-2">{product.name}</CardTitle>
-                  <CardDescription className="text-sm line-clamp-2">
-                    {product.description}
-                  </CardDescription>
 
-                  <div className="flex items-center space-x-2">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{product.rating}</span>
-                    <span className="text-sm text-gray-500">已售{product.sales}</span>
+                    <div className="flex flex-wrap gap-1">
+                      {product.tags.slice(0, 2).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-ocean-100 text-ocean-700 rounded text-xs"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-1">
-                    {product.tags.slice(0, 2).map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-ocean-100 text-ocean-700 rounded text-xs"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t">
+                  <div className="flex items-center justify-between pt-3 border-t mt-4">
                     <div>
                       <div className="text-lg font-bold text-red-600">¥{product.price}</div>
                       {product.originalPrice > product.price && (
@@ -351,26 +350,32 @@ const Shop = () => {
                     </div>
                     <Button 
                       size="sm" 
-                      onClick={() => addToCart(product.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToCart({ id: product.id, name: product.name, price: product.price, image: product.image });
+                      }}
                       className="gradient-ocean text-white"
                     >
                       加入购物车
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
         {/* 购物车图标 */}
-        {cartItems.length > 0 && (
+        {cartItemCount > 0 && (
           <div className="fixed bottom-6 right-6 z-50">
-            <Button className="rounded-full w-16 h-16 gradient-sunset text-white shadow-lg">
-              <ShoppingCart className="h-6 w-6" />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center">
-                {cartItems.length}
-              </span>
+            <Button asChild className="rounded-full w-16 h-16 gradient-sunset text-white shadow-lg">
+              <Link to="/cart">
+                <ShoppingCart className="h-6 w-6" />
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              </Link>
             </Button>
           </div>
         )}

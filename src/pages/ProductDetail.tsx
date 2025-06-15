@@ -1,17 +1,19 @@
-
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, ShoppingCart, Heart, Share2, MapPin, Clock, Users } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useCart } from '@/components/CartProvider';
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [selectedSpec, setSelectedSpec] = useState('标准版');
+  const [selectedSpec, setSelectedSpec] = useState('标准版 5kg');
 
   // 模拟商品数据
   const product = {
@@ -40,6 +42,21 @@ const ProductDetail = () => {
       rating: 4.9,
       location: '山东烟台'
     }
+  };
+
+  const handleAddToCart = () => {
+    const itemToAdd = {
+        id: `${product.id}-${selectedSpec}`, // Unique ID for spec
+        name: `${product.name} (${selectedSpec.split(' ')[0]})`,
+        price: product.price,
+        image: product.images[0]
+    };
+    addToCart(itemToAdd, quantity);
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    navigate('/cart');
   };
 
   return (
@@ -152,11 +169,11 @@ const ProductDetail = () => {
 
             {/* 操作按钮 */}
             <div className="flex space-x-4">
-              <Button size="lg" className="flex-1 gradient-ocean text-white">
+              <Button size="lg" className="flex-1 gradient-ocean text-white" onClick={handleBuyNow}>
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 立即购买
               </Button>
-              <Button size="lg" variant="outline" className="flex-1">
+              <Button size="lg" variant="outline" className="flex-1" onClick={handleAddToCart}>
                 加入购物车
               </Button>
               <Button size="lg" variant="outline">

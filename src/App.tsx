@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,8 @@ import NotFound from "./pages/NotFound";
 import { CityProvider } from "./components/CityProvider";
 import { UserProvider } from "./components/UserProvider";
 import LoginPage from "./pages/Login";
+import { CartProvider } from "./components/CartProvider";
+import CartPage from "./pages/Cart";
 
 const queryClient = new QueryClient();
 
@@ -30,23 +31,26 @@ const App = () => (
       <PWAInstallPrompt />
       <UserProvider>
         <CityProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/ai-planning" element={<AIPlanning />} />
-              <Route path="/local-experts" element={<LocalExperts />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/mystery-box" element={<MysteryBox />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/membership" element={<Membership />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/ticket/:id" element={<TicketPurchase />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <CartProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/ai-planning" element={<AIPlanning />} />
+                <Route path="/local-experts" element={<LocalExperts />} />
+                <Route path="/shop" element={<Shop />} />
+                <Route path="/mystery-box" element={<MysteryBox />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/membership" element={<Membership />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/ticket/:id" element={<TicketPurchase />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/cart" element={<CartPage />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
         </CityProvider>
       </UserProvider>
     </TooltipProvider>

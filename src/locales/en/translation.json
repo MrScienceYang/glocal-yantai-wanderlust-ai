@@ -130,5 +130,17 @@
       "description": "No need to subscribe again."
     },
     "current_status": "Your membership expires on {{date}}."
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty_cart": "Your cart is empty.",
+    "go_shopping": "Go Shopping",
+    "summary": "Order Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "free_shipping": "Free",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "shopping_cart": "Shopping Cart"
   }
 }

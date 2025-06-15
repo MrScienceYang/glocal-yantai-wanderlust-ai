@@ -130,5 +130,17 @@
       "description": "无需再次开通会员。"
     },
     "current_status": "您的会员将于 {{date}} 到期。"
+  },
+  "cart": {
+    "title": "购物车",
+    "empty_cart": "您的购物车是空的。",
+    "go_shopping": "去购物",
+    "summary": "订单摘要",
+    "subtotal": "商品小计",
+    "shipping": "运费",
+    "free_shipping": "免费",
+    "total": "总计",
+    "checkout": "去结算",
+    "shopping_cart": "购物车"
   }
 }
