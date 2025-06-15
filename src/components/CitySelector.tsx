@@ -94,7 +94,7 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
           <ChevronDown className="h-4 w-4 ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80 p-4 bg-white border shadow-lg z-50">
+      <DropdownMenuContent className="w-80 p-4 bg-white border shadow-lg z-[9999] fixed">
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-2">国家</label>
@@ -102,7 +102,7 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
               <SelectTrigger>
                 <SelectValue placeholder="选择国家" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[9999]">
                 {Object.keys(cityData).map((country) => (
                   <SelectItem key={country} value={country}>{country}</SelectItem>
                 ))}
@@ -116,7 +116,7 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
               <SelectTrigger>
                 <SelectValue placeholder="选择省份" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[9999]">
                 {getProvinces().map((province) => (
                   <SelectItem key={province} value={province}>{province}</SelectItem>
                 ))}
@@ -130,7 +130,7 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
               <SelectTrigger>
                 <SelectValue placeholder="选择城市" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[9999]">
                 {getCities().map((city) => (
                   <SelectItem key={city} value={city}>{city}</SelectItem>
                 ))}
