@@ -1,36 +1,17 @@
 
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MapPin, Menu, X, Settings, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import APIKeySettings from './APIKeySettings';
 import CitySelector from './CitySelector';
-import { aiService } from '@/services/aiService';
-
-// 创建城市上下文
-interface CityContextType {
-  selectedCountry: string;
-  selectedProvince: string;
-  selectedCity: string;
-  updateCity: (country: string, province: string, city: string) => void;
-}
-
-export const CityContext = createContext<CityContextType>({
-  selectedCountry: '中国',
-  selectedProvince: '山东省',
-  selectedCity: '烟台市',
-  updateCity: () => {}
-});
-
-export const useCityContext = () => useContext(CityContext);
+import { useCityContext } from './CityProvider';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAPISettings, setShowAPISettings] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState('中国');
-  const [selectedProvince, setSelectedProvince] = useState('山东省');
-  const [selectedCity, setSelectedCity] = useState('烟台市');
   const location = useLocation();
+  const { selectedCountry, updateCity } = useCityContext();
 
   const navigation = [
     { name: '首页', href: '/' },
@@ -44,138 +25,130 @@ const Navbar = () => {
     { name: '会员', href: '/membership' }
   ];
 
-  const updateCity = (country: string, province: string, city: string) => {
-    setSelectedCountry(country);
-    setSelectedProvince(province);
-    setSelectedCity(city);
-  };
-
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <CityContext.Provider value={{ selectedCountry, selectedProvince, selectedCity, updateCity }}>
-      <nav className="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 gradient-ocean rounded-lg flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-ocean-600 to-sunset-500 bg-clip-text text-transparent">
-                Glocal
-              </span>
-            </Link>
+    <nav className="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 gradient-ocean rounded-lg flex items-center justify-center">
+              <MapPin className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-2xl font-bold text-gradient bg-gradient-to-r from-ocean-600 to-sunset-500 bg-clip-text text-transparent">
+              Glocal
+            </span>
+          </Link>
 
-            {/* City Selector */}
-            <div className="hidden md:flex">
+          {/* City Selector */}
+          <div className="hidden md:flex">
+            <CitySelector onCityChange={updateCity} />
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive(item.href)
+                    ? 'text-ocean-600 bg-ocean-50'
+                    : 'text-gray-700 hover:text-ocean-600'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAPISettings(true)}
+              className="flex items-center"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              AI设置
+            </Button>
+            <Link to="/profile">
+              <Button variant="outline" size="sm" className="flex items-center">
+                <User className="h-4 w-4 mr-2" />
+                个人中心
+              </Button>
+            </Link>
+            <Button className="gradient-ocean text-white">
+              登录/注册
+            </Button>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
+            <div className="px-3 py-2">
               <CitySelector onCityChange={updateCity} />
             </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive(item.href)
-                      ? 'text-ocean-600 bg-ocean-50'
-                      : 'text-gray-700 hover:text-ocean-600'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-4">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                  isActive(item.href)
+                    ? 'text-ocean-600 bg-ocean-50'
+                    : 'text-gray-700 hover:text-ocean-600'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            <div className="px-3 py-2 space-y-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowAPISettings(true)}
-                className="flex items-center"
+                onClick={() => {
+                  setShowAPISettings(true);
+                  setIsMenuOpen(false);
+                }}
+                className="w-full justify-start"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 AI设置
               </Button>
               <Link to="/profile">
-                <Button variant="outline" size="sm" className="flex items-center">
+                <Button variant="outline" size="sm" className="w-full justify-start">
                   <User className="h-4 w-4 mr-2" />
                   个人中心
                 </Button>
               </Link>
-              <Button className="gradient-ocean text-white">
+              <Button className="w-full gradient-ocean text-white">
                 登录/注册
-              </Button>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
               </Button>
             </div>
           </div>
         </div>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
-              <div className="px-3 py-2">
-                <CitySelector onCityChange={updateCity} />
-              </div>
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    isActive(item.href)
-                      ? 'text-ocean-600 bg-ocean-50'
-                      : 'text-gray-700 hover:text-ocean-600'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <div className="px-3 py-2 space-y-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setShowAPISettings(true);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full justify-start"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  AI设置
-                </Button>
-                <Link to="/profile">
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <User className="h-4 w-4 mr-2" />
-                    个人中心
-                  </Button>
-                </Link>
-                <Button className="w-full gradient-ocean text-white">
-                  登录/注册
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </nav>
+      )}
 
       {/* API Key Settings Modal */}
       <APIKeySettings
@@ -183,7 +156,7 @@ const Navbar = () => {
         onClose={() => setShowAPISettings(false)}
         onSuccess={() => {}}
       />
-    </CityContext.Provider>
+    </nav>
   );
 };
 
