@@ -16,6 +16,7 @@ interface CurrentUser {
   isPermanentVip: boolean;
   lastCheckInDate: string | null;
   consecutiveCheckInDays: number;
+  membershipExpirationDate: string | null;
 }
 
 interface UserContextType {
@@ -26,6 +27,7 @@ interface UserContextType {
   canCheckIn: boolean;
   consecutiveCheckInDays: number;
   checkInRewards: number[];
+  membershipExpirationDate: string | null;
   addPoints: (amount: number) => void;
   spendPoints: (amount: number) => boolean;
   toggleVip: () => void;
@@ -78,7 +80,25 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleVip = () => {
     if (!currentUser || currentUser.isPermanentVip) return;
-    setCurrentUser(prev => prev ? { ...prev, isVip: !prev.isVip } : null);
+    
+    setCurrentUser(prev => {
+      if (!prev) return null;
+      
+      const newIsVip = !prev.isVip;
+      let newExpirationDate: string | null = prev.membershipExpirationDate;
+
+      if (newIsVip) {
+        // For demo, grant 30-day VIP
+        const expiration = new Date();
+        expiration.setDate(expiration.getDate() + 30);
+        newExpirationDate = expiration.toISOString();
+      } else {
+        // VIP canceled
+        newExpirationDate = null;
+      }
+      
+      return { ...prev, isVip: newIsVip, membershipExpirationDate: newExpirationDate };
+    });
   };
 
   const performLogin = (username: string, isPermanentVip: boolean) => {
@@ -96,6 +116,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         points: 0,
         lastCheckInDate: null,
         consecutiveCheckInDays: 0,
+        isVip: false,
+        membershipExpirationDate: null,
       };
 
       const newUser: CurrentUser = {
@@ -105,6 +127,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         isPermanentVip: isPermanentVip,
         lastCheckInDate: userData.lastCheckInDate,
         consecutiveCheckInDays: userData.consecutiveCheckInDays,
+        membershipExpirationDate: isPermanentVip ? 'permanent' : userData.membershipExpirationDate,
       };
 
       setCurrentUser(newUser);
@@ -145,6 +168,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
          lastCheckInDate: currentUser.lastCheckInDate,
          consecutiveCheckInDays: currentUser.consecutiveCheckInDays,
          isVip: currentUser.isVip,
+         membershipExpirationDate: currentUser.membershipExpirationDate,
        };
        localStorage.setItem('glocal-user-data', JSON.stringify(existingData));
     }
@@ -189,6 +213,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       canCheckIn,
       consecutiveCheckInDays: currentUser?.consecutiveCheckInDays ?? 0,
       checkInRewards: CHECK_IN_REWARDS,
+      membershipExpirationDate: currentUser?.membershipExpirationDate ?? null,
       addPoints, 
       spendPoints, 
       toggleVip,

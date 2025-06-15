@@ -2,9 +2,16 @@
 import React from 'react';
 import { Youtube } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useUser } from './UserProvider';
 
 export const BannerAd = () => {
   const { t } = useTranslation();
+  const { currentUser } = useUser();
+
+  if (currentUser?.isPermanentVip) {
+    return null;
+  }
+  
   return (
     <div className="bg-gray-800 text-white p-4 my-8 rounded-lg flex items-center justify-between">
       <div className="flex items-center">

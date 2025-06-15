@@ -1,12 +1,15 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Star, Gift, Zap, Users } from 'lucide-react';
+import { useUser } from '@/components/UserProvider';
+import { useTranslation } from 'react-i18next';
 
 const Membership = () => {
   const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const { currentUser, isVip } = useUser();
+  const { t } = useTranslation();
 
   const plans = [
     {
@@ -87,6 +90,20 @@ const Membership = () => {
     }
   ];
 
+  if (currentUser?.isPermanentVip) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
+        <Card className="text-center p-8 shadow-lg">
+          <CardContent>
+            <Crown className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('membership.permanent.title')}</h1>
+            <p className="text-lg text-gray-600">{t('membership.permanent.description')}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <div className="max-w-7xl mx-auto px-4 py-20">
@@ -101,6 +118,14 @@ const Membership = () => {
             升级会员，解锁全部功能，享受专属服务和超值优惠
           </p>
         </div>
+
+        {isVip && currentUser?.membershipExpirationDate && currentUser.membershipExpirationDate !== 'permanent' && (
+          <div className="text-center mb-12">
+            <p className="text-lg text-gray-700 bg-green-100 text-green-800 rounded-full py-2 px-4 inline-block">
+              {t('membership.current_status', { date: new Date(currentUser.membershipExpirationDate).toLocaleDateString() })}
+            </p>
+          </div>
+        )}
 
         {/* 会员权益展示 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">

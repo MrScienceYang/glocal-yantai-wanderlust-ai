@@ -10,6 +10,16 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next';
 import { DailyCheckIn } from './DailyCheckIn';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,7 +28,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { selectedCountry, updateCity } = useCityContext();
-  const { isLoggedIn, currentUser, logout, toggleVip, points } = useUser();
+  const { isLoggedIn, currentUser, logout, toggleVip, points, isVip } = useUser();
   const { t } = useTranslation();
 
   const navigation = [
@@ -79,21 +89,51 @@ const Navbar = () => {
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
-              {isLoggedIn && (
+              {isLoggedIn && currentUser && (
                 <>
                   <div className="flex items-center space-x-2">
-                    <Switch id="vip-mode" checked={currentUser?.isVip} onCheckedChange={toggleVip} disabled={currentUser?.isPermanentVip} />
+                    <Switch id="vip-mode" checked={isVip} onCheckedChange={toggleVip} disabled={currentUser?.isPermanentVip} />
                     <Label htmlFor="vip-mode" className="text-sm font-medium text-gray-700 whitespace-nowrap">VIP模式</Label>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setShowAPISettings(true)}><Settings className="h-4 w-4 mr-2" />AI设置</Button>
                   <Button variant="outline" size="sm" onClick={() => setIsCheckInOpen(true)}><CalendarCheck className="h-4 w-4 mr-2" />{t('check_in.button_text')}</Button>
-                  <Link to="/profile">
-                    <Button variant="outline" size="sm">
-                      <User className="h-4 w-4 mr-2" />
-                      {currentUser?.username} {t('user_profile.points', { points })}
-                    </Button>
-                  </Link>
-                  <Button onClick={handleLogout} variant="destructive" size="sm"><LogOut className="h-4 w-4 mr-2" />{t('login.logout')}</Button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback>{currentUser.username.charAt(0).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end">
+                      <DropdownMenuLabel>{currentUser.username}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem disabled>
+                        {
+                          currentUser.isPermanentVip ? t('user_profile.permanent_vip') :
+                          (isVip && currentUser.membershipExpirationDate ? 
+                            t('user_profile.vip_until', { date: currentUser.membershipExpirationDate === 'permanent' ? '∞' : new Date(currentUser.membershipExpirationDate).toLocaleDateString() }) :
+                            t('user_profile.standard_user'))
+                        }
+                      </DropdownMenuItem>
+                      <DropdownMenuItem disabled>
+                        {t('user_profile.points', { points })}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => navigate('/profile')}>
+                          <User className="mr-2 h-4 w-4" />
+                          <span>{t('user_profile.profile_link')}</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>{t('login.logout')}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               )}
               {!isLoggedIn && (
@@ -149,7 +189,7 @@ const Navbar = () => {
                   <>
                     <div className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100">
                       <Label htmlFor="vip-mode-mobile" className="text-base font-medium text-gray-700">VIP模式</Label>
-                      <Switch id="vip-mode-mobile" checked={currentUser?.isVip} onCheckedChange={toggleVip} disabled={currentUser?.isPermanentVip} />
+                      <Switch id="vip-mode-mobile" checked={isVip} onCheckedChange={toggleVip} disabled={currentUser?.isPermanentVip} />
                     </div>
                     <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => { setIsCheckInOpen(true); setIsMenuOpen(false); }}><CalendarCheck className="h-4 w-4 mr-2" />{t('check_in.button_text')}</Button>
                     <Link to="/profile" onClick={() => setIsMenuOpen(false)}>

@@ -118,6 +118,17 @@
     "consecutive_days": "当前连续签到：{{days}} 天"
   },
   "user_profile": {
-    "points": "({{points}} 积分)"
+    "points": "({{points}} 积分)",
+    "permanent_vip": "永久会员",
+    "vip_until": "会员至: {{date}}",
+    "standard_user": "普通用户",
+    "profile_link": "个人中心"
+  },
+  "membership": {
+    "permanent": {
+      "title": "您已是永久会员",
+      "description": "无需再次开通会员。"
+    },
+    "current_status": "您的会员将于 {{date}} 到期。"
   }
 }

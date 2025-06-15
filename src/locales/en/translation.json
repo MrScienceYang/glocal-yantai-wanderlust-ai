@@ -118,6 +118,17 @@
     "consecutive_days": "Current Streak: {{days}} days"
   },
   "user_profile": {
-    "points": "({{points}} Points)"
+    "points": "({{points}} Points)",
+    "permanent_vip": "Permanent VIP",
+    "vip_until": "VIP until: {{date}}",
+    "standard_user": "Standard User",
+    "profile_link": "Profile"
+  },
+  "membership": {
+    "permanent": {
+      "title": "You are a Permanent Member",
+      "description": "No need to subscribe again."
+    },
+    "current_status": "Your membership expires on {{date}}."
   }
 }
