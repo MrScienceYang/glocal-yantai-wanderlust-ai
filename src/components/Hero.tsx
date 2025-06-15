@@ -13,6 +13,17 @@ const Hero = () => {
     '青岛市': 'https://images.unsplash.com/photo-1596397732835-ded3756a8946?q=80&w=1920&h=1080&fit=crop',
     '威海市': 'https://images.unsplash.com/photo-1623594198431-744358652934?q=80&w=1920&h=1080&fit=crop',
     '济南市': 'https://images.unsplash.com/photo-1603787010414-b5a5951a8332?q=80&w=1920&h=1080&fit=crop',
+    '泰安市': 'https://images.unsplash.com/photo-1588334493322-13a1d48a2707?q=80&w=1920&h=1080&fit=crop',
+    '北京市': 'https://images.unsplash.com/photo-1599846428782-da371a53325a?q=80&w=1920&h=1080&fit=crop',
+    '上海市': 'https://images.unsplash.com/photo-1538428312398-6b5d56a36123?q=80&w=1920&h=1080&fit=crop',
+    '广州市': 'https://images.unsplash.com/photo-1589033391398-19c2dc336873?q=80&w=1920&h=1080&fit=crop',
+    '深圳市': 'https://images.unsplash.com/photo-1581345492478-1a54131b34a6?q=80&w=1920&h=1080&fit=crop',
+    '杭州市': 'https://images.unsplash.com/photo-1591910816822-2640f34f689f?q=80&w=1920&h=1080&fit=crop',
+    '苏州市': 'https://images.unsplash.com/photo-1618580556214-a74e537443d3?q=80&w=1920&h=1080&fit=crop',
+    '东京都': 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=1920&h=1080&fit=crop',
+    '首尔市': 'https://images.unsplash.com/photo-1533590425396-8d6265f24259?q=80&w=1920&h=1080&fit=crop',
+    '洛杉矶': 'https://images.unsplash.com/photo-1542848329-425234123533?q=80&w=1920&h=1080&fit=crop',
+    '巴黎': 'https://images.unsplash.com/photo-1502602898657-3e91760c0341?q=80&w=1920&h=1080&fit=crop',
   };
 
   const defaultImage = 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=1920&h=1080&fit=crop';

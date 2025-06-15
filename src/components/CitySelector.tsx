@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,7 +42,7 @@ interface CitySelectorProps {
   onCityChange?: (country: string, province: string, city: string) => void;
 }
 
-const CitySelector = () => {
+const CitySelector = ({ onCityChange }: CitySelectorProps) => {
   const { selectedCountry, selectedProvince, selectedCity, updateCity } = useCityContext();
   const [isOpen, setIsOpen] = useState(false);
 
