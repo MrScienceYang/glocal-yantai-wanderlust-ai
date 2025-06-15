@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Users, ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
@@ -28,41 +29,51 @@ const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in delay-300">
-          <Button size="lg" className="gradient-ocean text-white hover:opacity-90 transition-opacity">
-            <MapPin className="mr-2 h-5 w-5" />
-            开始我的烟台之旅
-          </Button>
-          <Button size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-            <ShoppingCart className="mr-2 h-5 w-5" />
-            探索特色商城
-          </Button>
+          <Link to="/ai-planning">
+            <Button size="lg" className="gradient-ocean text-white hover:opacity-90 transition-opacity">
+              <MapPin className="mr-2 h-5 w-5" />
+              开始我的烟台之旅
+            </Button>
+          </Link>
+          <Link to="/shop">
+            <Button size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              探索特色商城
+            </Button>
+          </Link>
         </div>
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 animate-slide-up">
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="w-12 h-12 rounded-full gradient-ocean flex items-center justify-center mb-4 mx-auto">
-              <Search className="h-6 w-6 text-white" />
+          <Link to="/ai-planning" className="block">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
+              <div className="w-12 h-12 rounded-full gradient-ocean flex items-center justify-center mb-4 mx-auto">
+                <Search className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">AI智能行程</h3>
+              <p className="text-gray-300 text-sm">根据你的兴趣和预算，AI为你量身定制专属烟台行程</p>
             </div>
-            <h3 className="text-lg font-semibold mb-2">AI智能行程</h3>
-            <p className="text-gray-300 text-sm">根据你的兴趣和预算，AI为你量身定制专属烟台行程</p>
-          </div>
+          </Link>
           
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="w-12 h-12 rounded-full gradient-sunset flex items-center justify-center mb-4 mx-auto">
-              <Users className="h-6 w-6 text-white" />
+          <Link to="/local-experts" className="block">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
+              <div className="w-12 h-12 rounded-full gradient-sunset flex items-center justify-center mb-4 mx-auto">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">本地达人</h3>
+              <p className="text-gray-300 text-sm">真正的烟台人带你体验最地道的本土文化和隐藏美食</p>
             </div>
-            <h3 className="text-lg font-semibold mb-2">本地达人</h3>
-            <p className="text-gray-300 text-sm">真正的烟台人带你体验最地道的本土文化和隐藏美食</p>
-          </div>
+          </Link>
           
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="w-12 h-12 rounded-full gradient-ocean flex items-center justify-center mb-4 mx-auto">
-              <ShoppingCart className="h-6 w-6 text-white" />
+          <Link to="/mystery-box" className="block">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
+              <div className="w-12 h-12 rounded-full gradient-ocean flex items-center justify-center mb-4 mx-auto">
+                <ShoppingCart className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">盲盒旅行</h3>
+              <p className="text-gray-300 text-sm">充满惊喜的随机旅行体验，每次都有意想不到的发现</p>
             </div>
-            <h3 className="text-lg font-semibold mb-2">盲盒旅行</h3>
-            <p className="text-gray-300 text-sm">充满惊喜的随机旅行体验，每次都有意想不到的发现</p>
-          </div>
+          </Link>
         </div>
       </div>
     </section>
