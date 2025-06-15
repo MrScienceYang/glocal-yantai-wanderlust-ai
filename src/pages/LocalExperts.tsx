@@ -13,7 +13,7 @@ const LocalExperts = () => {
     {
       id: 1,
       name: '张师傅',
-      avatar: '/api/placeholder/100/100',
+      avatar: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=100&h=100&fit=crop&q=80',
       specialty: '海鲜美食达人',
       rating: 4.9,
       reviews: 127,
@@ -26,7 +26,7 @@ const LocalExperts = () => {
     {
       id: 2,
       name: '李小姐',
-      avatar: '/api/placeholder/100/100',
+      avatar: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=100&h=100&fit=crop&q=80',
       specialty: '历史文化讲解',
       rating: 4.8,
       reviews: 89,
@@ -39,7 +39,7 @@ const LocalExperts = () => {
     {
       id: 3,
       name: '王大哥',
-      avatar: '/api/placeholder/100/100',
+      avatar: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=100&h=100&fit=crop&q=80',
       specialty: '摄影指导师',
       rating: 4.9,
       reviews: 156,

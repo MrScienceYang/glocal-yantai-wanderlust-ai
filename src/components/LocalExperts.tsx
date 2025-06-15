@@ -10,7 +10,7 @@ const LocalExperts = () => {
     {
       id: 1,
       name: '李明海',
-      avatar: '/api/placeholder/80/80',
+      avatar: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=80&h=80&fit=crop&q=80',
       title: '烟台历史文化专家',
       rating: 4.9,
       reviews: 186,
@@ -24,7 +24,7 @@ const LocalExperts = () => {
     {
       id: 2,
       name: '王小美',
-      avatar: '/api/placeholder/80/80',
+      avatar: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=80&h=80&fit=crop&q=80',
       title: '美食探索达人',
       rating: 4.8,
       reviews: 142,
@@ -38,7 +38,7 @@ const LocalExperts = () => {
     {
       id: 3,
       name: '张摄影师',
-      avatar: '/api/placeholder/80/80',
+      avatar: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=80&h=80&fit=crop&q=80',
       title: '摄影指导专家',
       rating: 4.7,
       reviews: 98,
@@ -52,7 +52,7 @@ const LocalExperts = () => {
     {
       id: 4,
       name: '陈渔夫',
-      avatar: '/api/placeholder/80/80',
+      avatar: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=80&h=80&fit=crop&q=80',
       title: '海洋文化向导',
       rating: 4.6,
       reviews: 124,
