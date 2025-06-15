@@ -17,7 +17,7 @@ const Index = () => {
       <Features />
       <PopularDestinations />
       {selectedCountry === '中国' && <LocalExperts />}
-      <MysteryBox />
+      {selectedCountry === '中国' && <MysteryBox />}
     </Layout>
   );
 };

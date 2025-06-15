@@ -18,9 +18,9 @@ const Navbar = () => {
     { name: 'AI行程', href: '/ai-planning' },
     ...(selectedCountry === '中国' ? [
       { name: '本地达人', href: '/local-experts' },
-      { name: '特色商城', href: '/shop' }
+      { name: '特色商城', href: '/shop' },
+      { name: '盲盒旅行', href: '/mystery-box' }
     ] : []),
-    { name: '盲盒旅行', href: '/mystery-box' },
     { name: '社区', href: '/community' },
     { name: '会员', href: '/membership' }
   ];
