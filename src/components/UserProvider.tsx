@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { toast } from 'sonner';
+import { CartItem } from './CartProvider';
 
 const hardcodedUsers = [
   { user: "17375411453", password: "123456", isPermanentVip: false },
@@ -9,6 +10,17 @@ const hardcodedUsers = [
 
 const CHECK_IN_REWARDS = [5, 10, 5, 7, 5, 5, 30];
 
+export interface Order {
+  id: string;
+  items: CartItem[];
+  total: number;
+  shippingAddress: string;
+  paymentMethod: string;
+  date: string;
+  status: 'processing' | 'shipped' | 'delivered';
+  logistics: { time: string; status: string }[];
+}
+
 interface CurrentUser {
   username: string;
   points: number;
@@ -17,6 +29,7 @@ interface CurrentUser {
   lastCheckInDate: string | null;
   consecutiveCheckInDays: number;
   membershipExpirationDate: string | null;
+  orders: Order[];
 }
 
 interface UserContextType {
@@ -28,6 +41,7 @@ interface UserContextType {
   consecutiveCheckInDays: number;
   checkInRewards: number[];
   membershipExpirationDate: string | null;
+  orders: Order[];
   addPoints: (amount: number) => void;
   spendPoints: (amount: number) => boolean;
   toggleVip: () => void;
@@ -36,6 +50,7 @@ interface UserContextType {
   loginWithCode: (identifier: string, code: string) => boolean;
   logout: () => void;
   checkIn: () => number | null;
+  addOrder: (orderData: Omit<Order, 'id' | 'date' | 'status' | 'logistics'>) => Order | null;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -118,6 +133,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         consecutiveCheckInDays: 0,
         isVip: false,
         membershipExpirationDate: null,
+        orders: [],
       };
 
       const newUser: CurrentUser = {
@@ -128,6 +144,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         lastCheckInDate: userData.lastCheckInDate,
         consecutiveCheckInDays: userData.consecutiveCheckInDays,
         membershipExpirationDate: isPermanentVip ? 'permanent' : userData.membershipExpirationDate,
+        orders: userData.orders || [],
       };
 
       setCurrentUser(newUser);
@@ -169,6 +186,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
          consecutiveCheckInDays: currentUser.consecutiveCheckInDays,
          isVip: currentUser.isVip,
          membershipExpirationDate: currentUser.membershipExpirationDate,
+         orders: currentUser.orders,
        };
        localStorage.setItem('glocal-user-data', JSON.stringify(existingData));
     }
@@ -204,6 +222,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     return pointsEarned;
   };
 
+  const addOrder = (orderData: Omit<Order, 'id' | 'date' | 'status' | 'logistics'>): Order | null => {
+    if (!currentUser) return null;
+
+    const newOrder: Order = {
+        ...orderData,
+        id: `GLOCAL${Date.now()}`,
+        date: new Date().toISOString(),
+        status: 'shipped', // Simulate it's shipped right away
+        logistics: [ // Mock logistics
+            { time: new Date().toLocaleString(), status: '订单已创建' },
+            { time: new Date(Date.now() + 1000 * 60 * 5).toLocaleString(), status: '您的订单开始处理' },
+            { time: new Date(Date.now() + 1000 * 60 * 60 * 2).toLocaleString(), status: '包裹已出库' },
+            { time: new Date(Date.now() + 1000 * 60 * 60 * 8).toLocaleString(), status: '包裹正在发往您所在的城市' },
+        ]
+    };
+
+    setCurrentUser(prev => prev ? {
+        ...prev,
+        orders: [newOrder, ...prev.orders]
+    } : null);
+    
+    return newOrder;
+  };
+
   return (
     <UserContext.Provider value={{ 
       points: currentUser?.points ?? 0, 
@@ -214,6 +256,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       consecutiveCheckInDays: currentUser?.consecutiveCheckInDays ?? 0,
       checkInRewards: CHECK_IN_REWARDS,
       membershipExpirationDate: currentUser?.membershipExpirationDate ?? null,
+      orders: currentUser?.orders ?? [],
       addPoints, 
       spendPoints, 
       toggleVip,
@@ -222,6 +265,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       loginWithCode,
       logout,
       checkIn,
+      addOrder,
     }}>
       {children}
     </UserContext.Provider>

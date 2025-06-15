@@ -142,5 +142,40 @@
     "total": "总计",
     "checkout": "去结算",
     "shopping_cart": "购物车"
+  },
+  "checkout": {
+    "title": "结算",
+    "shipping_address": "配送地址",
+    "province_placeholder": "选择省份",
+    "city_placeholder": "选择城市",
+    "district_placeholder": "选择区/县",
+    "detailed_address_placeholder": "详细地址（如街道、门牌号）",
+    "address_required": "请填写完整的配送地址。",
+    "payment_method": "支付方式",
+    "wechat_pay": "微信支付",
+    "alipay": "支付宝支付",
+    "place_order": "提交订单并支付",
+    "payment_successful": "支付成功！",
+    "order_created": "您的订单已创建，订单号：{{orderId}}",
+    "order_failed": "创建订单失败，请稍后再试。"
+  },
+  "logistics": {
+    "title": "物流详情",
+    "order_id": "订单号",
+    "tracking_info": "物流跟踪",
+    "not_found": "未找到该订单。",
+    "back_to_profile": "返回个人中心",
+    "status_processing": "处理中",
+    "status_shipped": "已发货",
+    "status_delivered": "已送达"
+  },
+  "profile": {
+    "my_orders": "我的订单",
+    "no_orders": "您还没有任何订单。",
+    "order_id": "订单号",
+    "order_date": "下单日期",
+    "order_total": "订单总额",
+    "order_status": "订单状态",
+    "view_details": "查看详情"
   }
 }

@@ -75,7 +75,9 @@ const CartPage = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                    <Button className="w-full">{t('cart.checkout')}</Button>
+                    <Button className="w-full" asChild>
+                      <Link to="/checkout">{t('cart.checkout')}</Link>
+                    </Button>
                 </CardFooter>
               </Card>
             </div>

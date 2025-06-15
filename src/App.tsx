@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +21,8 @@ import { UserProvider } from "./components/UserProvider";
 import LoginPage from "./pages/Login";
 import { CartProvider } from "./components/CartProvider";
 import CartPage from "./pages/Cart";
+import CheckoutPage from "./pages/Checkout";
+import LogisticsPage from "./pages/Logistics";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +49,8 @@ const App = () => (
                 <Route path="/ticket/:id" element={<TicketPurchase />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/logistics/:orderId" element={<LogisticsPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
