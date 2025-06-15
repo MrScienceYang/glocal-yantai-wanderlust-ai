@@ -18,6 +18,7 @@ import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import { CityProvider } from "./components/CityProvider";
 import { UserProvider } from "./components/UserProvider";
+import LoginPage from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/ai-planning" element={<AIPlanning />} />
               <Route path="/local-experts" element={<LocalExperts />} />
               <Route path="/shop" element={<Shop />} />

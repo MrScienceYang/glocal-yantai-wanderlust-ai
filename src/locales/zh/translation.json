@@ -84,5 +84,30 @@
     "claim_button": "关闭并领取15积分",
     "wait_warning": "请再观看 {{seconds}} 秒！",
     "success_message": "恭喜！您已获得15积分！"
+  },
+  "login": {
+    "title": "登录/注册",
+    "description": "登录您的账户以继续",
+    "username": "用户名",
+    "password": "密码",
+    "submit": "登录",
+    "logout": "退出登录",
+    "success": "登录成功！欢迎回来。",
+    "failure": "用户名或密码无效。"
+  },
+  "check_in": {
+    "title": "每日签到",
+    "button_text": "签到",
+    "description": "每天签到以赚取积分！",
+    "day": "第 {{day}} 天",
+    "points": "{{points}} 积分",
+    "check_in_now": "立即签到",
+    "checked_in_today": "今日已签到",
+    "success": "签到成功！您获得了 {{points}} 积分。",
+    "already_checked_in": "您今天已经签到过了，请明天再来！",
+    "consecutive_days": "当前连续签到：{{days}} 天"
+  },
+  "user_profile": {
+    "points": "({{points}} 积分)"
   }
 }

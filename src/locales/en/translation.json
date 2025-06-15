@@ -84,5 +84,30 @@
     "claim_button": "Close & Claim 15 Points",
     "wait_warning": "Please watch for {{seconds}} more seconds!",
     "success_message": "Congratulations! You've earned 15 points!"
+  },
+  "login": {
+    "title": "Login / Register",
+    "description": "Log in to your account to continue",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Login",
+    "logout": "Logout",
+    "success": "Login successful! Welcome back.",
+    "failure": "Invalid username or password."
+  },
+  "check_in": {
+    "title": "Daily Check-in",
+    "button_text": "Check-in",
+    "description": "Check in every day to earn points!",
+    "day": "Day {{day}}",
+    "points": "{{points}} Points",
+    "check_in_now": "Check In Now",
+    "checked_in_today": "Checked In Today",
+    "success": "Checked in successfully! You earned {{points}} points.",
+    "already_checked_in": "You have already checked in today. Come back tomorrow!",
+    "consecutive_days": "Current Streak: {{days}} days"
+  },
+  "user_profile": {
+    "points": "({{points}} Points)"
   }
 }
