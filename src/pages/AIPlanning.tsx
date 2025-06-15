@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink, Globe, Car, FileDown } from 'lucide-react';
+import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink, Globe, Car, FileDown, Tv } from 'lucide-react';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useUser } from '@/components/UserProvider';
+import { AdModal } from '@/components/AdModal';
 
 // 城市数据结构
 const cityData = {
@@ -54,8 +56,9 @@ const AIPlanning = () => {
     groupSize: '',
     travelStyle: 'relaxed'
   });
-
   const { generatePlan, isLoading, plan } = useAIPlanning();
+  const { isVip, points, spendPoints } = useUser();
+  const [isAdModalOpen, setIsAdModalOpen] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setPreferences(prev => {
@@ -80,11 +83,29 @@ const AIPlanning = () => {
       toast.error('请填写完整的旅行信息，包括目标城市');
       return;
     }
-
     await generatePlan(preferences);
   };
 
   const handleExportPDF = () => {
+    if (!isVip) {
+      const cost = 30;
+      if (points < cost) {
+        toast.error(`积分不足！需要 ${cost} 积分，您当前有 ${points} 积分。`, {
+          description: '请观看广告赚取积分。',
+        });
+        return;
+      }
+      if (!spendPoints(cost)) {
+        toast.error('积分扣除失败，请重试。');
+        return;
+      }
+      toast.success(`已消费 ${cost} 积分`, {
+        description: `剩余积分: ${points - cost}`,
+      });
+    } else {
+      toast.info("VIP用户可免费导出PDF。");
+    }
+    
     const input = document.getElementById('plan-to-export');
     if (input) {
       toast.info('正在生成PDF文件，请稍候...');
@@ -138,6 +159,7 @@ const AIPlanning = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-ocean-50 to-white">
+      <AdModal isOpen={isAdModalOpen} onClose={() => setIsAdModalOpen(false)} />
       <div className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -152,10 +174,17 @@ const AIPlanning = () => {
           {/* 输入表单 */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Sparkles className="mr-2 h-5 w-5 text-ocean-600" />
-                告诉AI你的需求
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center">
+                  <Sparkles className="mr-2 h-5 w-5 text-ocean-600" />
+                  告诉AI你的需求
+                </CardTitle>
+                {!isVip && (
+                  <div className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                    当前积分: <span className="font-bold text-ocean-600">{points}</span>
+                  </div>
+                )}
+              </div>
               <CardDescription>
                 填写以下信息，AI将为您生成个性化行程
               </CardDescription>
@@ -295,109 +324,89 @@ const AIPlanning = () => {
           </Card>
 
           {/* 生成的行程 */}
-          <div>
-            {plan ? (
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="flex items-center">
-                      <MapPin className="mr-2 h-5 w-5 text-sunset-600" />
-                      您的专属{preferences.city}行程
-                    </CardTitle>
-                    <Button variant="outline" size="sm" onClick={handleExportPDF}>
-                      <FileDown className="mr-2 h-4 w-4" />
-                      导出PDF
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent id="plan-to-export" className="p-6 pt-0">
-                  <div className="space-y-6">
-                    {plan.itinerary.map((day, index) => (
-                      <div key={index} className="border-l-4 border-ocean-400 pl-4 py-2">
-                        <h3 className="font-semibold text-lg mb-3 flex items-center">
-                          第{index + 1}天
-                          <span className="text-sm font-normal text-gray-500 ml-2">({day.date})</span>
-                        </h3>
-                        <div className="space-y-3">
-                          {day.activities.map((activity, actIndex) => (
-                            <div key={actIndex} className="bg-gray-50 p-3 rounded-lg">
-                              <div className="flex items-center justify-between mb-2">
-                                <h4 className="font-medium">{activity.name}</h4>
-                                <span className="text-sm text-gray-500 flex items-center">
-                                  <Clock className="w-4 h-4 mr-1" />
-                                  {activity.time}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600 mb-2">{activity.description}</p>
-                              <div className="flex items-center justify-between text-xs text-gray-500">
-                                <span className="flex items-center">
-                                  <MapPin className="w-3 h-3 mr-1" />
-                                  {activity.location}
-                                </span>
-                                <span className="flex items-center">
-                                  <DollarSign className="w-3 h-3 mr-1" />
-                                  ¥{activity.estimatedCost}
-                                </span>
-                              </div>
-                              {activity.transportation && (
-                                <div className="mt-2 text-xs text-gray-500 flex items-center">
-                                  <Car className="w-3 h-3 mr-1" />
-                                  <span>交通方式: {activity.transportation}</span>
-                                </div>
-                              )}
-                              {/* 添加门票购买链接 */}
-                              {activity.name.includes('蓬莱阁') && (
-                                <div className="mt-2">
-                                  <Link to="/ticket/1">
-                                    <Button size="sm" variant="outline" className="text-xs">
-                                      <ExternalLink className="w-3 h-3 mr-1" />
-                                      购买门票
-                                    </Button>
-                                  </Link>
-                                </div>
-                              )}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <MapPin className="mr-2 h-5 w-5 text-ocean-600" />
+                您的专属行程
+              </CardTitle>
+              <CardDescription>AI为您生成的行程方案将显示在这里</CardDescription>
+            </CardHeader>
+            <CardContent id="plan-to-export" className="flex-grow">
+              <div className="space-y-6">
+                {plan ? (
+                  plan.itinerary.map((day, index) => (
+                    <div key={index} className="border-l-4 border-ocean-400 pl-4 py-2">
+                      <h3 className="font-semibold text-lg mb-3 flex items-center">
+                        第{index + 1}天
+                        <span className="text-sm font-normal text-gray-500 ml-2">({day.date})</span>
+                      </h3>
+                      <div className="space-y-3">
+                        {day.activities.map((activity, actIndex) => (
+                          <div key={actIndex} className="bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium">{activity.name}</h4>
+                              <span className="text-sm text-gray-500 flex items-center">
+                                <Clock className="w-4 h-4 mr-1" />
+                                {activity.time}
+                              </span>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                    
-                    <div className="bg-gradient-to-r from-ocean-50 to-sunset-50 p-4 rounded-lg">
-                      <h3 className="font-semibold mb-2">行程总览</h3>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">总预算：</span>
-                          <span className="font-medium">¥{plan.totalCost}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">推荐人数：</span>
-                          <span className="font-medium">{plan.recommendedGroupSize}人</span>
-                        </div>
+                            <p className="text-sm text-gray-600 mb-2">{activity.description}</p>
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                              <span className="flex items-center">
+                                <MapPin className="w-3 h-3 mr-1" />
+                                {activity.location}
+                              </span>
+                              <span className="flex items-center">
+                                <DollarSign className="w-3 h-3 mr-1" />
+                                ¥{activity.estimatedCost}
+                              </span>
+                            </div>
+                            {activity.transportation && (
+                              <div className="mt-2 text-xs text-gray-500 flex items-center">
+                                <Car className="w-3 h-3 mr-1" />
+                                <span>交通方式: {activity.transportation}</span>
+                              </div>
+                            )}
+                            {/* 添加门票购买链接 */}
+                            {activity.name.includes('蓬莱阁') && (
+                              <div className="mt-2">
+                                <Link to="/ticket/1">
+                                  <Button size="sm" variant="outline" className="text-xs">
+                                    <ExternalLink className="w-3 h-3 mr-1" />
+                                    购买门票
+                                  </Button>
+                                </Link>
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </div>
-
-                    <div className="flex space-x-3">
-                      <Button className="flex-1 gradient-ocean text-white">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        预订行程
-                      </Button>
-                      <Button variant="outline" className="flex-1">
-                        <Users className="w-4 h-4 mr-2" />
-                        咨询达人
-                      </Button>
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-20">
+                    <Sparkles className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">填写左侧信息，AI将为您生成专属行程</p>
                   </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="h-full flex items-center justify-center">
-                <CardContent className="text-center py-20">
-                  <Sparkles className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">填写左侧信息，AI将为您生成专属行程</p>
-                </CardContent>
-              </Card>
+                )}
+              </div>
+            </CardContent>
+            {plan && (
+              <CardFooter className="flex flex-col sm:flex-row gap-4 border-t pt-6">
+                <Button onClick={handleExportPDF} className="w-full sm:w-auto flex-1">
+                  <FileDown className="mr-2 h-4 w-4" />
+                  {isVip ? '导出PDF (VIP免费)' : `导出PDF (30积分)`}
+                </Button>
+                {!isVip && (
+                  <Button variant="outline" onClick={() => setIsAdModalOpen(true)} className="w-full sm:w-auto flex-1">
+                    <Tv className="mr-2 h-4 w-4" />
+                    观看广告赚取积分
+                  </Button>
+                )}
+              </CardFooter>
             )}
-          </div>
+          </Card>
         </div>
       </div>
     </div>

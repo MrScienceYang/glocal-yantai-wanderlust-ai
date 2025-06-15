@@ -17,6 +17,7 @@ import TicketPurchase from "./pages/TicketPurchase";
 import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import { CityProvider } from "./components/CityProvider";
+import { UserProvider } from "./components/UserProvider";
 
 const queryClient = new QueryClient();
 
@@ -26,24 +27,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <PWAInstallPrompt />
-      <CityProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/ai-planning" element={<AIPlanning />} />
-            <Route path="/local-experts" element={<LocalExperts />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/mystery-box" element={<MysteryBox />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/membership" element={<Membership />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/ticket/:id" element={<TicketPurchase />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </CityProvider>
+      <UserProvider>
+        <CityProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/ai-planning" element={<AIPlanning />} />
+              <Route path="/local-experts" element={<LocalExperts />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/mystery-box" element={<MysteryBox />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/membership" element={<Membership />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/ticket/:id" element={<TicketPurchase />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CityProvider>
+      </UserProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

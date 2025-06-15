@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MapPin, Menu, X, Settings, User } from 'lucide-react';
@@ -6,12 +5,16 @@ import { Link, useLocation } from 'react-router-dom';
 import APIKeySettings from './APIKeySettings';
 import CitySelector from './CitySelector';
 import { useCityContext } from './CityProvider';
+import { useUser } from './UserProvider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAPISettings, setShowAPISettings] = useState(false);
   const location = useLocation();
   const { selectedCountry, updateCity } = useCityContext();
+  const { isVip, toggleVip } = useUser();
 
   const navigation = [
     { name: '首页', href: '/' },
@@ -65,6 +68,10 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
+            <div className="flex items-center space-x-2">
+              <Switch id="vip-mode" checked={isVip} onCheckedChange={toggleVip} />
+              <Label htmlFor="vip-mode" className="text-sm font-medium text-gray-700 whitespace-nowrap">VIP模式</Label>
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -124,6 +131,10 @@ const Navbar = () => {
               </Link>
             ))}
             <div className="px-3 py-2 space-y-2">
+              <div className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100">
+                <Label htmlFor="vip-mode-mobile" className="text-base font-medium text-gray-700">VIP模式</Label>
+                <Switch id="vip-mode-mobile" checked={isVip} onCheckedChange={toggleVip} />
+              </div>
               <Button
                 variant="outline"
                 size="sm"
