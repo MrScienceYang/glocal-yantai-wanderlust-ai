@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageSquare, Share2, MapPin, Star, Camera, AlertTriangle, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Community = () => {
   const [activeTab, setActiveTab] = useState('posts');
@@ -17,9 +17,9 @@ const Community = () => {
       type: 'guide',
       title: '烟台三日游完美攻略 - 本地人推荐路线',
       author: '烟台小王',
-      avatar: '/api/placeholder/40/40',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&q=80',
       content: '分享我的烟台三日游攻略，包含蓬莱阁、海昌鲸鲨馆、烟台山等必去景点...',
-      images: ['/api/placeholder/200/150'],
+      images: ['https://images.unsplash.com/photo-1613689324556-912a8155e821?w=200&h=150&fit=crop&q=80'],
       likes: 128,
       comments: 23,
       shares: 15,
@@ -31,9 +31,12 @@ const Community = () => {
       type: 'food',
       title: '隐藏美食！这家海鲜大排档太香了',
       author: '美食探险家',
-      avatar: '/api/placeholder/40/40',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&q=80',
       content: '在渔人码头发现的宝藏海鲜店，扇贝特别新鲜，老板人也很nice...',
-      images: ['/api/placeholder/200/150', '/api/placeholder/200/150'],
+      images: [
+        'https://images.unsplash.com/photo-1559739502-a54b928a06f3?w=200&h=150&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1569058242252-623df4608c02?w=200&h=150&fit=crop&q=80'
+      ],
       likes: 89,
       comments: 34,
       shares: 12,
@@ -45,7 +48,7 @@ const Community = () => {
       type: 'warning',
       title: '避坑！某景区附近的这些店千万别去',
       author: '旅游老司机',
-      avatar: '/api/placeholder/40/40',
+      avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=40&h=40&fit=crop&q=80',
       content: '刚从烟台回来，踩了几个坑，特来分享避免大家重蹈覆辙...',
       images: [],
       likes: 156,
@@ -103,11 +106,10 @@ const Community = () => {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <img
-                            src={post.avatar}
-                            alt={post.author}
-                            className="w-10 h-10 rounded-full"
-                          />
+                          <Avatar className="w-10 h-10">
+                            <AvatarImage src={post.avatar} alt={post.author} />
+                            <AvatarFallback>{post.author.slice(0, 2)}</AvatarFallback>
+                          </Avatar>
                           <div>
                             <div className="flex items-center space-x-2">
                               <span className="font-medium">{post.author}</span>
