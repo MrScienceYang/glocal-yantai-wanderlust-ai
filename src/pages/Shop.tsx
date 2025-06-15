@@ -4,70 +4,229 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart, Star, Search, Filter, Truck, Award } from 'lucide-react';
+import { useCityContext } from '@/components/CityProvider';
 
 const Shop = () => {
+  const { selectedCity, selectedCountry } = useCityContext();
   const [activeCategory, setActiveCategory] = useState('all');
   const [cartItems, setCartItems] = useState<number[]>([]);
 
   const categories = [
     { id: 'all', label: '全部商品' },
-    { id: 'seafood', label: '海鲜预制菜' },
+    { id: 'food', label: '特色美食' },
     { id: 'cultural', label: '文创产品' },
-    { id: 'specialty', label: '烟台特产' }
+    { id: 'specialty', label: '地方特产' }
   ];
 
-  const products = [
+  // 不同城市的真实商品数据
+  const productsData = {
+    '烟台市': [
+      {
+        id: 1,
+        name: '烟台大樱桃礼盒',
+        price: 168,
+        originalPrice: 228,
+        image: '/api/placeholder/300/300',
+        rating: 4.8,
+        sales: 1560,
+        category: 'food',
+        description: '烟台福山大樱桃，果大肉厚，酸甜可口',
+        tags: ['新鲜直达', '产地直供', '精装礼盒']
+      },
+      {
+        id: 2,
+        name: '张裕解百纳干红',
+        price: 89,
+        originalPrice: 128,
+        image: '/api/placeholder/300/300',
+        rating: 4.9,
+        sales: 890,
+        category: 'specialty',
+        description: '百年张裕经典干红，醇厚香甜',
+        tags: ['百年品牌', '经典口感', '送礼佳品']
+      },
+      {
+        id: 3,
+        name: '蓬莱阁文创茶具',
+        price: 299,
+        originalPrice: 399,
+        image: '/api/placeholder/300/300',
+        rating: 4.7,
+        sales: 450,
+        category: 'cultural',
+        description: '蓬莱阁主题茶具，传统工艺制作',
+        tags: ['手工制作', '文化收藏', '精美工艺']
+      },
+      {
+        id: 4,
+        name: '烟台海参即食装',
+        price: 288,
+        originalPrice: 358,
+        image: '/api/placeholder/300/300',
+        rating: 4.9,
+        sales: 2670,
+        category: 'food',
+        description: '长岛野生海参，营养丰富，即食方便',
+        tags: ['野生海参', '营养丰富', '即食方便']
+      },
+      {
+        id: 5,
+        name: '龙口粉丝礼盒',
+        price: 58,
+        originalPrice: 78,
+        image: '/api/placeholder/300/300',
+        rating: 4.6,
+        sales: 1200,
+        category: 'specialty',
+        description: '正宗龙口粉丝，绿豆制作，口感Q弹',
+        tags: ['传统工艺', '绿豆制作', '口感Q弹']
+      },
+      {
+        id: 6,
+        name: '烟台苹果文创手机壳',
+        price: 39,
+        originalPrice: 59,
+        image: '/api/placeholder/300/300',
+        rating: 4.5,
+        sales: 670,
+        category: 'cultural',
+        description: '烟台苹果主题设计，多款机型可选',
+        tags: ['创意设计', '多型号', '实用精美']
+      }
+    ],
+    '青岛市': [
+      {
+        id: 1,
+        name: '青岛啤酒礼盒装',
+        price: 88,
+        originalPrice: 108,
+        image: '/api/placeholder/300/300',
+        rating: 4.8,
+        sales: 2340,
+        category: 'specialty',
+        description: '青岛啤酒经典装，百年品质',
+        tags: ['百年品牌', '经典口感', '礼盒装']
+      },
+      {
+        id: 2,
+        name: '崂山绿茶',
+        price: 128,
+        originalPrice: 168,
+        image: '/api/placeholder/300/300',
+        rating: 4.7,
+        sales: 890,
+        category: 'specialty',
+        description: '崂山高山绿茶，清香回甘',
+        tags: ['高山茶', '清香回甘', '养生茶']
+      },
+      {
+        id: 3,
+        name: '栈桥文创明信片',
+        price: 25,
+        originalPrice: 35,
+        image: '/api/placeholder/300/300',
+        rating: 4.6,
+        sales: 1200,
+        category: 'cultural',
+        description: '青岛栈桥主题明信片套装',
+        tags: ['收藏纪念', '精美印刷', '套装']
+      }
+    ],
+    '东京都': [
+      {
+        id: 1,
+        name: '和风抹茶礼盒',
+        price: 68,
+        originalPrice: 88,
+        image: '/api/placeholder/300/300',
+        rating: 4.8,
+        sales: 1560,
+        category: 'food',
+        description: '正宗日式抹茶，香浓回甘',
+        tags: ['正宗抹茶', '日式风味', '精装礼盒']
+      },
+      {
+        id: 2,
+        name: '东京塔模型',
+        price: 199,
+        originalPrice: 259,
+        image: '/api/placeholder/300/300',
+        rating: 4.7,
+        sales: 780,
+        category: 'cultural',
+        description: '东京塔精密模型，收藏纪念',
+        tags: ['精密制作', '收藏价值', '纪念意义']
+      },
+      {
+        id: 3,
+        name: '浅草寺御守',
+        price: 45,
+        originalPrice: 60,
+        image: '/api/placeholder/300/300',
+        rating: 4.9,
+        sales: 2100,
+        category: 'cultural',
+        description: '浅草寺开光御守，祈福平安',
+        tags: ['开光御守', '祈福平安', '传统工艺']
+      }
+    ],
+    '巴黎': [
+      {
+        id: 1,
+        name: '法式马卡龙礼盒',
+        price: 128,
+        originalPrice: 168,
+        image: '/api/placeholder/300/300',
+        rating: 4.8,
+        sales: 890,
+        category: 'food',
+        description: '正宗法式马卡龙，多种口味',
+        tags: ['法式甜品', '多种口味', '精美包装']
+      },
+      {
+        id: 2,
+        name: '埃菲尔铁塔水晶球',
+        price: 89,
+        originalPrice: 119,
+        image: '/api/placeholder/300/300',
+        rating: 4.7,
+        sales: 1200,
+        category: 'cultural',
+        description: '埃菲尔铁塔水晶球，浪漫纪念',
+        tags: ['浪漫纪念', '水晶工艺', '精美收藏']
+      },
+      {
+        id: 3,
+        name: '香槟礼盒装',
+        price: 298,
+        originalPrice: 358,
+        image: '/api/placeholder/300/300',
+        rating: 4.9,
+        sales: 560,
+        category: 'specialty',
+        description: '法国香槟区正宗香槟，庆祝必备',
+        tags: ['正宗香槟', '庆祝佳品', '浪漫情调']
+      }
+    ]
+  };
+
+  // 获取当前城市的商品，如果没有则显示默认商品
+  const cityProducts = productsData[selectedCity] || [
     {
       id: 1,
-      name: '烟台大鲍鱼预制菜',
-      price: 168,
-      originalPrice: 228,
+      name: `${selectedCity}特色商品`,
+      price: 88,
+      originalPrice: 108,
       image: '/api/placeholder/300/300',
-      rating: 4.8,
-      sales: 156,
-      category: 'seafood',
-      description: '新鲜大鲍鱼，急冻锁鲜，开袋即食',
-      tags: ['冷链配送', '开袋即食', '营养丰富']
-    },
-    {
-      id: 2,
-      name: '烟台苹果文创礼盒',
-      price: 89,
-      originalPrice: 128,
-      image: '/api/placeholder/300/300',
-      rating: 4.9,
-      sales: 89,
-      category: 'cultural',
-      description: '精美包装，送礼佳品，烟台苹果主题设计',
-      tags: ['精美包装', '送礼佳品', '文创设计']
-    },
-    {
-      id: 3,
-      name: '蓬莱仙境手工艺品',
-      price: 299,
-      originalPrice: 399,
-      image: '/api/placeholder/300/300',
-      rating: 4.7,
-      sales: 45,
-      category: 'cultural',
-      description: '本地艺术家手工制作，蓬莱仙境主题',
-      tags: ['手工制作', '艺术收藏', '地方特色']
-    },
-    {
-      id: 4,
-      name: '烟台海参即食装',
-      price: 288,
-      originalPrice: 358,
-      image: '/api/placeholder/300/300',
-      rating: 4.9,
-      sales: 267,
-      category: 'seafood',
-      description: '野生海参，营养丰富，即食方便',
-      tags: ['野生海参', '营养丰富', '即食方便']
+      rating: 4.5,
+      sales: 500,
+      category: 'specialty',
+      description: `精选${selectedCity}当地特色产品`,
+      tags: ['当地特色', '精选好货', '品质保证']
     }
   ];
 
-  const filteredProducts = products.filter(product => 
+  const filteredProducts = cityProducts.filter(product => 
     activeCategory === 'all' || product.category === activeCategory
   );
 
@@ -80,10 +239,10 @@ const Shop = () => {
       <div className="max-w-7xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            烟台特色商城
+            {selectedCity}特色商城
           </h1>
           <p className="text-xl text-gray-600">
-            海鲜预制菜与文创产品，将烟台味道带回家
+            {selectedCity}地道特产与文创产品，将{selectedCity}味道带回家
           </p>
         </div>
 

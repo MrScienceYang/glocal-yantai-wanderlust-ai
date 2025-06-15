@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +8,7 @@ import { useCityContext } from './CityProvider';
 const PopularDestinations = () => {
   const { selectedCity, selectedCountry } = useCityContext();
 
-  // 不同城市的景点数据
+  // 不同城市的真实景点数据
   const destinationsData = {
     '烟台市': [
       {
@@ -42,6 +43,74 @@ const PopularDestinations = () => {
         duration: '2-3小时',
         price: '¥50',
         tags: ['灯塔', '近代建筑', '拍照']
+      },
+      {
+        id: 4,
+        name: '张裕酒文化博物馆',
+        image: '/api/placeholder/400/300',
+        rating: 4.5,
+        reviews: 756,
+        category: '文化体验',
+        duration: '2小时',
+        price: '¥50',
+        tags: ['红酒', '文化', '品鉴']
+      },
+      {
+        id: 5,
+        name: '龙口南山景区',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 1120,
+        category: '自然风光',
+        duration: '半天',
+        price: '¥120',
+        tags: ['佛教', '山景', '祈福']
+      },
+      {
+        id: 6,
+        name: '海昌鲸鲨海洋公园',
+        image: '/api/placeholder/400/300',
+        rating: 4.4,
+        reviews: 2100,
+        category: '家庭娱乐',
+        duration: '全天',
+        price: '¥280',
+        tags: ['海洋生物', '亲子', '表演']
+      }
+    ],
+    '青岛市': [
+      {
+        id: 1,
+        name: '栈桥',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 3200,
+        category: '历史文化',
+        duration: '1-2小时',
+        price: '免费',
+        tags: ['地标', '海景', '拍照']
+      },
+      {
+        id: 2,
+        name: '八大关',
+        image: '/api/placeholder/400/300',
+        rating: 4.7,
+        reviews: 2800,
+        category: '历史文化',
+        duration: '2-3小时',
+        price: '免费',
+        tags: ['建筑群', '历史', '漫步']
+      },
+      {
+        id: 3,
+        name: '崂山',
+        image: '/api/placeholder/400/300',
+        rating: 4.5,
+        reviews: 1900,
+        category: '自然风光',
+        duration: '全天',
+        price: '¥130',
+        tags: ['道教', '山景', '登山']
       }
     ],
     '东京都': [
@@ -77,6 +146,39 @@ const PopularDestinations = () => {
         duration: '3小时',
         price: '¥30',
         tags: ['樱花', '公园', '休闲']
+      },
+      {
+        id: 4,
+        name: '明治神宫',
+        image: '/api/placeholder/400/300',
+        rating: 4.8,
+        reviews: 2400,
+        category: '历史文化',
+        duration: '2小时',
+        price: '免费',
+        tags: ['神社', '文化', '祈福']
+      },
+      {
+        id: 5,
+        name: '银座',
+        image: '/api/placeholder/400/300',
+        rating: 4.4,
+        reviews: 3500,
+        category: '购物娱乐',
+        duration: '半天',
+        price: '免费',
+        tags: ['购物', '美食', '奢侈品']
+      },
+      {
+        id: 6,
+        name: '筑地外市场',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 2200,
+        category: '美食体验',
+        duration: '3小时',
+        price: '¥100',
+        tags: ['海鲜', '市场', '早餐']
       }
     ],
     '巴黎': [
@@ -112,12 +214,115 @@ const PopularDestinations = () => {
         duration: '1小时',
         price: '€13',
         tags: ['历史', '建筑', '观景']
+      },
+      {
+        id: 4,
+        name: '巴黎圣母院',
+        image: '/api/placeholder/400/300',
+        rating: 4.7,
+        reviews: 3800,
+        category: '历史文化',
+        duration: '2小时',
+        price: '免费',
+        tags: ['哥特式', '建筑', '文化']
+      },
+      {
+        id: 5,
+        name: '塞纳河游船',
+        image: '/api/placeholder/400/300',
+        rating: 4.5,
+        reviews: 2600,
+        category: '观光体验',
+        duration: '1.5小时',
+        price: '€15',
+        tags: ['游船', '河景', '浪漫']
+      },
+      {
+        id: 6,
+        name: '蒙马特高地',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 2900,
+        category: '艺术文化',
+        duration: '半天',
+        price: '免费',
+        tags: ['艺术', '咖啡', '街头']
+      }
+    ],
+    '纽约市': [
+      {
+        id: 1,
+        name: '自由女神像',
+        image: '/api/placeholder/400/300',
+        rating: 4.7,
+        reviews: 4500,
+        category: '历史地标',
+        duration: '半天',
+        price: '$23',
+        tags: ['地标', '历史', '渡轮']
+      },
+      {
+        id: 2,
+        name: '中央公园',
+        image: '/api/placeholder/400/300',
+        rating: 4.8,
+        reviews: 3600,
+        category: '自然休闲',
+        duration: '3-4小时',
+        price: '免费',
+        tags: ['公园', '散步', '湖泊']
+      },
+      {
+        id: 3,
+        name: '时代广场',
+        image: '/api/placeholder/400/300',
+        rating: 4.4,
+        reviews: 5200,
+        category: '城市地标',
+        duration: '1-2小时',
+        price: '免费',
+        tags: ['繁华', '购物', '夜景']
+      }
+    ],
+    '首尔市': [
+      {
+        id: 1,
+        name: '景福宫',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 2800,
+        category: '历史文化',
+        duration: '2-3小时',
+        price: '₩3000',
+        tags: ['宫殿', '历史', '文化']
+      },
+      {
+        id: 2,
+        name: 'N首尔塔',
+        image: '/api/placeholder/400/300',
+        rating: 4.5,
+        reviews: 3200,
+        category: '城市地标',
+        duration: '2小时',
+        price: '₩16000',
+        tags: ['塔', '夜景', '恋人']
+      },
+      {
+        id: 3,
+        name: '明洞',
+        image: '/api/placeholder/400/300',
+        rating: 4.4,
+        reviews: 4100,
+        category: '购物娱乐',
+        duration: '半天',
+        price: '免费',
+        tags: ['购物', '美食', '化妆品']
       }
     ]
   };
 
-  // 默认景点数据，如果当前城市没有特定数据
-  const defaultDestinations = [
+  // 获取当前城市的景点，如果没有则显示默认内容
+  const destinations = destinationsData[selectedCity] || [
     {
       id: 1,
       name: `${selectedCity}著名景点`,
@@ -152,8 +357,6 @@ const PopularDestinations = () => {
       tags: ['美食', '特色', '休闲']
     }
   ];
-
-  const destinations = destinationsData[selectedCity] || defaultDestinations;
 
   return (
     <section className="py-20 bg-white">
