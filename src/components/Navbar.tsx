@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { MapPin, Menu, X, Settings } from 'lucide-react';
+import { MapPin, Menu, X, Settings, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import APIKeySettings from './APIKeySettings';
 import { aiService } from '@/services/aiService';
@@ -16,7 +16,9 @@ const Navbar = () => {
     { name: 'AI行程', href: '/ai-planning' },
     { name: '本地达人', href: '/local-experts' },
     { name: '特色商城', href: '/shop' },
-    { name: '盲盒旅行', href: '/mystery-box' }
+    { name: '盲盒旅行', href: '/mystery-box' },
+    { name: '社区', href: '/community' },
+    { name: '会员', href: '/membership' }
   ];
 
   const isActive = (href: string) => location.pathname === href;
@@ -37,7 +39,7 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-6">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -64,6 +66,12 @@ const Navbar = () => {
                 <Settings className="h-4 w-4 mr-2" />
                 AI设置
               </Button>
+              <Link to="/profile">
+                <Button variant="outline" size="sm" className="flex items-center">
+                  <User className="h-4 w-4 mr-2" />
+                  个人中心
+                </Button>
+              </Link>
               <Button className="gradient-ocean text-white">
                 登录/注册
               </Button>
@@ -117,6 +125,12 @@ const Navbar = () => {
                   <Settings className="h-4 w-4 mr-2" />
                   AI设置
                 </Button>
+                <Link to="/profile">
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <User className="h-4 w-4 mr-2" />
+                    个人中心
+                  </Button>
+                </Link>
                 <Button className="w-full gradient-ocean text-white">
                   登录/注册
                 </Button>

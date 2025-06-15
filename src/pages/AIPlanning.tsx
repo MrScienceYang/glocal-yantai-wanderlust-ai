@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar } from 'lucide-react';
+import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink } from 'lucide-react';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const AIPlanning = () => {
   const [preferences, setPreferences] = useState({
@@ -169,6 +170,17 @@ const AIPlanning = () => {
                                   ¥{activity.estimatedCost}
                                 </span>
                               </div>
+                              {/* 添加门票购买链接 */}
+                              {activity.name.includes('蓬莱阁') && (
+                                <div className="mt-2">
+                                  <Link to="/ticket/1">
+                                    <Button size="sm" variant="outline" className="text-xs">
+                                      <ExternalLink className="w-3 h-3 mr-1" />
+                                      购买门票
+                                    </Button>
+                                  </Link>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>

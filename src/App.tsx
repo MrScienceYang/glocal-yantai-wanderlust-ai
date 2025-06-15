@@ -9,6 +9,11 @@ import AIPlanning from "./pages/AIPlanning";
 import LocalExperts from "./pages/LocalExperts";
 import Shop from "./pages/Shop";
 import MysteryBox from "./pages/MysteryBox";
+import Community from "./pages/Community";
+import Membership from "./pages/Membership";
+import Profile from "./pages/Profile";
+import TicketPurchase from "./pages/TicketPurchase";
+import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +30,11 @@ const App = () => (
           <Route path="/local-experts" element={<LocalExperts />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/mystery-box" element={<MysteryBox />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/membership" element={<Membership />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/ticket/:id" element={<TicketPurchase />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
