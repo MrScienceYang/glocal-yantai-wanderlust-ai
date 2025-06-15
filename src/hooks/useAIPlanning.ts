@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 interface TravelPreferences {
+  country: string;
+  province: string;
+  city: string;
   interests: string;
   budget: string;
   duration: string;
@@ -45,23 +48,23 @@ export const useAIPlanning = () => {
           {
             activities: [
               {
-                name: '蓬莱阁历史文化游',
-                description: '探访千年古建筑，聆听八仙过海传说',
-                location: '蓬莱阁景区',
+                name: `${preferences.city}历史文化游`,
+                description: `探访${preferences.city}的千年古建筑，聆听当地传说`,
+                location: `${preferences.city}核心景区`,
                 time: '09:00-11:30',
                 estimatedCost: 100
               },
               {
-                name: '张师傅海鲜大餐',
-                description: '品尝最新鲜的烟台海鲜，特色鲍鱼推荐',
-                location: '芝罘区渔人码头',
+                name: '当地特色美食',
+                description: `品尝最正宗的${preferences.city}特色菜，当地人推荐`,
+                location: `${preferences.city}老城区`,
                 time: '12:00-13:30',
                 estimatedCost: 180
               },
               {
-                name: '烟台山公园漫步',
-                description: '欣赏海岸风光，感受历史文化氛围',
-                location: '烟台山公园',
+                name: `${preferences.city}风光漫步`,
+                description: `欣赏${preferences.city}独特风光，感受当地文化氛围`,
+                location: `${preferences.city}风景区`,
                 time: '15:00-17:00',
                 estimatedCost: 0
               }
@@ -70,16 +73,16 @@ export const useAIPlanning = () => {
           {
             activities: [
               {
-                name: '八仙渡海口游览',
-                description: '体验神话传说中的仙境美景',
-                location: '蓬莱八仙渡海口',
+                name: `${preferences.city}特色体验`,
+                description: `体验${preferences.city}独有的文化活动`,
+                location: `${preferences.city}体验中心`,
                 time: '09:30-11:00',
                 estimatedCost: 80
               },
               {
-                name: '烟台苹果园采摘',
-                description: '亲手采摘正宗烟台苹果，享受田园乐趣',
-                location: '牟平区苹果园',
+                name: `${preferences.city}特产购物`,
+                description: `购买${preferences.city}最地道的特产，享受购物乐趣`,
+                location: `${preferences.city}特产市场`,
                 time: '14:00-16:00',
                 estimatedCost: 60
               }
@@ -91,7 +94,7 @@ export const useAIPlanning = () => {
       };
 
       setPlan(mockPlan);
-      toast.success('AI行程规划生成成功！');
+      toast.success(`${preferences.city}AI行程规划生成成功！`);
       
     } catch (error) {
       console.error('生成行程失败:', error);

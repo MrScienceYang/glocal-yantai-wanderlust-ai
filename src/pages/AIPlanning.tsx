@@ -1,16 +1,51 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink, Globe } from 'lucide-react';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 
+// 城市数据结构
+const cityData = {
+  '中国': {
+    '山东省': ['烟台市', '青岛市', '济南市', '威海市', '泰安市', '济宁市'],
+    '北京市': ['北京市'],
+    '上海市': ['上海市'],
+    '广东省': ['广州市', '深圳市', '珠海市', '佛山市', '东莞市'],
+    '浙江省': ['杭州市', '宁波市', '温州市', '嘉兴市', '湖州市'],
+    '江苏省': ['南京市', '苏州市', '无锡市', '常州市', '南通市']
+  },
+  '日本': {
+    '关东地方': ['东京都', '横滨市', '川崎市', '埼玉市'],
+    '关西地方': ['大阪市', '京都市', '神户市', '奈良市'],
+    '中部地方': ['名古屋市', '静冈市', '新潟市']
+  },
+  '韩国': {
+    '首尔特别市': ['首尔市'],
+    '釜山广域市': ['釜山市'],
+    '济州特别自治道': ['济州市']
+  },
+  '美国': {
+    '加利福尼亚州': ['洛杉矶', '旧金山', '圣地亚哥', '萨克拉门托'],
+    '纽约州': ['纽约市', '奥尔巴尼', '布法罗'],
+    '德克萨斯州': ['休斯敦', '达拉斯', '奥斯汀', '圣安东尼奥']
+  },
+  '法国': {
+    '法兰西岛大区': ['巴黎'],
+    '普罗旺斯-阿尔卑斯-蓝色海岸大区': ['马赛', '尼斯', '戛纳'],
+    '奥弗涅-罗纳-阿尔卑斯大区': ['里昂', '格勒诺布尔']
+  }
+};
+
 const AIPlanning = () => {
   const [preferences, setPreferences] = useState({
+    country: '',
+    province: '',
+    city: '',
     interests: '',
     budget: '',
     duration: '',
@@ -21,19 +56,40 @@ const AIPlanning = () => {
   const { generatePlan, isLoading, plan } = useAIPlanning();
 
   const handleInputChange = (field: string, value: string) => {
-    setPreferences(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setPreferences(prev => {
+      const newPrefs = { ...prev, [field]: value };
+      
+      // 当选择国家时，重置省份和城市
+      if (field === 'country') {
+        newPrefs.province = '';
+        newPrefs.city = '';
+      }
+      // 当选择省份时，重置城市
+      if (field === 'province') {
+        newPrefs.city = '';
+      }
+      
+      return newPrefs;
+    });
   };
 
   const handleGeneratePlan = async () => {
-    if (!preferences.interests || !preferences.budget || !preferences.duration) {
-      toast.error('请填写完整的旅行信息');
+    if (!preferences.city || !preferences.interests || !preferences.budget || !preferences.duration) {
+      toast.error('请填写完整的旅行信息，包括目标城市');
       return;
     }
 
     await generatePlan(preferences);
+  };
+
+  const getProvinces = () => {
+    if (!preferences.country || !cityData[preferences.country]) return [];
+    return Object.keys(cityData[preferences.country]);
+  };
+
+  const getCities = () => {
+    if (!preferences.country || !preferences.province || !cityData[preferences.country]?.[preferences.province]) return [];
+    return cityData[preferences.country][preferences.province];
   };
 
   return (
@@ -44,7 +100,7 @@ const AIPlanning = () => {
             AI智能行程规划
           </h1>
           <p className="text-xl text-gray-600">
-            告诉我们你的偏好，AI为你定制专属烟台旅行方案
+            告诉我们你的偏好，AI为你定制专属旅行方案
           </p>
         </div>
 
@@ -61,6 +117,66 @@ const AIPlanning = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* 城市选择 */}
+              <div className="space-y-4">
+                <Label className="flex items-center">
+                  <Globe className="mr-2 h-4 w-4 text-ocean-600" />
+                  目的地选择
+                </Label>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <Label htmlFor="country" className="text-sm text-gray-600">国家</Label>
+                    <Select value={preferences.country} onValueChange={(value) => handleInputChange('country', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择国家" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.keys(cityData).map((country) => (
+                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="province" className="text-sm text-gray-600">省/州/地区</Label>
+                    <Select 
+                      value={preferences.province} 
+                      onValueChange={(value) => handleInputChange('province', value)}
+                      disabled={!preferences.country}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择省份" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getProvinces().map((province) => (
+                          <SelectItem key={province} value={province}>{province}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="city" className="text-sm text-gray-600">城市</Label>
+                    <Select 
+                      value={preferences.city} 
+                      onValueChange={(value) => handleInputChange('city', value)}
+                      disabled={!preferences.province}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择城市" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getCities().map((city) => (
+                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="interests">兴趣爱好和偏好</Label>
                 <Input
@@ -141,7 +257,7 @@ const AIPlanning = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <MapPin className="mr-2 h-5 w-5 text-sunset-600" />
-                    您的专属烟台行程
+                    您的专属{preferences.city}行程
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
