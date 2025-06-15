@@ -3,15 +3,29 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Users, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCityContext } from '@/components/CityProvider';
 
 const Hero = () => {
+  const { selectedCity } = useCityContext();
+
+  const cityImages: { [key: string]: string } = {
+    '烟台市': 'https://images.unsplash.com/photo-1613689324556-912a8155e821?q=80&w=1920&h=1080&fit=crop',
+    '青岛市': 'https://images.unsplash.com/photo-1596397732835-ded3756a8946?q=80&w=1920&h=1080&fit=crop',
+    '威海市': 'https://images.unsplash.com/photo-1623594198431-744358652934?q=80&w=1920&h=1080&fit=crop',
+    '济南市': 'https://images.unsplash.com/photo-1603787010414-b5a5951a8332?q=80&w=1920&h=1080&fit=crop',
+  };
+
+  const defaultImage = 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=1920&h=1080&fit=crop';
+  
+  const backgroundImage = cityImages[selectedCity] || defaultImage;
+
   return (
     <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/api/placeholder/1920/1080')`
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('${backgroundImage}')`
         }}
       />
       
