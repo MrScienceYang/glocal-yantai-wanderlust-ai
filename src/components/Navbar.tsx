@@ -1,30 +1,59 @@
 
-import React, { useState } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { MapPin, Menu, X, Settings, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import APIKeySettings from './APIKeySettings';
+import CitySelector from './CitySelector';
 import { aiService } from '@/services/aiService';
+
+// 创建城市上下文
+interface CityContextType {
+  selectedCountry: string;
+  selectedProvince: string;
+  selectedCity: string;
+  updateCity: (country: string, province: string, city: string) => void;
+}
+
+export const CityContext = createContext<CityContextType>({
+  selectedCountry: '中国',
+  selectedProvince: '山东省',
+  selectedCity: '烟台市',
+  updateCity: () => {}
+});
+
+export const useCityContext = () => useContext(CityContext);
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAPISettings, setShowAPISettings] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('中国');
+  const [selectedProvince, setSelectedProvince] = useState('山东省');
+  const [selectedCity, setSelectedCity] = useState('烟台市');
   const location = useLocation();
 
   const navigation = [
     { name: '首页', href: '/' },
     { name: 'AI行程', href: '/ai-planning' },
-    { name: '本地达人', href: '/local-experts' },
-    { name: '特色商城', href: '/shop' },
+    ...(selectedCountry === '中国' ? [
+      { name: '本地达人', href: '/local-experts' },
+      { name: '特色商城', href: '/shop' }
+    ] : []),
     { name: '盲盒旅行', href: '/mystery-box' },
     { name: '社区', href: '/community' },
     { name: '会员', href: '/membership' }
   ];
 
+  const updateCity = (country: string, province: string, city: string) => {
+    setSelectedCountry(country);
+    setSelectedProvince(province);
+    setSelectedCity(city);
+  };
+
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <>
+    <CityContext.Provider value={{ selectedCountry, selectedProvince, selectedCity, updateCity }}>
       <nav className="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -37,6 +66,11 @@ const Navbar = () => {
                 Glocal
               </span>
             </Link>
+
+            {/* City Selector */}
+            <div className="hidden md:flex">
+              <CitySelector onCityChange={updateCity} />
+            </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
@@ -98,6 +132,9 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
+              <div className="px-3 py-2">
+                <CitySelector onCityChange={updateCity} />
+              </div>
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -146,7 +183,7 @@ const Navbar = () => {
         onClose={() => setShowAPISettings(false)}
         onSuccess={() => {}}
       />
-    </>
+    </CityContext.Provider>
   );
 };
 

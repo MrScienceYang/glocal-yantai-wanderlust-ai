@@ -3,76 +3,158 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Star, Clock } from 'lucide-react';
+import { useCityContext } from './Navbar';
 
 const PopularDestinations = () => {
-  const destinations = [
+  const { selectedCity, selectedCountry } = useCityContext();
+
+  // 不同城市的景点数据
+  const destinationsData = {
+    '烟台市': [
+      {
+        id: 1,
+        name: '蓬莱阁',
+        image: '/api/placeholder/400/300',
+        rating: 4.8,
+        reviews: 2840,
+        category: '历史文化',
+        duration: '3-4小时',
+        price: '¥140',
+        tags: ['古建筑', '海景', '历史']
+      },
+      {
+        id: 2,
+        name: '养马岛',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 1560,
+        category: '自然风光',
+        duration: '半天',
+        price: '免费',
+        tags: ['海滩', '骑行', '度假']
+      },
+      {
+        id: 3,
+        name: '烟台山景区',
+        image: '/api/placeholder/400/300',
+        rating: 4.7,
+        reviews: 980,
+        category: '城市景观',
+        duration: '2-3小时',
+        price: '¥50',
+        tags: ['灯塔', '近代建筑', '拍照']
+      }
+    ],
+    '东京都': [
+      {
+        id: 1,
+        name: '浅草寺',
+        image: '/api/placeholder/400/300',
+        rating: 4.7,
+        reviews: 3200,
+        category: '历史文化',
+        duration: '2-3小时',
+        price: '免费',
+        tags: ['古建筑', '文化', '购物']
+      },
+      {
+        id: 2,
+        name: '东京塔',
+        image: '/api/placeholder/400/300',
+        rating: 4.5,
+        reviews: 2800,
+        category: '城市地标',
+        duration: '2小时',
+        price: '¥180',
+        tags: ['夜景', '观景台', '地标']
+      },
+      {
+        id: 3,
+        name: '新宿御苑',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 1900,
+        category: '自然风光',
+        duration: '3小时',
+        price: '¥30',
+        tags: ['樱花', '公园', '休闲']
+      }
+    ],
+    '巴黎': [
+      {
+        id: 1,
+        name: '埃菲尔铁塔',
+        image: '/api/placeholder/400/300',
+        rating: 4.9,
+        reviews: 5000,
+        category: '城市地标',
+        duration: '2-3小时',
+        price: '€25',
+        tags: ['地标', '夜景', '浪漫']
+      },
+      {
+        id: 2,
+        name: '卢浮宫',
+        image: '/api/placeholder/400/300',
+        rating: 4.8,
+        reviews: 4200,
+        category: '历史文化',
+        duration: '半天',
+        price: '€17',
+        tags: ['艺术', '历史', '博物馆']
+      },
+      {
+        id: 3,
+        name: '凯旋门',
+        image: '/api/placeholder/400/300',
+        rating: 4.6,
+        reviews: 3100,
+        category: '历史文化',
+        duration: '1小时',
+        price: '€13',
+        tags: ['历史', '建筑', '观景']
+      }
+    ]
+  };
+
+  // 默认景点数据，如果当前城市没有特定数据
+  const defaultDestinations = [
     {
       id: 1,
-      name: '蓬莱阁',
+      name: `${selectedCity}著名景点`,
       image: '/api/placeholder/400/300',
-      rating: 4.8,
-      reviews: 2840,
-      category: '历史文化',
-      duration: '3-4小时',
-      price: '¥140',
-      tags: ['古建筑', '海景', '历史']
+      rating: 4.5,
+      reviews: 1000,
+      category: '热门景点',
+      duration: '2-3小时',
+      price: selectedCountry === '中国' ? '¥100' : '$20',
+      tags: ['热门', '必游', '文化']
     },
     {
       id: 2,
-      name: '养马岛',
+      name: `${selectedCity}特色体验`,
       image: '/api/placeholder/400/300',
-      rating: 4.6,
-      reviews: 1560,
-      category: '自然风光',
+      rating: 4.3,
+      reviews: 800,
+      category: '文化体验',
       duration: '半天',
-      price: '免费',
-      tags: ['海滩', '骑行', '度假']
+      price: selectedCountry === '中国' ? '¥80' : '$15',
+      tags: ['体验', '文化', '特色']
     },
     {
       id: 3,
-      name: '烟台山景区',
-      image: '/api/placeholder/400/300',
-      rating: 4.7,
-      reviews: 980,
-      category: '城市景观',
-      duration: '2-3小时',
-      price: '¥50',
-      tags: ['灯塔', '近代建筑', '拍照']
-    },
-    {
-      id: 4,
-      name: '张裕酒文化博物馆',
-      image: '/api/placeholder/400/300',
-      rating: 4.5,
-      reviews: 720,
-      category: '文化体验',
-      duration: '2小时',
-      price: '¥60',
-      tags: ['品酒', '历史', '文化']
-    },
-    {
-      id: 5,
-      name: '金沙滩海滨公园',
+      name: `${selectedCity}美食街区`,
       image: '/api/placeholder/400/300',
       rating: 4.4,
-      reviews: 1240,
-      category: '休闲娱乐',
-      duration: '半天',
-      price: '免费',
-      tags: ['海滩', '日落', '休闲']
-    },
-    {
-      id: 6,
-      name: '烟台海洋极地世界',
-      image: '/api/placeholder/400/300',
-      rating: 4.6,
-      reviews: 1680,
-      category: '亲子游乐',
-      duration: '4-5小时',
-      price: '¥160',
-      tags: ['海洋馆', '表演', '亲子']
+      reviews: 1200,
+      category: '美食体验',
+      duration: '2小时',
+      price: selectedCountry === '中国' ? '¥60' : '$25',
+      tags: ['美食', '特色', '休闲']
     }
   ];
+
+  const destinations = destinationsData[selectedCity] || defaultDestinations;
 
   return (
     <section className="py-20 bg-white">
@@ -82,7 +164,7 @@ const PopularDestinations = () => {
             热门目的地
           </h2>
           <p className="text-xl text-gray-600">
-            发现烟台最受欢迎的景点和体验
+            发现{selectedCity}最受欢迎的景点和体验
           </p>
         </div>
 

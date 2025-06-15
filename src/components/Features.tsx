@@ -3,8 +3,11 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Star, ShoppingCart, Users, Heart, Calendar } from 'lucide-react';
+import { useCityContext } from './Navbar';
 
 const Features = () => {
+  const { selectedCity, selectedCountry } = useCityContext();
+
   const features = [
     {
       icon: MapPin,
@@ -13,20 +16,19 @@ const Features = () => {
       details: '门票预订 • 交通安排 • 酒店推荐',
       color: 'ocean'
     },
-    {
+    ...(selectedCountry === '中国' ? [{
       icon: Users,
       title: '本地达人服务',
-      description: '专业导览员带你深度体验烟台文化',
+      description: `专业导览员带你深度体验${selectedCity}文化`,
       details: '历史讲解 • 美食推荐 • 摄影指导',
       color: 'sunset'
-    },
-    {
+    }, {
       icon: ShoppingCart,
       title: '特色产品商城',
-      description: '烟台预制菜和文创产品一站式购买',
-      details: '海鲜预制菜 • 手工艺品 • 文创纪念品',
+      description: `${selectedCity}预制菜和文创产品一站式购买`,
+      details: '特色美食 • 手工艺品 • 文创纪念品',
       color: 'ocean'
-    },
+    }] : []),
     {
       icon: Star,
       title: '盲盒旅行体验',
@@ -55,10 +57,10 @@ const Features = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            为什么选择 <span className="text-gradient">Glocal烟台</span>
+            为什么选择 <span className="text-gradient">Glocal{selectedCity}</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            结合AI智能推荐与本地人情味，为你打造独一无二的烟台体验
+            结合AI智能推荐与本地人情味，为你打造独一无二的{selectedCity}体验
           </p>
         </div>
 
