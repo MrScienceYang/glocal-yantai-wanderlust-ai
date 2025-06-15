@@ -11,7 +11,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main>
+      <main className="pt-16">
         {children}
       </main>
       <Footer />

@@ -28,11 +28,11 @@ const Navbar = () => {
   const isActive = (href: string) => location.pathname === href;
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40">
+    <nav className="bg-white/95 backdrop-blur-md shadow-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
             <div className="w-8 h-8 gradient-ocean rounded-lg flex items-center justify-center">
               <MapPin className="h-5 w-5 text-white" />
             </div>
@@ -42,17 +42,17 @@ const Navbar = () => {
           </Link>
 
           {/* City Selector */}
-          <div className="hidden md:flex">
+          <div className="hidden md:flex flex-shrink-0">
             <CitySelector onCityChange={updateCity} />
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-6 flex-1 justify-center mx-8">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
                   isActive(item.href)
                     ? 'text-ocean-600 bg-ocean-50'
                     : 'text-gray-700 hover:text-ocean-600'
@@ -64,7 +64,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -104,8 +104,8 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
+        <div className="md:hidden bg-white border-t shadow-lg">
+          <div className="px-2 pt-2 pb-3 space-y-1">
             <div className="px-3 py-2">
               <CitySelector onCityChange={updateCity} />
             </div>
