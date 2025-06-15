@@ -4,10 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink, Globe } from 'lucide-react';
+import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink, Globe, Car, FileDown } from 'lucide-react';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // 城市数据结构
 const cityData = {
@@ -80,6 +82,48 @@ const AIPlanning = () => {
     }
 
     await generatePlan(preferences);
+  };
+
+  const handleExportPDF = () => {
+    const input = document.getElementById('plan-to-export');
+    if (input) {
+      toast.info('正在生成PDF文件，请稍候...');
+      html2canvas(input, { 
+        scale: 2,
+        useCORS: true,
+      }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        
+        const ratio = canvasWidth / canvasHeight;
+        const pdfImageWidth = pdfWidth;
+        const pdfImageHeight = pdfImageWidth / ratio;
+        
+        let heightLeft = pdfImageHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, pdfImageWidth, pdfImageHeight);
+        heightLeft -= pdfHeight;
+
+        while (heightLeft > 0) {
+          position -= pdfHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, pdfImageWidth, pdfImageHeight);
+          heightLeft -= pdfHeight;
+        }
+        
+        pdf.save(`行程单-${preferences.city}.pdf`);
+        toast.success('PDF文件已成功导出！');
+      }).catch(err => {
+        console.error("导出PDF时出错:", err);
+        toast.error('导出PDF失败，请重试。');
+      });
+    }
   };
 
   const getProvinces = () => {
@@ -255,16 +299,25 @@ const AIPlanning = () => {
             {plan ? (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <MapPin className="mr-2 h-5 w-5 text-sunset-600" />
-                    您的专属{preferences.city}行程
-                  </CardTitle>
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="flex items-center">
+                      <MapPin className="mr-2 h-5 w-5 text-sunset-600" />
+                      您的专属{preferences.city}行程
+                    </CardTitle>
+                    <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                      <FileDown className="mr-2 h-4 w-4" />
+                      导出PDF
+                    </Button>
+                  </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent id="plan-to-export" className="p-6 pt-0">
                   <div className="space-y-6">
                     {plan.itinerary.map((day, index) => (
-                      <div key={index} className="border-l-4 border-ocean-400 pl-4">
-                        <h3 className="font-semibold text-lg mb-2">第{index + 1}天</h3>
+                      <div key={index} className="border-l-4 border-ocean-400 pl-4 py-2">
+                        <h3 className="font-semibold text-lg mb-3 flex items-center">
+                          第{index + 1}天
+                          <span className="text-sm font-normal text-gray-500 ml-2">({day.date})</span>
+                        </h3>
                         <div className="space-y-3">
                           {day.activities.map((activity, actIndex) => (
                             <div key={actIndex} className="bg-gray-50 p-3 rounded-lg">
@@ -286,6 +339,12 @@ const AIPlanning = () => {
                                   ¥{activity.estimatedCost}
                                 </span>
                               </div>
+                              {activity.transportation && (
+                                <div className="mt-2 text-xs text-gray-500 flex items-center">
+                                  <Car className="w-3 h-3 mr-1" />
+                                  <span>交通方式: {activity.transportation}</span>
+                                </div>
+                              )}
                               {/* 添加门票购买链接 */}
                               {activity.name.includes('蓬莱阁') && (
                                 <div className="mt-2">

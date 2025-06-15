@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -19,9 +18,11 @@ interface Activity {
   location: string;
   time: string;
   estimatedCost: number;
+  transportation: string;
 }
 
 interface DayPlan {
+  date: string;
   activities: Activity[];
 }
 
@@ -29,6 +30,7 @@ interface TravelPlan {
   itinerary: DayPlan[];
   totalCost: number;
   recommendedGroupSize: string;
+  startDate: string;
 }
 
 // 真实景区数据库
@@ -103,32 +105,37 @@ export const useAIPlanning = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const cityAttractions = realAttractionsDatabase[preferences.city];
+      const startDate = new Date();
       
       if (!cityAttractions) {
         // 如果没有该城市的数据，生成通用行程
         const mockPlan: TravelPlan = {
           itinerary: [
             {
+              date: startDate.toLocaleDateString('zh-CN'),
               activities: [
                 {
                   name: `${preferences.city}历史文化游`,
                   description: `探访${preferences.city}的历史文化景点，了解当地文化`,
                   location: `${preferences.city}市中心`,
                   time: '09:00-12:00',
-                  estimatedCost: 100
+                  estimatedCost: 100,
+                  transportation: '建议步行或乘坐公共交通',
                 },
                 {
                   name: `${preferences.city}特色美食`,
                   description: `品尝${preferences.city}当地特色美食`,
                   location: `${preferences.city}美食街`,
                   time: '12:00-14:00',
-                  estimatedCost: 150
+                  estimatedCost: 150,
+                  transportation: '建议步行',
                 }
               ]
             }
           ],
           totalCost: 250,
-          recommendedGroupSize: preferences.groupSize || '2'
+          recommendedGroupSize: preferences.groupSize || '2',
+          startDate: startDate.toLocaleDateString('zh-CN'),
         };
         setPlan(mockPlan);
         toast.success(`${preferences.city}AI行程规划生成成功！`);
@@ -173,6 +180,9 @@ export const useAIPlanning = () => {
           (day + 1) * attractionsPerDay
         );
 
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + day);
+
         const activities: Activity[] = dayAttractions.map((attraction, index) => {
           const startTime = 9 + index * 3;
           const endTime = startTime + 2;
@@ -183,7 +193,8 @@ export const useAIPlanning = () => {
             description: attraction.description,
             location: `${preferences.city}${attraction.name}`,
             time: `${startTime.toString().padStart(2, '0')}:00-${endTime.toString().padStart(2, '0')}:00`,
-            estimatedCost: attraction.cost
+            estimatedCost: attraction.cost,
+            transportation: '建议乘坐出租车或公共交通',
           };
         });
 
@@ -194,18 +205,20 @@ export const useAIPlanning = () => {
             description: `品尝${preferences.city}当地特色菜肴`,
             location: `${preferences.city}特色餐厅`,
             time: '12:00-13:30',
-            estimatedCost: 80
+            estimatedCost: 80,
+            transportation: '根据景点位置决定',
           });
           totalCost += 80;
         }
 
-        itinerary.push({ activities });
+        itinerary.push({ date: currentDate.toLocaleDateString('zh-CN'), activities });
       }
 
       const mockPlan: TravelPlan = {
         itinerary,
         totalCost,
-        recommendedGroupSize: preferences.groupSize || '2'
+        recommendedGroupSize: preferences.groupSize || '2',
+        startDate: startDate.toLocaleDateString('zh-CN'),
       };
 
       setPlan(mockPlan);
