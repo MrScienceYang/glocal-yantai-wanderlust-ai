@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Gift, Star, MapPin, Utensils, Camera, Sparkles, Clock, Users, Share2 } from 'lucide-react';
+import { Gift, Star, MapPin, Utensils, Camera, Sparkles, Clock, Users, Share2, RefreshCw } from 'lucide-react';
 import { useCityContext } from '@/components/CityProvider';
 import { useCart } from '@/components/CartProvider';
 import { toast } from 'sonner';
@@ -116,6 +115,7 @@ const MysteryBox = () => {
   const [openedBox, setOpenedBox] = useState<any>(null);
   const [showOpeningAnimation, setShowOpeningAnimation] = useState(false);
   const [currentOpeningBox, setCurrentOpeningBox] = useState<any>(null);
+  const [isRefunding, setIsRefunding] = useState(false);
 
   const currentCityData = cityData[selectedCity] || { mysteryBoxes: [], possibleItems: [] };
   const { mysteryBoxes, possibleItems } = currentCityData;
@@ -179,6 +179,23 @@ const MysteryBox = () => {
       openedAt: new Date().toISOString()
     });
     setCurrentOpeningBox(null);
+  };
+
+  const handleRefund = async () => {
+    if (!openedBox) return;
+    
+    setIsRefunding(true);
+    
+    // 模拟退款处理
+    setTimeout(() => {
+      toast.success('退款申请已提交', {
+        description: '退款将在3-5个工作日内到账，感谢您的理解'
+      });
+      
+      // 重置盲盒状态
+      setOpenedBox(null);
+      setIsRefunding(false);
+    }, 2000);
   };
 
   const shareBox = (box: any) => {
@@ -415,6 +432,16 @@ const MysteryBox = () => {
                     分享成果
                   </Button>
                   <Button 
+                    variant="destructive"
+                    onClick={handleRefund}
+                    disabled={isRefunding}
+                    className="flex-1" 
+                    size="lg"
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${isRefunding ? 'animate-spin' : ''}`} />
+                    {isRefunding ? '处理中...' : '一键退款'}
+                  </Button>
+                  <Button 
                     variant="outline" 
                     onClick={resetBox}
                     className="flex-1" 
@@ -422,6 +449,13 @@ const MysteryBox = () => {
                   >
                     再来一次
                   </Button>
+                </div>
+
+                {/* 退款说明 */}
+                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    <strong>退款说明：</strong>如对盲盒内容不满意，可在开启后24小时内申请退款。退款金额将在3-5个工作日内返还到您的付款账户。
+                  </p>
                 </div>
               </CardContent>
             </Card>

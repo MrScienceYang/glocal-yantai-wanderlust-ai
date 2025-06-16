@@ -1,21 +1,19 @@
-
-import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
-import { toast } from 'sonner';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface CartItem {
-  id: string | number;
+  id: string;
   name: string;
   price: number;
-  image: string;
   quantity: number;
+  image: string;
+  mysteryBox?: boolean; // 添加盲盒标识
 }
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: Omit<CartItem, 'quantity'>, quantity?: number) => void;
-  removeFromCart: (productId: string | number) => void;
-  updateQuantity: (productId: string | number, quantity: number) => void;
-  cartItemCount: number;
+  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  removeFromCart: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
 }
 
@@ -24,44 +22,37 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  const addToCart = useCallback((product: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
+  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+      const existingItem = prevItems.find(i => i.id === item.id);
       if (existingItem) {
-        return prevItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
+        return prevItems.map(i =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
-      }
-      return [...prevItems, { ...product, quantity }];
-    });
-    toast.success("成功添加到购物车", {
-      description: `${product.name} 已被添加到您的购物车。`,
-    });
-  }, []);
-  
-  const removeFromCart = useCallback((productId: string | number) => {
-      setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-      toast.success("商品已从购物车中移除");
-  }, []);
-
-  const updateQuantity = useCallback((productId: string | number, quantity: number) => {
-      if (quantity <= 0) {
-          removeFromCart(productId);
       } else {
-          setCartItems(prevItems => prevItems.map(item => item.id === productId ? {...item, quantity} : item));
+        return [...prevItems, { ...item, quantity: 1 }];
       }
-  }, [removeFromCart]);
-  
-  const clearCart = useCallback(() => {
-    setCartItems([]);
-  }, []);
+    });
+  };
 
-  const cartItemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+  const removeFromCart = (itemId: string) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  };
+
+  const updateQuantity = (itemId: string, quantity: number) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === itemId ? { ...item, quantity: quantity } : item
+      )
+    );
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, cartItemCount, clearCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );
@@ -69,7 +60,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;
