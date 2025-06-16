@@ -30,33 +30,82 @@ export const generateBusinessPlanPDF = (data: BusinessPlanData) => {
     pdf.line(margin, 285, pageWidth - margin, 285);
   };
 
-  // 设置字体（使用支持中文的字体）
-  pdf.setFont('courier');
-  
+  // 添加中文文本的函数（使用图片方式渲染中文）
+  const addChineseText = (text: string, x: number, y: number, options: any = {}) => {
+    try {
+      // 创建临时canvas来渲染中文
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const fontSize = options.fontSize || 12;
+      const fontFamily = options.fontFamily || 'Arial, "Microsoft YaHei", "SimHei", sans-serif';
+      
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = options.color || '#000000';
+      
+      const textWidth = ctx.measureText(text).width;
+      const textHeight = fontSize * 1.5;
+      
+      canvas.width = textWidth + 10;
+      canvas.height = textHeight + 10;
+      
+      // 重新设置字体（canvas重置后需要重新设置）
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = options.color || '#000000';
+      ctx.textBaseline = 'top';
+      
+      // 填充文本
+      ctx.fillText(text, 5, 5);
+      
+      // 将canvas转换为图片并添加到PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdfWidth = textWidth * 0.75; // 调整PDF中的尺寸
+      const pdfHeight = textHeight * 0.75;
+      
+      if (options.align === 'center') {
+        x = (pageWidth - pdfWidth) / 2;
+      }
+      
+      pdf.addImage(imgData, 'PNG', x, y, pdfWidth, pdfHeight);
+      
+      return textHeight * 0.75;
+    } catch (error) {
+      // 如果中文渲染失败，使用英文替代
+      pdf.setFontSize(options.fontSize || 12);
+      pdf.setTextColor(options.color || '#000000');
+      const fallbackText = text.replace(/[\u4e00-\u9fff]/g, '?'); // 替换中文为问号
+      pdf.text(fallbackText, x, y, options);
+      return options.fontSize || 12;
+    }
+  };
+
   // 添加首页设计元素
   addDesignElements();
 
   // 主标题
-  pdf.setFontSize(20);
-  pdf.setTextColor(0, 0, 0);
-  pdf.text('Glocal zhineng gongyinglian hezuo shangye jihuashu', pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 15;
+  const titleHeight = addChineseText('Glocal智能供应链合作商业计划书', pageWidth / 2, yPosition, {
+    fontSize: 20,
+    align: 'center',
+    color: '#000000'
+  });
+  yPosition += titleHeight + 15;
 
-  // 副标题装饰
-  pdf.setFontSize(12);
-  pdf.setTextColor(79, 172, 254);
-  pdf.text('goujian zhinenghua gongyinglian shengtai, gongchuang shuzihua weilai', pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 25;
+  // 副标题
+  const subtitleHeight = addChineseText('构建智能化供应链生态，共创数字化未来', pageWidth / 2, yPosition, {
+    fontSize: 12,
+    align: 'center',
+    color: '#4facfe'
+  });
+  yPosition += subtitleHeight + 25;
 
   // 合作模式标题
-  pdf.setFontSize(16);
-  pdf.setTextColor(0, 100, 200);
   const modeTitle = getModeTitle(data.cooperationMode.slice(-1));
-  
-  // 将中文转换为拼音或英文描述
-  const titleLines = pdf.splitTextToSize(modeTitle, maxWidth);
-  pdf.text(titleLines, margin, yPosition);
-  yPosition += titleLines.length * 8 + 15;
+  const modeTitleHeight = addChineseText(modeTitle, margin, yPosition, {
+    fontSize: 16,
+    color: '#0064c8'
+  });
+  yPosition += modeTitleHeight + 15;
 
   // 获取对应模式的具体内容
   const modeContent = getModeSpecificContent(data.cooperationMode.slice(-1));
@@ -70,25 +119,25 @@ export const generateBusinessPlanPDF = (data: BusinessPlanData) => {
     }
 
     // 章节标题
-    pdf.setFontSize(14);
-    pdf.setTextColor(0, 100, 200);
-    const sectionTitleLines = pdf.splitTextToSize(section.title, maxWidth);
-    pdf.text(sectionTitleLines, margin, yPosition);
-    yPosition += sectionTitleLines.length * 8 + 8;
+    const sectionTitleHeight = addChineseText(section.title, margin, yPosition, {
+      fontSize: 14,
+      color: '#0064c8'
+    });
+    yPosition += sectionTitleHeight + 8;
 
     // 章节内容
-    pdf.setFontSize(10);
-    pdf.setTextColor(0, 0, 0);
     section.content.forEach(paragraph => {
-      const lines = pdf.splitTextToSize(paragraph, maxWidth);
-      pdf.text(lines, margin, yPosition);
-      yPosition += lines.length * 5 + 5;
-      
       if (yPosition > 250) {
         pdf.addPage();
         addDesignElements();
         yPosition = 25;
       }
+      
+      const paragraphHeight = addChineseText(paragraph, margin, yPosition, {
+        fontSize: 10,
+        color: '#000000'
+      });
+      yPosition += paragraphHeight + 5;
     });
     
     yPosition += 10;
@@ -100,15 +149,16 @@ export const generateBusinessPlanPDF = (data: BusinessPlanData) => {
   yPosition = 25;
 
   // 合同标题
-  pdf.setFontSize(18);
-  pdf.setTextColor(0, 0, 0);
-  pdf.text('gongyinglian hezuo xieyi', pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 25;
+  const contractTitleHeight = addChineseText('供应链合作协议', pageWidth / 2, yPosition, {
+    fontSize: 18,
+    align: 'center',
+    color: '#000000'
+  });
+  yPosition += contractTitleHeight + 25;
 
   // 合同内容
   const contractContent = getContractContent(data.cooperationMode.slice(-1));
   
-  pdf.setFontSize(10);
   contractContent.forEach(line => {
     if (yPosition > 270) {
       pdf.addPage();
@@ -116,124 +166,125 @@ export const generateBusinessPlanPDF = (data: BusinessPlanData) => {
       yPosition = 25;
     }
     
-    if (line.includes('diyitiao') || line.includes('diertiao')) {
-      pdf.setFontSize(12);
-      pdf.setTextColor(0, 100, 200);
+    let fontSize = 10;
+    let color = '#000000';
+    
+    if (line.includes('第一条') || line.includes('第二条') || line.includes('第三条')) {
+      fontSize = 12;
+      color = '#0064c8';
       yPosition += 5;
-    } else if (line.includes('jiafang') && line.includes('qianzi')) {
-      pdf.setFontSize(11);
-      pdf.setTextColor(0, 0, 0);
+    } else if (line.includes('甲方') && line.includes('签字')) {
+      fontSize = 11;
       yPosition += 10;
-    } else {
-      pdf.setFontSize(10);
-      pdf.setTextColor(0, 0, 0);
     }
     
-    const textLines = pdf.splitTextToSize(line, maxWidth);
-    pdf.text(textLines, margin, yPosition);
-    yPosition += textLines.length * 5 + 3;
+    const lineHeight = addChineseText(line, margin, yPosition, {
+      fontSize: fontSize,
+      color: color
+    });
+    yPosition += lineHeight + 3;
   });
 
   // 保存PDF
-  const fileName = `Glocal_Supply_Chain_Cooperation_Mode_${data.cooperationMode.slice(-1)}_${new Date().toISOString().split('T')[0]}.pdf`;
+  const fileName = `Glocal供应链合作模式${data.cooperationMode.slice(-1)}_${new Date().toISOString().split('T')[0]}.pdf`;
   pdf.save(fileName);
 };
 
-// 获取模式标题（英文版本）
+// 获取模式标题
 const getModeTitle = (mode: string) => {
   const titles = {
-    'A': 'Mode A: Technology Empowerment Supplier (Production Technology Transformation)',
-    'B': 'Mode B: Glocal Brand Alliance (OEM Cooperation)',
-    'C': 'Mode C: End Channel Optimization (Partner Stores)',
-    'D': 'Mode D: Symbiotic Scenic Area Cooperation'
+    'A': '模式A：技术赋能型供应商（生产端技术化改造）',
+    'B': '模式B：Glocal品牌联盟（贴牌/OEM合作）',
+    'C': '模式C：末端渠道优化（合作门店）',
+    'D': '模式D：共生式景区合作'
   };
   return titles[mode] || '';
 };
 
-// 获取特定模式的详细内容（英文版本）
+// 获取特定模式的详细内容
 const getModeSpecificContent = (mode: string) => {
   const contentMap = {
     'A': [
       {
-        title: 'Core Concept',
+        title: '核心概念',
         content: [
-          'This mode is mainly aimed at local producers with development potential but relatively backward technology and management (such as farms, small food processing workshops). Glocal provides them with a complete set of technical solutions to improve their production efficiency, quality control level and logistics capabilities. In exchange, Glocal obtains exclusive or priority supplier qualifications.',
+          '此模式主要面向具有发展潜力但在技术和管理上相对落后的本地生产者（如农场、小型食品加工作坊）。Glocal为其提供一整套技术解决方案，以提升其生产效率、品控水平和物流能力，作为交换，Glocal获得其独家或优先的供应商资格。',
         ]
       },
       {
-        title: 'Technology Empowerment Package',
+        title: '"技术赋能"组合包',
         content: [
-          'This is not a simple patent license, but a comprehensive service package whose value far exceeds a single patent. It includes:',
-          '• Proprietary software system access: Suppliers get access to Glocals self-developed supply chain management (SCM) software to achieve digital management of orders, inventory, and production planning.',
-          '• AI data decision support: Based on the behavioral data, search preferences and booking trends of Glocal platform C-end users, AI models provide suppliers with accurate demand forecasts to guide their production and stocking.',
-          '• Standardized operating procedures (SOPs): Glocal provides a complete set of SOPs on product quality control, food safety standards, packaging standards and logistics handover.'
+          '这并非简单的专利许可，而是一个综合性的服务包，其价值远超单一专利。它包括：',
+          '• 专有软件系统接入：供应商获得Glocal自研的供应链管理（SCM）软件的使用权限，实现订单、库存、生产计划的数字化管理。',
+          '• AI数据决策支持：基于Glocal平台C端用户的行为数据、搜索偏好和预订趋势，AI模型为供应商提供精准的需求预测，指导其生产和备货。',
+          '• 标准化运营流程（SOPs）：Glocal提供一整套关于产品质量控制、食品安全规范、包装标准和物流交接的SOPs。'
         ]
       },
       {
-        title: 'Financial Model',
+        title: '财务模型',
         content: [
-          '• Technology transformation startup fund: One-time fees charged for technology transformation.',
-          '• Technology service annual fee/commission: For SCM software use and AI data analysis services.',
-          '• Cost recovery mechanism: To reduce the entry threshold for small and medium suppliers.',
-          '• Cooperation deposit: Suppliers need to pay a certain amount of deposit.'
+          '• 技术改造启动金：针对技术化改造收取的一次性费用。',
+          '• 技术服务年费/抽成：针对SCM软件使用和AI数据分析服务。',
+          '• 成本回收机制：降低中小供应商的准入门槛。',
+          '• 合作保证金：供应商需缴纳一定数额的保证金。'
         ]
       }
     ],
     'B': [
       {
-        title: 'Core Concept',
+        title: '核心概念',
         content: [
-          'This mode is aimed at local suppliers who already have stable production capacity and high-quality products. Glocal authorizes them to produce products with the "Glocal" trademark (i.e., OEM production), enabling them to quickly enter the market with the help of Glocals brand reputation, marketing channels and user trust.'
+          '此模式面向已经具备稳定生产能力和高质量产品的本地供应商。Glocal授权其生产带有"Glocal"商标的产品（即贴牌生产），使其能够借助Glocal的品牌信誉、营销渠道和用户信任，快速进入市场。'
         ]
       },
       {
-        title: 'Legal and Operational Framework',
+        title: '法律与运营框架',
         content: [
-          '• Trademark authorization: Glocal must own the registered trademark of "Glocal". The core of the OEM cooperation agreement is to grant suppliers a limited license to use the trademark on specific products.',
-          '• Quality control: This is the highest risk and most critical link in this model. Once there is a problem with OEM products (especially food safety issues), Glocal as the brand owner will bear the primary legal responsibility and brand reputation loss.',
-          '• Value exchange: As a reward for meeting Glocals strict quality standards, suppliers will receive special traffic support provided by the platform, set up a "Glocal Selection" zone in the mall for key promotion, and enjoy platform service fee reductions.'
+          '• 商标授权：Glocal必须拥有"Glocal"的注册商标。OEM合作协议的核心是授予供应商在特定产品上使用该商标的有限许可。',
+          '• 质量控制：这是此模式下风险最高、也最关键的一环。一旦贴牌产品出现问题（尤其是食品安全问题），Glocal作为品牌方将承担首要的法律责任和品牌声誉损失。',
+          '• 价值交换：作为满足Glocal严苛质量标准的回报，供应商将获得平台提供的专项流量扶持，在商城设立"Glocal精选"专区进行重点推广，并享受平台服务费的减免。'
         ]
       }
     ],
     'C': [
       {
-        title: 'Core Concept',
+        title: '核心概念',
         content: [
-          'This mode aims to sign local retail stores, restaurants, hotel gift shops, specialty stores, etc. as Glocals offline partners. The core value is to use Glocals integrated, quality-controllable, and unique supply chain to replace the existing local specialty supplies of these stores.'
+          '此模式旨在签约本地的零售店、餐厅、酒店礼品店、特产店等作为Glocal的线下合作伙伴。核心价值在于，利用Glocal整合的、质量可控的、独特的供应链，替换掉这些门店现有的本地特产供应。'
         ]
       },
       {
-        title: 'Bidirectional Value Proposition',
+        title: '双向价值主张',
         content: [
-          '• For partner stores: Able to obtain exclusive, quality-guaranteed specialty products, thereby forming differentiation in fierce market competition.',
-          '• For Glocal: Obtained a low-cost offline physical distribution and brand display network that goes deep into the community.'
+          '• 对合作门店：能够获得独家的、质量有保证的特色产品，从而在激烈的市场竞争中形成差异化。',
+          '• 对Glocal：获得了一个深入社区的、低成本的线下实体分销和品牌展示网络。'
         ]
       },
       {
-        title: 'Financial Model',
+        title: '财务模型',
         content: [
-          'This model is more suitable for adopting a wholesale model. Glocal supplies goods to partner stores at wholesale prices, and the stores sell them at retail prices to earn the difference.'
+          '此模式更适合采用批发模式。Glocal以批发价向合作门店供货，门店再以零售价出售，赚取差价。'
         ]
       }
     ],
     'D': [
       {
-        title: 'Core Concept',
+        title: '核心概念',
         content: [
-          'Cooperation with scenic areas must go beyond the simple ticket commission model and turn to a deeper, symbiotic cooperative relationship.'
+          '与景区的合作必须超越简单的门票佣金模式，转向更深度的、共生的合作关系。'
         ]
       },
       {
-        title: 'Mode D1 (Preferred Partners)',
+        title: '模式D1（优选合作伙伴）',
         content: [
-          'Scenic areas prioritize the display and sale of Glocal brand or Glocal supply chain specialty products in prominent locations such as their own gift shops and visitor centers.'
+          '景区在其自营的礼品店、游客中心等显要位置，优先陈列和销售Glocal品牌或Glocal供应链提供的特色商品。'
         ]
       },
       {
-        title: 'Mode D2 (Strategic Co-creation Partners)',
+        title: '模式D2（战略共创伙伴）',
         content: [
-          'Legal risk warning and strategic restructuring: The original plan of "exclusive sales of platform products, exemption from platform service fees" has extremely high antitrust legal risks.',
-          'Compliant strategic transformation: This model must be reconstructed from anti-competitive "exclusivity" to competition-promoting "innovation".'
+          '法律风险警示与战略重构：原计划的"独家销售平台产品，免予收取平台服务费"存在极高的反垄断法律风险。',
+          '合规的战略转向：此模式必须从反竞争的"排他性"重构为促进竞争的"创新性"。'
         ]
       }
     ]
@@ -242,122 +293,122 @@ const getModeSpecificContent = (mode: string) => {
   return contentMap[mode] || [];
 };
 
-// 获取合同内容（英文版本）
+// 获取合同内容
 const getContractContent = (mode: string) => {
   const contractTemplates = {
     'A': [
-      'Party A (Technology Service Provider): Glocal Intelligent Supply Chain Platform',
-      'Legal Representative:',
-      'Unified Social Credit Code:',
-      'Address:',
+      '甲方（技术服务方）：Glocal智能供应链平台',
+      '法定代表人：',
+      '统一社会信用代码：',
+      '地址：',
       '',
-      'Party B (Supplier):',
-      'Legal Representative/ID Number:',
-      'Unified Social Credit Code:',
-      'Address:',
+      '乙方（供应商）：',
+      '法定代表人/身份证号：',
+      '统一社会信用代码：',
+      '地址：',
       '',
-      'Whereas:',
-      '1. Party A legally owns and operates the "Glocal" online platform and owns a series of technical solutions aimed at improving the efficiency of agricultural/food production and supply chain management.',
-      '2. Party B is a producer of [product type] and hopes to improve its production management level by adopting Party As empowerment technology and become a supplier of the platform.',
+      '鉴于：',
+      '1. 甲方合法拥有并运营"Glocal"线上平台，并拥有一系列旨在提升农产品/食品生产与供应链管理效率的技术解决方案。',
+      '2. 乙方为产品生产者，希望通过采用甲方的赋能技术提升其生产管理水平，并成为平台的供应商。',
       '',
-      'After friendly consultation between both parties, the following agreement is reached:',
+      '经双方友好协商，达成协议如下：',
       '',
-      'Article 1 Definitions',
-      '1.1 Empowerment technology: refers to a complete set of technologies and services provided by Party A to Party B for use.',
-      '1.2 Supply products: refers to products produced and supplied by Party B to Party A using empowerment technology.',
+      '第一条 定义',
+      '1.1 赋能技术：指甲方提供给乙方使用的一整套技术与服务。',
+      '1.2 供应产品：指乙方利用赋能技术生产并供应给甲方的产品。',
       '',
-      'Article 2 Technology Empowerment and Services',
-      '2.1 Party A agrees to provide Party B with the empowerment technology defined in Article 1 of this agreement.',
-      '2.2 Technology transformation: If hardware installation or system deployment is involved, both parties agree to implement it according to Annex 1.',
-      '2.3 Training and support: Party A shall provide Party B with necessary technical use training and continuous technical support.',
+      '第二条 技术赋能与服务',
+      '2.1 甲方同意向乙方提供本协议第一条定义的赋能技术。',
+      '2.2 技术改造：如涉及硬件安装或系统部署，双方同意按照附件实施。',
+      '2.3 培训与支持：甲方应为乙方提供必要的技术使用培训和持续的技术支持。',
       '',
-      'Article 3 Product Supply and Procurement',
-      '3.1 Party B agrees to become Party As [exclusive/priority] [product type] supplier during the validity period of this agreement.',
-      '3.2 Orders: Party A issues procurement orders to Party B through its SCM system.',
-      '3.3 Quality assurance: Party B guarantees that its supplied products fully comply with the quality standards specified in Annex 2.',
+      '第三条 产品供应与采购',
+      '3.1 乙方同意在本协议有效期内，成为甲方的供应商。',
+      '3.2 订单：甲方通过其SCM系统向乙方下达采购订单。',
+      '3.3 质量保证：乙方保证其供应产品完全符合质量标准。',
       '',
-      'Article 4 Fees and Settlement',
-      '4.1 Technology service fee: Party B agrees to pay technology service fees to Party A.',
-      '4.2 Technology transformation startup fund payment: Party B agrees to pay the technology transformation startup fund.',
-      '4.3 Payment settlement: Party A pays the payment to Party B within [] working days after receiving Party Bs supplied products.',
-      '4.4 Deposit: Party B must pay a cooperation deposit to Party A within [] days after signing this agreement.'
+      '第四条 费用与结算',
+      '4.1 技术服务费：乙方同意向甲方支付技术服务费。',
+      '4.2 技术改造启动金支付：乙方同意支付技术改造启动金。',
+      '4.3 货款结算：甲方在收到乙方供应产品并验收合格后支付货款。',
+      '4.4 保证金：乙方须缴纳合作保证金。'
     ],
     'B': [
-      'Party A (Brand Licensor/Platform): Glocal Intelligent Supply Chain Platform',
-      'Party B (Manufacturer/Licensee):',
+      '甲方（品牌授权方/平台）：Glocal智能供应链平台',
+      '乙方（制造商/被授权方）：',
       '',
-      'Article 1 Cooperation Content',
-      '1.1 Party B applies to enter Party As "Glocal" platform as a manufacturer and produces products with Party As "Glocal" registered trademark through OEM mode.',
-      '1.2 OEM product list, specifications, quality standards, and packaging requirements are detailed in Annex 1 of this agreement.',
+      '第一条 合作内容',
+      '1.1 乙方申请入驻甲方"Glocal"平台作为制造商，通过OEM模式生产带有甲方"Glocal"注册商标的产品。',
+      '1.2 OEM产品清单、规格、质量标准和包装要求详见本协议附件。',
       '',
-      'Article 2 Trademark Authorization',
-      '2.1 Party A grants Party B a non-exclusive, non-transferable, non-sublicensable trademark use license.',
-      '2.2 Party B shall not use Party As trademark in any situation beyond the scope agreed in this agreement.',
+      '第二条 商标授权',
+      '2.1 甲方授予乙方非独占的、不可转让的、不可再许可的商标使用许可。',
+      '2.2 乙方不得在任何超出本协议约定范围的情况下使用甲方商标。',
       '',
-      'Article 3 Quality Control and Food Safety',
-      '3.1 Core clause: Party B guarantees that all OEM products it produces fully comply with the quality standards specified in Annex 1.',
-      '3.2 Party As audit rights: Party A has the right to enter Party Bs production and storage facilities at any time without prior notice.',
-      '3.3 Product sampling: Party A has the right to sample and test OEM products at any time.',
-      '3.4 Product recall: If OEM products are proven to have safety hazards or do not comply with legal regulations, Party B must immediately initiate a recall procedure.'
+      '第三条 质量控制与食品安全',
+      '3.1 核心条款：乙方保证其生产的所有OEM产品完全符合附件规定的质量标准。',
+      '3.2 甲方审核权：甲方有权随时进入乙方的生产和仓储设施进行检查。',
+      '3.3 产品抽检：甲方有权随时对OEM产品进行抽样检测。',
+      '3.4 产品召回：如OEM产品被证实存在安全隐患，乙方必须立即启动召回程序。'
     ],
     'C': [
-      'Party A (Supplier): Glocal Intelligent Supply Chain Platform',
-      'Party B (Partner Store):',
+      '甲方（供应商）：Glocal智能供应链平台',
+      '乙方（合作门店）：',
       '',
-      'Article 1 Cooperation Content',
-      '1.1 Party A agrees to supply Party B with its integrated or proprietary "Glocal" series specialty products.',
-      '1.2 Party B agrees to sell cooperative products in its business premises.',
+      '第一条 合作内容',
+      '1.1 甲方同意向乙方供应其整合或自有的"Glocal"系列特色产品。',
+      '1.2 乙方同意在其经营场所内销售合作产品。',
       '',
-      'Article 2 Supply and Ordering',
-      '2.1 Ordering: Party B orders through Party As designated online ordering system or by contacting the customer manager.',
-      '2.2 Price: Party A supplies goods to Party B at the "wholesale price" in the annex.',
-      '2.3 Delivery: Party A is responsible for delivering the goods ordered by Party B to Party Bs designated business premises.',
-      '2.4 Acceptance: Party B should immediately accept the goods upon receipt.',
+      '第二条 供货与订货',
+      '2.1 订货：乙方通过甲方指定的线上订货系统或联系客户经理进行订货。',
+      '2.2 价格：甲方按附件中的"批发价"向乙方供货。',
+      '2.3 配送：甲方负责将乙方订购的货物配送至乙方指定经营场所。',
+      '2.4 验收：乙方收到货物时应立即验收。',
       '',
-      'Article 3 Settlement Method',
-      '3.1 Both parties adopt [monthly settlement/batch settlement] method for settlement.',
-      '3.2 Monthly settlement: Party A provides Party B with the previous months statement of accounts before the [] day of the next month.',
-      '3.3 Batch settlement: Party B pays the payment for each batch when ordering/when goods arrive.'
+      '第三条 结算方式',
+      '3.1 双方采取月结/批结方式结算。',
+      '3.2 月结：甲方于次月提供上月对账单。',
+      '3.3 批结：乙方在每次订货时/货到时支付该批次货款。'
     ],
     'D': [
-      'Party A (Cooperation Partner): Glocal Intelligent Supply Chain Platform',
-      'Party B (Scenic Area):',
+      '甲方（合作伙伴）：Glocal智能供应链平台',
+      '乙方（景区）：',
       '',
-      'Article 1 Cooperation Mode (choose one)',
-      'Mode A: Preferred Partners',
-      '1.1 Party B agrees to prioritize the display and sale of "Glocal" series cultural and creative products and specialty foods supplied by Party A in its self-operated stores in the scenic area.',
-      '1.2 In return, Party A agrees to:',
-      '(a) Provide joint marketing support for Party B on its "Glocal" platform.',
-      '(b) If Party B sells electronic tickets through Party As platform, the platform service fee charged by Party A will be reduced by [60%] on the basis of the standard rate [10%].',
+      '第一条 合作模式（选择其一）',
+      '模式A：优选合作伙伴',
+      '1.1 乙方同意在其景区自营店铺的显要位置，优先陈列和销售甲方供应的"Glocal"系列文创产品和特色食品。',
+      '1.2 作为回报，甲方同意：',
+      '(a) 在其"Glocal"平台上为乙方提供联合营销支持。',
+      '(b) 如乙方通过甲方平台销售电子门票，甲方收取的平台服务费将在标准费率基础上减免60%。',
       '',
-      'Mode B: Strategic Co-creation Partners',
-      '1.1 Both parties agree to jointly plan, develop and operate a joint tourism experience product.',
-      '1.2 Joint product content: specifically includes [special tour routes, exclusive guide services, customized cultural and creative souvenirs, specialty dining experiences, etc.].',
-      '1.3 Revenue sharing: The net income generated from the external sales of joint products shall be distributed by both parties according to the ratio of [Party A XX%: Party B XX%].',
-      '1.4 Exclusivity: Joint products are the common intellectual property of both parties and can only be sold through Party As platform and Party Bs official channels.'
+      '模式B：战略共创伙伴',
+      '1.1 双方同意共同策划、开发并运营联合旅游体验产品。',
+      '1.2 联合产品内容：具体包括特殊游览路线、专属导览服务、定制文创纪念品、特色餐饮体验等。',
+      '1.3 收益分成：联合产品对外销售产生的净收入由双方按照约定比例分配。',
+      '1.4 独家性：联合产品为双方共同知识产权，仅可通过甲方平台和乙方官方渠道销售。'
     ]
   };
 
   const baseContract = [
     '',
-    'Article 4 Confidentiality Obligations',
-    'Both parties shall bear confidentiality obligations for commercial secrets learned during cooperation.',
+    '第四条 保密义务',
+    '双方应对合作中获知的商业秘密承担保密义务。',
     '',
-    'Article 5 Breach of Contract Liability',
-    'Any party that breaches the contract shall bear corresponding legal liability and compensation obligations.',
+    '第五条 违约责任',
+    '任何一方违反合同应承担相应的法律责任和赔偿义务。',
     '',
-    'Article 6 Dispute Resolution',
-    'Disputes arising from this agreement shall be resolved through friendly consultation between both parties.',
+    '第六条 争议解决',
+    '因本协议产生的争议应通过双方友好协商解决。',
     '',
-    'Article 7 Other Clauses',
-    'This agreement is valid for three years and can be renewed. Matters not covered shall be negotiated separately.',
+    '第七条 其他条款',
+    '本协议有效期三年，可续签。未尽事宜另行协商。',
     '',
     '',
-    'Party A Signature: _________________    Date: _________________',
+    '甲方签字：_________________    日期：_________________',
     '',
-    'Party B Signature: _________________    Date: _________________',
+    '乙方签字：_________________    日期：_________________',
     '',
-    '(This agreement is made in duplicate, with each party holding one copy)'
+    '（本协议一式两份，双方各执一份）'
   ];
 
   return [...(contractTemplates[mode] || []), ...baseContract];
