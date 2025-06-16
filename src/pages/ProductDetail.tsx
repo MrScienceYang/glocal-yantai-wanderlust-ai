@@ -45,13 +45,16 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    const itemToAdd = {
+    // Add multiple items based on quantity
+    for (let i = 0; i < quantity; i++) {
+      const itemToAdd = {
         id: `${product.id}-${selectedSpec}`, // Unique ID for spec
         name: `${product.name} (${selectedSpec.split(' ')[0]})`,
         price: product.price,
         image: product.images[0]
-    };
-    addToCart(itemToAdd, quantity);
+      };
+      addToCart(itemToAdd);
+    }
   };
 
   const handleBuyNow = () => {
