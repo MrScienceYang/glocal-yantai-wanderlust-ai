@@ -33,7 +33,7 @@ const PartnerHub = () => {
       icon: Shield,
       gradient: 'from-green-600 to-emerald-600',
       features: ['多重安全认证', '单点登录', '权限管理', '操作日志'],
-      link: '#'
+      link: '/partner-login'
     }
   ];
 
