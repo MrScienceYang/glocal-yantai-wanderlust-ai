@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -21,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Layout from '@/components/Layout';
 import { Link } from 'react-router-dom';
+import { generateBusinessPlanPDF } from '@/utils/pdfGenerator';
 
 const SupplyChainPartner = () => {
   const [selectedMode, setSelectedMode] = useState('A');
@@ -106,6 +106,20 @@ const SupplyChainPartner = () => {
   ];
 
   const currentMode = cooperationModes.find(mode => mode.id === selectedMode);
+
+  const handleDownloadMaterials = () => {
+    if (!currentMode) return;
+    
+    const businessPlanData = {
+      cooperationMode: `模式${currentMode.id}`,
+      title: currentMode.title,
+      description: currentMode.description,
+      features: currentMode.features,
+      financialModel: currentMode.financialModel
+    };
+    
+    generateBusinessPlanPDF(businessPlanData);
+  };
 
   const handleSignContract = () => {
     setShowContract(true);
@@ -319,6 +333,7 @@ const SupplyChainPartner = () => {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button 
+                      onClick={handleDownloadMaterials}
                       variant="outline" 
                       className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                       size="lg"
