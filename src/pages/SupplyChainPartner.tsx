@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -20,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Layout from '@/components/Layout';
+import { Link } from 'react-router-dom';
 
 const SupplyChainPartner = () => {
   const [selectedMode, setSelectedMode] = useState('A');
@@ -325,19 +325,14 @@ const SupplyChainPartner = () => {
                       下载合作资料
                     </Button>
                     <Button 
-                      onClick={handleSignContract}
-                      disabled={showContract}
+                      asChild
                       className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold px-8 py-4 text-lg"
                       size="lg"
                     >
-                      {showContract ? (
-                        <>处理中...</>
-                      ) : (
-                        <>
-                          在线签约合作
-                          <ArrowRight className="ml-2 h-5 w-5" />
-                        </>
-                      )}
+                      <Link to="/cooperation-application">
+                        在线申请合作
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Link>
                     </Button>
                   </div>
                   <p className="text-gray-400 text-sm mt-4">
