@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -309,11 +310,11 @@ const SupplyChainPartner = () => {
                 <CardContent className="p-8">
                   <div className="flex items-center justify-center mb-6">
                     <FileText className="h-8 w-8 text-cyan-400 mr-3" />
-                    <h3 className="text-3xl font-bold text-white">
+                    <h3 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                       开启合作之旅
                     </h3>
                   </div>
-                  <p className="text-gray-300 mb-8 text-lg">
+                  <p className="bg-gradient-to-r from-gray-200 via-white to-gray-200 bg-clip-text text-transparent mb-8 text-lg font-medium">
                     选择适合的合作模式，与Glocal共同开创供应链数字化新时代
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -322,7 +323,9 @@ const SupplyChainPartner = () => {
                       className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                       size="lg"
                     >
-                      下载合作资料
+                      <span className="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent font-semibold">
+                        下载合作资料
+                      </span>
                     </Button>
                     <Button 
                       asChild
@@ -330,12 +333,14 @@ const SupplyChainPartner = () => {
                       size="lg"
                     >
                       <Link to="/cooperation-application">
-                        在线申请合作
+                        <span className="bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent font-bold">
+                          在线申请合作
+                        </span>
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Link>
                     </Button>
                   </div>
-                  <p className="text-gray-400 text-sm mt-4">
+                  <p className="bg-gradient-to-r from-gray-400 via-gray-300 to-gray-400 bg-clip-text text-transparent text-sm mt-4 font-medium">
                     * 提交合作意向后，专业商务团队将在24小时内联系您
                   </p>
                 </CardContent>
