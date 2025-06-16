@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { Gift, Star, MapPin, Utensils, Camera, Sparkles, Clock, Users, Share2 } 
 import { useCityContext } from '@/components/CityProvider';
 import { useCart } from '@/components/CartProvider';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import MysteryBoxOpening from '@/components/MysteryBoxOpening';
 
 const cityData = {
@@ -60,7 +62,10 @@ const cityData = {
       { name: '烟台苹果文创礼盒', type: 'gift', icon: Gift, value: 89, rarity: 'common' },
       { name: '专业摄影服务', type: 'service', icon: Camera, value: 200, rarity: 'epic' },
       { name: '烟台大鲍鱼预制菜', type: 'food', icon: Utensils, value: 168, rarity: 'rare' },
-      { name: '本地达人陪游服务', type: 'service', icon: Star, value: 150, rarity: 'rare' }
+      { name: '本地达人陪游服务', type: 'service', icon: Star, value: 150, rarity: 'rare' },
+      { name: '烟台山景区门票', type: 'attraction', icon: MapPin, value: 80, rarity: 'common' },
+      { name: '海边温泉体验', type: 'service', icon: Star, value: 220, rarity: 'epic' },
+      { name: '烟台红酒品鉴', type: 'food', icon: Utensils, value: 160, rarity: 'rare' }
     ]
   },
   '青岛市': {
@@ -98,6 +103,8 @@ const cityData = {
       { name: '青岛啤酒博物馆门票', type: 'attraction', icon: MapPin, value: 60, rarity: 'common' },
       { name: '网红大虾套餐', type: 'food', icon: Utensils, value: 150, rarity: 'rare' },
       { name: '帆船出海体验', type: 'service', icon: Star, value: 220, rarity: 'epic' },
+      { name: '八大关摄影服务', type: 'service', icon: Camera, value: 180, rarity: 'rare' },
+      { name: '青岛特色文创', type: 'gift', icon: Gift, value: 80, rarity: 'common' }
     ]
   }
 }
@@ -105,32 +112,48 @@ const cityData = {
 const MysteryBox = () => {
   const { selectedCity } = useCityContext();
   const { addToCart } = useCart();
-  const [selectedBox, setSelectedBox] = useState<string | null>(null);
-  const [isOpening, setIsOpening] = useState(false);
+  const navigate = useNavigate();
   const [openedBox, setOpenedBox] = useState<any>(null);
   const [showOpeningAnimation, setShowOpeningAnimation] = useState(false);
+  const [currentOpeningBox, setCurrentOpeningBox] = useState<any>(null);
 
   const currentCityData = cityData[selectedCity] || { mysteryBoxes: [], possibleItems: [] };
   const { mysteryBoxes, possibleItems } = currentCityData;
 
-  const generateRandomItems = (boxType: string) => {
-    const itemCount = boxType === 'yantai-luxury' ? 4 : boxType === 'yantai-foodie' ? 3 : 2;
-    return possibleItems
-      .sort(() => Math.random() - 0.5)
-      .slice(0, itemCount)
-      .map(item => ({
-        ...item,
-        quantity: Math.floor(Math.random() * 2) + 1
-      }));
-  };
+  // 监听从结算页面返回的支付完成状态
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentCompleted = urlParams.get('payment_completed');
+    const boxId = urlParams.get('box_id');
+    
+    if (paymentCompleted === 'true' && boxId) {
+      const box = mysteryBoxes.find(b => b.id === boxId);
+      if (box) {
+        // 清除URL参数
+        window.history.replaceState({}, '', window.location.pathname);
+        
+        // 开始开启盲盒动画
+        setCurrentOpeningBox(box);
+        setShowOpeningAnimation(true);
+        
+        toast.success('支付成功！正在为您开启盲盒...', {
+          description: '请耐心等待惊喜揭晓'
+        });
+      }
+    }
+  }, [mysteryBoxes]);
 
   const handlePurchase = (box: any) => {
     addToCart({
       id: box.id,
       name: box.name,
       price: box.price,
-      image: box.image || '/placeholder.svg'
+      image: box.image || '/placeholder.svg',
+      mysteryBox: true // 标记为盲盒商品
     });
+    
+    // 跳转到结算页面，并传递盲盒ID
+    navigate(`/checkout?box_id=${box.id}&return_to=mystery-box`);
     toast.success('盲盒已添加到购物车！');
   };
 
@@ -138,29 +161,24 @@ const MysteryBox = () => {
     const box = mysteryBoxes.find(b => b.id === boxId);
     if (!box) return;
 
-    setSelectedBox(boxId);
+    setCurrentOpeningBox(box);
     setShowOpeningAnimation(true);
   };
 
-  const handleOpeningComplete = () => {
+  const handleOpeningComplete = (items: any[]) => {
     setShowOpeningAnimation(false);
-    setIsOpening(true);
+    
+    if (!currentOpeningBox) return;
 
-    setTimeout(() => {
-      const box = mysteryBoxes.find(b => b.id === selectedBox);
-      if (!box) return;
+    const totalValue = items.reduce((sum, item) => sum + (item.value * (item.quantity || 1)), 0);
 
-      const randomItems = generateRandomItems(box.id);
-      const totalValue = randomItems.reduce((sum, item) => sum + (item.value * item.quantity), 0);
-
-      setOpenedBox({
-        ...box,
-        items: randomItems,
-        totalValue,
-        openedAt: new Date().toISOString()
-      });
-      setIsOpening(false);
-    }, 1000);
+    setOpenedBox({
+      ...currentOpeningBox,
+      items,
+      totalValue,
+      openedAt: new Date().toISOString()
+    });
+    setCurrentOpeningBox(null);
   };
 
   const shareBox = (box: any) => {
@@ -179,9 +197,7 @@ const MysteryBox = () => {
   };
 
   const resetBox = () => {
-    setSelectedBox(null);
     setOpenedBox(null);
-    setIsOpening(false);
   };
 
   const getRarityColor = (rarity: string) => {
@@ -334,7 +350,6 @@ const MysteryBox = () => {
                               onClick={() => handleOpenBox(box.id)}
                               variant="outline"
                               className="w-full"
-                              size="sm"
                             >
                               <Gift className="w-4 h-4 mr-2" />
                               模拟开启
@@ -374,12 +389,12 @@ const MysteryBox = () => {
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold">{item.name}</h3>
-                          <Badge className={getRarityColor(item.rarity)} size="sm">
+                          <Badge className={getRarityColor(item.rarity)}>
                             {item.rarity}
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-600">
-                          价值 ¥{item.value} × {item.quantity}
+                          价值 ¥{item.value} × {item.quantity || 1}
                         </p>
                       </div>
                     </div>
@@ -417,7 +432,9 @@ const MysteryBox = () => {
         <MysteryBoxOpening
           isOpen={showOpeningAnimation}
           onComplete={handleOpeningComplete}
-          boxName={selectedBox ? mysteryBoxes.find(b => b.id === selectedBox)?.name || '' : ''}
+          boxName={currentOpeningBox?.name || ''}
+          boxPrice={currentOpeningBox?.price || 0}
+          possibleItems={possibleItems}
         />
       </div>
     </div>

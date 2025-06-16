@@ -22,6 +22,7 @@ const CheckoutPage = () => {
   const [address, setAddress] = useState({ province: '', city: '', district: '' });
   const [detailedAddress, setDetailedAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('wechat');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   if (!isLoggedIn) {
     return <Navigate to="/login" />;
@@ -33,34 +34,69 @@ const CheckoutPage = () => {
   
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handlePlaceOrder = () => {
+  // 检查是否有盲盒商品
+  const hasMysteryBox = cartItems.some(item => item.mysteryBox);
+  
+  // 获取URL参数
+  const urlParams = new URLSearchParams(window.location.search);
+  const boxId = urlParams.get('box_id');
+  const returnTo = urlParams.get('return_to');
+
+  const handlePlaceOrder = async () => {
     if (!address.province || !address.city || !address.district || !detailedAddress) {
       toast.error(t('checkout.address_required'));
       return;
     }
-    const fullAddress = `${address.province} ${address.city} ${address.district} ${detailedAddress}`;
-    const newOrder = addOrder({
-      items: cartItems,
-      total,
-      shippingAddress: fullAddress,
-      paymentMethod,
-    });
 
-    if (newOrder) {
-      toast.success(t('checkout.payment_successful'), {
-        description: t('checkout.order_created', { orderId: newOrder.id }),
+    setIsProcessingPayment(true);
+
+    // 模拟支付处理
+    setTimeout(() => {
+      const fullAddress = `${address.province} ${address.city} ${address.district} ${detailedAddress}`;
+      const newOrder = addOrder({
+        items: cartItems,
+        total,
+        shippingAddress: fullAddress,
+        paymentMethod,
       });
-      clearCart();
-      navigate(`/logistics/${newOrder.id}`);
-    } else {
-      toast.error(t('checkout.order_failed'));
-    }
+
+      if (newOrder) {
+        toast.success(t('checkout.payment_successful'), {
+          description: t('checkout.order_created', { orderId: newOrder.id }),
+        });
+        clearCart();
+        
+        // 如果是盲盒订单，跳转回盲盒页面并触发开启动画
+        if (hasMysteryBox && returnTo === 'mystery-box' && boxId) {
+          navigate(`/mystery-box?payment_completed=true&box_id=${boxId}`);
+        } else {
+          navigate(`/logistics/${newOrder.id}`);
+        }
+      } else {
+        toast.error(t('checkout.order_failed'));
+      }
+      
+      setIsProcessingPayment(false);
+    }, 2000); // 模拟2秒支付处理时间
   };
 
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">{t('checkout.title')}</h1>
+        
+        {hasMysteryBox && (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center">
+              <div className="text-purple-600 mr-3">🎁</div>
+              <div>
+                <h3 className="font-semibold text-purple-800">盲盒订单</h3>
+                <p className="text-purple-600 text-sm">支付完成后将自动开启盲盒，请耐心等待惊喜揭晓！</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <Card>
@@ -96,7 +132,9 @@ const CheckoutPage = () => {
               <CardContent className="space-y-2">
                 {cartItems.map(item => (
                   <div key={item.id} className="flex justify-between text-sm">
-                    <span>{item.name} x {item.quantity}</span>
+                    <span>
+                      {item.name} {item.mysteryBox && '🎁'} x {item.quantity}
+                    </span>
                     <span>¥{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
@@ -106,8 +144,12 @@ const CheckoutPage = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" onClick={handlePlaceOrder}>
-                  {t('checkout.place_order')}
+                <Button 
+                  className="w-full" 
+                  onClick={handlePlaceOrder}
+                  disabled={isProcessingPayment}
+                >
+                  {isProcessingPayment ? '正在处理支付...' : t('checkout.place_order')}
                 </Button>
               </CardFooter>
             </Card>

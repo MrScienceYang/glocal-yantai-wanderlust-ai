@@ -2,44 +2,90 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Gift, Sparkles, Star, Confetti } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Gift, Sparkles, Star } from 'lucide-react';
 
 interface MysteryBoxOpeningProps {
   isOpen: boolean;
-  onComplete: () => void;
+  onComplete: (items: any[]) => void;
   boxName: string;
+  boxPrice: number;
+  possibleItems: any[];
 }
 
 const MysteryBoxOpening: React.FC<MysteryBoxOpeningProps> = ({ 
   isOpen, 
   onComplete, 
-  boxName 
+  boxName,
+  boxPrice,
+  possibleItems
 }) => {
   const [stage, setStage] = useState<'waiting' | 'shaking' | 'opening' | 'revealing'>('waiting');
+  const [progress, setProgress] = useState(0);
   const [showSparkles, setShowSparkles] = useState(false);
+
+  const generateRandomItems = () => {
+    // 根据盲盒价格生成对应数量的物品
+    const itemCount = boxPrice >= 800 ? 4 : boxPrice >= 500 ? 3 : 2;
+    const shuffled = [...possibleItems].sort(() => Math.random() - 0.5);
+    const selectedItems = shuffled.slice(0, itemCount);
+    
+    // 确保总价值超过购买价格
+    let totalValue = selectedItems.reduce((sum, item) => sum + item.value, 0);
+    if (totalValue <= boxPrice) {
+      // 如果价值不够，随机增加一些物品
+      const additionalItems = shuffled.slice(itemCount, itemCount + 2);
+      selectedItems.push(...additionalItems);
+    }
+    
+    return selectedItems.map(item => ({
+      ...item,
+      quantity: Math.floor(Math.random() * 2) + 1
+    }));
+  };
 
   useEffect(() => {
     if (isOpen) {
+      setStage('waiting');
+      setProgress(0);
+      
       const sequence = async () => {
-        // 摇晃阶段
+        // 等待1秒
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // 摇晃阶段 - 2秒
         setStage('shaking');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        setShowSparkles(true);
+        
+        // 进度条动画
+        const progressInterval = setInterval(() => {
+          setProgress(prev => {
+            if (prev >= 100) {
+              clearInterval(progressInterval);
+              return 100;
+            }
+            return prev + 2;
+          });
+        }, 100);
+        
+        await new Promise(resolve => setTimeout(resolve, 5000));
         
         // 开启阶段
         setStage('opening');
-        setShowSparkles(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // 揭晓阶段
         setStage('revealing');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
-        onComplete();
+        // 生成随机物品并回调
+        const randomItems = generateRandomItems();
+        onComplete(randomItems);
       };
       
       sequence();
     }
-  }, [isOpen, onComplete]);
+  }, [isOpen, onComplete, boxPrice, possibleItems]);
 
   if (!isOpen) return null;
 
@@ -72,13 +118,13 @@ const MysteryBoxOpening: React.FC<MysteryBoxOpeningProps> = ({
             <div className={`
               relative transition-all duration-1000
               ${stage === 'shaking' ? 'animate-bounce' : ''}
-              ${stage === 'opening' ? 'scale-110' : ''}
+              ${stage === 'opening' ? 'scale-110 animate-pulse' : ''}
               ${stage === 'revealing' ? 'scale-125 rotate-12' : ''}
             `}>
               <Gift 
                 className={`
                   h-24 w-24 text-white
-                  ${stage === 'opening' ? 'animate-pulse' : ''}
+                  ${stage === 'shaking' || stage === 'opening' ? 'drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]' : ''}
                 `} 
               />
               
@@ -102,6 +148,17 @@ const MysteryBoxOpening: React.FC<MysteryBoxOpeningProps> = ({
                 {stage === 'revealing' && '惊喜即将揭晓！'}
               </p>
             </div>
+
+            {/* 进度条 */}
+            {stage === 'shaking' && (
+              <div className="absolute bottom-8 left-8 right-8">
+                <div className="text-white text-xs mb-2 text-center">开启进度</div>
+                <Progress 
+                  value={progress} 
+                  className="h-3 bg-white/20"
+                />
+              </div>
+            )}
 
             {/* 光效 */}
             {(stage === 'opening' || stage === 'revealing') && (
