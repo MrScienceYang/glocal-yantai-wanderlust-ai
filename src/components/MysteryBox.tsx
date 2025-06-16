@@ -1,15 +1,17 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Gift, Star, MapPin, ShoppingCart, Utensils } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Gift, Star, MapPin, ShoppingCart, Utensils, Share2, Sparkles } from 'lucide-react';
 import { useCityContext } from '@/components/CityProvider';
+import { useCart } from '@/components/CartProvider';
+import { toast } from 'sonner';
 
 const tiersByCity: { [key: string]: any[] } = {
   '烟台市': [
     {
-      id: 0,
+      id: 'yantai-explorer',
       name: '探索版',
       price: 300,
       originalValue: '350+',
@@ -21,10 +23,11 @@ const tiersByCity: { [key: string]: any[] } = {
         '1件文创纪念品',
         '本地交通券'
       ],
-      popular: false
+      popular: false,
+      image: '/lovable-uploads/581586bf-9a04-4325-b99e-30cfa6f061ea.png'
     },
     {
-      id: 1,
+      id: 'yantai-experience',
       name: '体验版',
       price: 500,
       originalValue: '550+',
@@ -37,10 +40,11 @@ const tiersByCity: { [key: string]: any[] } = {
         '2件精选文创',
         '达人陪游1小时'
       ],
-      popular: true
+      popular: true,
+      image: '/lovable-uploads/50b76766-a5f0-4b7f-8aae-093afca8061b.png'
     },
     {
-      id: 2,
+      id: 'yantai-luxury',
       name: '深度版',
       price: 800,
       originalValue: '850+',
@@ -54,12 +58,13 @@ const tiersByCity: { [key: string]: any[] } = {
         '达人陪游3小时',
         '专属摄影服务'
       ],
-      popular: false
+      popular: false,
+      image: '/lovable-uploads/1f83017a-893e-4ccb-9008-6709b57df8e6.png'
     }
   ],
   '青岛市': [
     {
-      id: 3,
+      id: 'qingdao-beer',
       name: '啤酒之旅',
       price: 350,
       originalValue: '400+',
@@ -71,10 +76,11 @@ const tiersByCity: { [key: string]: any[] } = {
         '原浆啤酒品鉴',
         '啤酒主题文创'
       ],
-      popular: true
+      popular: true,
+      image: '/lovable-uploads/f17f95a8-00d1-469e-9ad9-b47397319d18.png'
     },
     {
-      id: 4,
+      id: 'qingdao-coastal',
       name: '滨海之约',
       price: 550,
       originalValue: '600+',
@@ -86,15 +92,19 @@ const tiersByCity: { [key: string]: any[] } = {
         '帆船出海体验',
         '达人陪同讲解'
       ],
-      popular: false
+      popular: false,
+      image: '/lovable-uploads/68a411df-9696-447b-a897-b6ee68c3a8bf.png'
     }
   ]
 };
 
 const MysteryBox = () => {
   const { selectedCity } = useCityContext();
+  const { addToCart } = useCart();
   const tiers = tiersByCity[selectedCity] || [];
-  const [selectedTier, setSelectedTier] = useState<number | null>(null);
+  const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
+  const [purchasingTier, setPurchasingTier] = useState<any>(null);
 
   useEffect(() => {
     if (tiers.length > 0) {
@@ -105,9 +115,38 @@ const MysteryBox = () => {
     }
   }, [tiers]);
 
-  const handlePurchase = (tier) => {
-    console.log(`购买盲盒: ${tier.name} - ¥${tier.price}`);
-    // 这里会触发支付流程
+  const handlePurchase = (tier: any) => {
+    setPurchasingTier(tier);
+    setShowPurchaseDialog(true);
+  };
+
+  const confirmPurchase = () => {
+    if (purchasingTier) {
+      addToCart({
+        id: purchasingTier.id,
+        name: `盲盒游${selectedCity} - ${purchasingTier.name}`,
+        price: purchasingTier.price,
+        image: purchasingTier.image || '/placeholder.svg'
+      });
+      setShowPurchaseDialog(false);
+      setPurchasingTier(null);
+      toast.success('盲盒已添加到购物车！', {
+        description: '前往购物车完成支付后即可开启盲盒'
+      });
+    }
+  };
+
+  const shareBox = (tier: any) => {
+    if (navigator.share) {
+      navigator.share({
+        title: `盲盒游${selectedCity} - ${tier.name}`,
+        text: `发现了一个超棒的旅行盲盒！${tier.name}，只要¥${tier.price}，价值¥${tier.originalValue}`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('链接已复制到剪贴板');
+    }
   };
 
   return (
@@ -172,15 +211,31 @@ const MysteryBox = () => {
                       ))}
                     </ul>
 
-                    <Button 
-                      className={`w-full ${tier.popular ? 'gradient-sunset' : 'gradient-ocean'} text-white hover:opacity-90`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePurchase(tier);
-                      }}
-                    >
-                      立即开启盲盒
-                    </Button>
+                    <div className="space-y-3">
+                      <Button 
+                        className={`w-full ${tier.popular ? 'gradient-sunset' : 'gradient-ocean'} text-white hover:opacity-90`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePurchase(tier);
+                        }}
+                      >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        立即购买
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          shareBox(tier);
+                        }}
+                      >
+                        <Share2 className="mr-2 h-4 w-4" />
+                        分享给朋友
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -231,6 +286,55 @@ const MysteryBox = () => {
             <p className="text-xl text-gray-500">当前城市暂无盲盒产品，敬请期待！</p>
           </div>
         )}
+
+        {/* 购买确认对话框 */}
+        <Dialog open={showPurchaseDialog} onOpenChange={setShowPurchaseDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <Sparkles className="h-5 w-5 mr-2 text-purple-600" />
+                确认购买盲盒
+              </DialogTitle>
+            </DialogHeader>
+            {purchasingTier && (
+              <div className="space-y-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-lg">{purchasingTier.name}</h3>
+                  <p className="text-2xl font-bold text-purple-600">¥{purchasingTier.price}</p>
+                  <p className="text-sm text-gray-600">价值 ¥{purchasingTier.originalValue}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="font-medium">包含内容：</h4>
+                  <ul className="space-y-1">
+                    {purchasingTier.features.map((feature, index) => (
+                      <li key={index} className="text-sm text-gray-600 flex items-center">
+                        <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mr-2"></div>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex space-x-3">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => setShowPurchaseDialog(false)}
+                  >
+                    取消
+                  </Button>
+                  <Button 
+                    className="flex-1 gradient-ocean text-white"
+                    onClick={confirmPurchase}
+                  >
+                    加入购物车
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
