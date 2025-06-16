@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MapPin, Menu, X, Settings, User, LogIn, LogOut, CalendarCheck } from 'lucide-react';
@@ -10,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next';
 import { DailyCheckIn } from './DailyCheckIn';
+import UserTypeSelection from './UserTypeSelection';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +27,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAPISettings, setShowAPISettings] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [showUserTypeSelection, setShowUserTypeSelection] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { selectedCountry, updateCity } = useCityContext();
@@ -49,6 +52,10 @@ const Navbar = () => {
     logout();
     navigate('/');
   }
+
+  const handleLoginClick = () => {
+    setShowUserTypeSelection(true);
+  };
 
   return (
     <>
@@ -137,12 +144,10 @@ const Navbar = () => {
                 </>
               )}
               {!isLoggedIn && (
-                <Link to="/login">
-                  <Button className="gradient-ocean text-white">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    {t('login.title')}
-                  </Button>
-                </Link>
+                <Button className="gradient-ocean text-white" onClick={handleLoginClick}>
+                  <LogIn className="h-4 w-4 mr-2" />
+                  {t('login.title')}
+                </Button>
               )}
             </div>
 
@@ -202,12 +207,10 @@ const Navbar = () => {
                   </>
                 )}
                  {!isLoggedIn && (
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="w-full gradient-ocean text-white">
-                      <LogIn className="h-4 w-4 mr-2" />
-                      {t('login.title')}
-                    </Button>
-                  </Link>
+                  <Button className="w-full gradient-ocean text-white" onClick={() => { handleLoginClick(); setIsMenuOpen(false); }}>
+                    <LogIn className="h-4 w-4 mr-2" />
+                    {t('login.title')}
+                  </Button>
                 )}
                  <Button variant="outline" size="sm" onClick={() => { setShowAPISettings(true); setIsMenuOpen(false); }} className="w-full justify-start"><Settings className="h-4 w-4 mr-2" />AI设置</Button>
               </div>
@@ -218,6 +221,7 @@ const Navbar = () => {
 
       <APIKeySettings isOpen={showAPISettings} onClose={() => setShowAPISettings(false)} onSuccess={() => {}} />
       {isLoggedIn && <DailyCheckIn isOpen={isCheckInOpen} onClose={() => setIsCheckInOpen(false)} />}
+      <UserTypeSelection isOpen={showUserTypeSelection} onClose={() => setShowUserTypeSelection(false)} />
     </>
   );
 };
