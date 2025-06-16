@@ -17,6 +17,7 @@ import TicketPurchase from "./pages/TicketPurchase";
 import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import PartnerHub from "./pages/PartnerHub";
+import SupplyChainPartner from "./pages/SupplyChainPartner";
 import { CityProvider } from "./components/CityProvider";
 import { UserProvider } from "./components/UserProvider";
 import LoginPage from "./pages/Login";
@@ -53,6 +54,7 @@ const App = () => (
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/logistics/:orderId" element={<LogisticsPage />} />
                 <Route path="/partner-hub" element={<PartnerHub />} />
+                <Route path="/supply-chain-partner" element={<SupplyChainPartner />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

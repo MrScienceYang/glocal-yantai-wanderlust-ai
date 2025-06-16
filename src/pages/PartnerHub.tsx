@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Users, Shield, ArrowRight, Sparkles, Cpu, Network } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import TechTransition from '@/components/TechTransition';
 
@@ -23,7 +23,8 @@ const PartnerHub = () => {
       description: '了解我们的供应链合作模式，共建智能化供应链生态体系',
       icon: Network,
       gradient: 'from-blue-600 to-cyan-600',
-      features: ['智能供应链管理', '数据驱动决策', '全链路追溯', '风险预警系统']
+      features: ['智能供应链管理', '数据驱动决策', '全链路追溯', '风险预警系统'],
+      link: '/supply-chain-partner'
     },
     {
       id: 'merchant-onboard',
@@ -31,7 +32,8 @@ const PartnerHub = () => {
       description: '加入我们的平台，享受AI赋能的智能化运营服务',
       icon: Building2,
       gradient: 'from-purple-600 to-pink-600',
-      features: ['零门槛入驻', 'AI智能运营', '精准营销推广', '数据分析报告']
+      features: ['零门槛入驻', 'AI智能运营', '精准营销推广', '数据分析报告'],
+      link: '#'
     },
     {
       id: 'partner-login',
@@ -39,7 +41,8 @@ const PartnerHub = () => {
       description: '使用统一认证系统，安全便捷地管理您的合作伙伴账户',
       icon: Shield,
       gradient: 'from-green-600 to-emerald-600',
-      features: ['多重安全认证', '单点登录', '权限管理', '操作日志']
+      features: ['多重安全认证', '单点登录', '权限管理', '操作日志'],
+      link: '#'
     }
   ];
 
@@ -116,13 +119,26 @@ const PartnerHub = () => {
                         ))}
                       </div>
                       
-                      <Button 
-                        className={`w-full bg-gradient-to-r ${option.gradient} hover:opacity-90 text-white font-semibold py-3 rounded-lg transition-all duration-300 group-hover:shadow-xl`}
-                        size="lg"
-                      >
-                        了解详情
-                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                      </Button>
+                      {option.link === '#' ? (
+                        <Button 
+                          className={`w-full bg-gradient-to-r ${option.gradient} hover:opacity-90 text-white font-semibold py-3 rounded-lg transition-all duration-300 group-hover:shadow-xl`}
+                          size="lg"
+                        >
+                          了解详情
+                          <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </Button>
+                      ) : (
+                        <Button 
+                          asChild
+                          className={`w-full bg-gradient-to-r ${option.gradient} hover:opacity-90 text-white font-semibold py-3 rounded-lg transition-all duration-300 group-hover:shadow-xl`}
+                          size="lg"
+                        >
+                          <Link to={option.link}>
+                            了解详情
+                            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                          </Link>
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
