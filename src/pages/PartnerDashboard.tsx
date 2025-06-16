@@ -23,7 +23,7 @@ import { toast } from 'sonner';
 import Layout from '@/components/Layout';
 import { getSupplierProductsByUser } from '@/data/supplierProducts';
 
-// 葡萄酒供应商数据
+// 葡萄酒自有商品合作数据
 const wineSupplierData = {
   monthlyRevenue: {
     total: 156800,
@@ -40,13 +40,13 @@ const wineSupplierData = {
   pendingOrders: [
     { id: 'GL20250616001', product: '冰青青梅果酒·高端版', quantity: 20, amount: 5600, deadline: '2025-06-20' },
     { id: 'GL20250616002', product: '舒醺巧克力威士忌梅酒', quantity: 80, amount: 3600, deadline: '2025-06-21' },
-    { id: 'GL20250616003', name: '世外梅林香柚青梅酒', quantity: 35, amount: 4130, deadline: '2025-06-22' }
+    { id: 'GL20250616003', product: '世外梅林香柚青梅酒', quantity: 35, amount: 4130, deadline: '2025-06-22' }
   ],
   financials: {
-    unpaidAmount: 28600,
-    nextPayment: 12800,
-    paymentDue: '2025-06-28',
-    totalDebt: 89400
+    unpaidAmount: 0, // 自有商品无需垫资
+    nextPayment: 0,
+    paymentDue: null,
+    totalDebt: 0
   }
 };
 
@@ -121,7 +121,7 @@ const PartnerDashboard = () => {
   }
 
   const isWineSupplier = currentUser.user === 'ytkj-wine';
-  const supplierType = isWineSupplier ? '酒类产品供应商' : '技术赋能型供应商';
+  const supplierType = isWineSupplier ? '自有商品合作' : '技术赋能型供应商';
 
   return (
     <Layout>
@@ -223,12 +223,21 @@ const PartnerDashboard = () => {
               >
                 <Card className="bg-white/10 backdrop-blur-md border-white/20">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-300">待偿还货款</CardTitle>
-                    <AlertTriangle className="h-4 w-4 text-red-400" />
+                    <CardTitle className="text-sm font-medium text-gray-300">
+                      {isWineSupplier ? '商品销售收入' : '待偿还货款'}
+                    </CardTitle>
+                    {isWineSupplier ? 
+                      <TrendingUp className="h-4 w-4 text-green-400" /> : 
+                      <AlertTriangle className="h-4 w-4 text-red-400" />
+                    }
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">¥{supplierData.financials.unpaidAmount.toLocaleString()}</div>
-                    <p className="text-xs text-gray-400">下期应还 ¥{supplierData.financials.nextPayment.toLocaleString()}</p>
+                    <div className="text-2xl font-bold text-white">
+                      ¥{isWineSupplier ? supplierData.monthlyRevenue.total.toLocaleString() : supplierData.financials.unpaidAmount.toLocaleString()}
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      {isWineSupplier ? '自有商品销售' : `下期应还 ¥${supplierData.financials.nextPayment.toLocaleString()}`}
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -326,43 +335,80 @@ const PartnerDashboard = () => {
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
                       <TrendingUp className="h-5 w-5 mr-2 text-purple-400" />
-                      财务状况
+                      {isWineSupplier ? '销售概况' : '财务状况'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="text-gray-300 mb-3">还款进度</h4>
-                        <div className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">总债务</span>
-                            <span className="text-white">¥{supplierData.financials.totalDebt.toLocaleString()}</span>
+                    {isWineSupplier ? (
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-gray-300 mb-3">销售数据</h4>
+                          <div className="space-y-3">
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">当月销售额</span>
+                              <span className="text-white">¥{supplierData.monthlyRevenue.total.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">销售订单</span>
+                              <span className="text-green-400">{supplierData.monthlyRevenue.orders}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">增长率</span>
+                              <span className="text-green-400">+{supplierData.monthlyRevenue.growth}%</span>
+                            </div>
+                            <Progress 
+                              value={75}
+                              className="w-full"
+                            />
+                            <p className="text-xs text-gray-400">目标完成度: 75%</p>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">已还金额</span>
-                            <span className="text-green-400">¥{(supplierData.financials.totalDebt - supplierData.financials.unpaidAmount).toLocaleString()}</span>
+                        </div>
+                        <div>
+                          <h4 className="text-gray-300 mb-3">合作收益</h4>
+                          <div className="p-4 bg-gradient-to-r from-green-600/20 to-blue-600/20 rounded-lg border border-green-400/30">
+                            <p className="text-white text-2xl font-bold">¥{(supplierData.monthlyRevenue.total * 0.8).toLocaleString()}</p>
+                            <p className="text-gray-400 text-sm">自有商品净收益</p>
+                            <Badge className="mt-2 bg-green-600 text-white">
+                              无需垫资
+                            </Badge>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">剩余金额</span>
-                            <span className="text-red-400">¥{supplierData.financials.unpaidAmount.toLocaleString()}</span>
-                          </div>
-                          <Progress 
-                            value={((supplierData.financials.totalDebt - supplierData.financials.unpaidAmount) / supplierData.financials.totalDebt) * 100} 
-                            className="w-full"
-                          />
                         </div>
                       </div>
-                      <div>
-                        <h4 className="text-gray-300 mb-3">下期还款</h4>
-                        <div className="p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-400/30">
-                          <p className="text-white text-2xl font-bold">¥{supplierData.financials.nextPayment.toLocaleString()}</p>
-                          <p className="text-gray-400 text-sm">到期日期: {supplierData.financials.paymentDue}</p>
-                          <Badge className="mt-2 bg-blue-600 text-white">
-                            还有 {isWineSupplier ? '12' : '9'} 天
-                          </Badge>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-gray-300 mb-3">还款进度</h4>
+                          <div className="space-y-3">
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">总债务</span>
+                              <span className="text-white">¥{supplierData.financials.totalDebt.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">已还金额</span>
+                              <span className="text-green-400">¥{(supplierData.financials.totalDebt - supplierData.financials.unpaidAmount).toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">剩余金额</span>
+                              <span className="text-red-400">¥{supplierData.financials.unpaidAmount.toLocaleString()}</span>
+                            </div>
+                            <Progress 
+                              value={((supplierData.financials.totalDebt - supplierData.financials.unpaidAmount) / supplierData.financials.totalDebt) * 100} 
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-gray-300 mb-3">下期还款</h4>
+                          <div className="p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-400/30">
+                            <p className="text-white text-2xl font-bold">¥{supplierData.financials.nextPayment.toLocaleString()}</p>
+                            <p className="text-gray-400 text-sm">到期日期: {supplierData.financials.paymentDue}</p>
+                            <Badge className="mt-2 bg-blue-600 text-white">
+                              还有 9 天
+                            </Badge>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -389,14 +435,16 @@ const PartnerDashboard = () => {
                         <Phone className="h-4 w-4 mr-2" />
                         联系客户经理
                       </Button>
-                      <Button 
-                        onClick={handleChangePayment}
-                        variant="outline"
-                        className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        变更偿还方案
-                      </Button>
+                      {!isWineSupplier && (
+                        <Button 
+                          onClick={handleChangePayment}
+                          variant="outline"
+                          className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          变更偿还方案
+                        </Button>
+                      )}
                       <Button 
                         onClick={handleComplaint}
                         variant="outline"
