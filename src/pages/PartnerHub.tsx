@@ -27,15 +27,6 @@ const PartnerHub = () => {
       link: '/supply-chain-partner'
     },
     {
-      id: 'merchant-onboard',
-      title: '商家或供应商入驻',
-      description: '加入我们的平台，享受AI赋能的智能化运营服务',
-      icon: Building2,
-      gradient: 'from-purple-600 to-pink-600',
-      features: ['零门槛入驻', 'AI智能运营', '精准营销推广', '数据分析报告'],
-      link: '#'
-    },
-    {
       id: 'partner-login',
       title: '合作伙伴统一认证账号登录',
       description: '使用统一认证系统，安全便捷地管理您的合作伙伴账户',
@@ -81,7 +72,7 @@ const PartnerHub = () => {
             </motion.div>
 
             {/* 合作选项卡片 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16 max-w-5xl mx-auto">
               {partnerOptions.map((option, index) => (
                 <motion.div
                   key={option.id}
