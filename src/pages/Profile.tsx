@@ -6,12 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Crown, Heart, MessageSquare, Calendar, Gift } from 'lucide-react';
 import { useUser } from '@/components/UserProvider';
+import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Navigate, Link } from 'react-router-dom';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const { isLoggedIn, currentUser, points, orders } = useUser();
+  const { t } = useTranslation();
 
   if (!isLoggedIn || !currentUser) {
     return <Navigate to="/login" />;
@@ -224,8 +226,8 @@ const Profile = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="font-medium">{order.items.map(i => i.name).join(', ')}</h3>
-                          <p className="text-sm text-gray-500">{t('profile.order_id')}: {order.id}</p>
-                          <p className="text-sm text-gray-500">{t('profile.order_date')}: {new Date(order.date).toLocaleDateString()}</p>
+                          <p className="text-sm text-gray-500">订单号: {order.id}</p>
+                          <p className="text-sm text-gray-500">下单时间: {new Date(order.date).toLocaleDateString()}</p>
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-bold">¥{order.total.toFixed(2)}</div>
@@ -235,7 +237,7 @@ const Profile = () => {
                             {order.status}
                           </Badge>
                           <Button asChild variant="link" size="sm">
-                             <Link to={`/logistics/${order.id}`}>{t('profile.view_details')}</Link>
+                             <Link to={`/logistics/${order.id}`}>查看详情</Link>
                           </Button>
                         </div>
                       </div>
@@ -244,9 +246,9 @@ const Profile = () => {
                 )) : (
                   <Card className="text-center py-16">
                     <CardContent>
-                      <p className="text-xl text-gray-500">{t('profile.no_orders')}</p>
+                      <p className="text-xl text-gray-500">暂无订单</p>
                       <Button asChild>
-                        <Link to="/shop">{t('cart.go_shopping')}</Link>
+                        <Link to="/shop">去购物</Link>
                       </Button>
                     </CardContent>
                   </Card>
