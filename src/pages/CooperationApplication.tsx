@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -52,6 +51,11 @@ const CooperationApplication = () => {
   const navigate = useNavigate();
 
   const form = useForm<FormData>();
+
+  // 确保页面加载时滚动到顶部
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const cooperationTypes = [
     {
