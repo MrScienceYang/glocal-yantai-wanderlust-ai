@@ -21,19 +21,47 @@ import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
+import { getSupplierProductsByUser } from '@/data/supplierProducts';
 
-// 模拟数据
-const mockData = {
+// 葡萄酒供应商数据
+const wineSupplierData = {
+  monthlyRevenue: {
+    total: 156800,
+    orders: 487,
+    growth: 8.3
+  },
+  products: [
+    { sku: 'YT-MJ-001', name: '冰青青梅果酒·高端版', costPrice: 200, retailPrice: 280, stock: 320, sold: 156 },
+    { sku: 'YT-MJ-002', name: '世外梅林香柚青梅酒', costPrice: 80, retailPrice: 118, stock: 580, sold: 243 },
+    { sku: 'YT-MJ-003', name: '舒醺巧克力威士忌梅酒', costPrice: 20, retailPrice: 45, stock: 1200, sold: 378 },
+    { sku: 'YT-MJ-004', name: '桑果之约乖乖梅果酒', costPrice: 30, retailPrice: 39.86, stock: 890, sold: 298 },
+    { sku: 'YT-MJ-005', name: '梅见原味梅酒', costPrice: 120, retailPrice: 150, stock: 156, sold: 89 }
+  ],
+  pendingOrders: [
+    { id: 'GL20250616001', product: '冰青青梅果酒·高端版', quantity: 20, amount: 5600, deadline: '2025-06-20' },
+    { id: 'GL20250616002', product: '舒醺巧克力威士忌梅酒', quantity: 80, amount: 3600, deadline: '2025-06-21' },
+    { id: 'GL20250616003', name: '世外梅林香柚青梅酒', quantity: 35, amount: 4130, deadline: '2025-06-22' }
+  ],
+  financials: {
+    unpaidAmount: 28600,
+    nextPayment: 12800,
+    paymentDue: '2025-06-28',
+    totalDebt: 89400
+  }
+};
+
+// 默认数据（非酒类供应商）
+const defaultSupplierData = {
   monthlyRevenue: {
     total: 285600,
     orders: 1247,
     growth: 12.5
   },
   products: [
-    { sku: 'YT-XM-001', name: '烟台蓬莱小面（原汤）', price: 28.8, stock: 1560, sold: 324 },
-    { sku: 'YT-XM-002', name: '烟台蓬莱小面（浓汤）', price: 32.8, stock: 892, sold: 218 },
-    { sku: 'YT-XM-003', name: '烟台蓬莱小面（海鲜）', price: 45.8, stock: 567, sold: 156 },
-    { sku: 'YT-XM-004', name: '烟台蓬莱小面（精装）', price: 68.8, stock: 234, sold: 89 }
+    { sku: 'YT-XM-001', name: '烟台蓬莱小面（原汤）', costPrice: 28.8, retailPrice: 28.8, stock: 1560, sold: 324 },
+    { sku: 'YT-XM-002', name: '烟台蓬莱小面（浓汤）', costPrice: 32.8, retailPrice: 32.8, stock: 892, sold: 218 },
+    { sku: 'YT-XM-003', name: '烟台蓬莱小面（海鲜）', costPrice: 45.8, retailPrice: 45.8, stock: 567, sold: 156 },
+    { sku: 'YT-XM-004', name: '烟台蓬莱小面（精装）', costPrice: 68.8, retailPrice: 68.8, stock: 234, sold: 89 }
   ],
   pendingOrders: [
     { id: 'GL20250615001', product: '烟台蓬莱小面（原汤）', quantity: 50, amount: 1440, deadline: '2025-06-18' },
@@ -51,6 +79,7 @@ const mockData = {
 const PartnerDashboard = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [supplierData, setSupplierData] = useState(defaultSupplierData);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('partner-user');
@@ -58,7 +87,15 @@ const PartnerDashboard = () => {
       navigate('/partner-login');
       return;
     }
-    setCurrentUser(JSON.parse(savedUser));
+    const user = JSON.parse(savedUser);
+    setCurrentUser(user);
+    
+    // 根据用户类型设置数据
+    if (user.user === 'ytkj-wine') {
+      setSupplierData(wineSupplierData);
+    } else {
+      setSupplierData(defaultSupplierData);
+    }
   }, [navigate]);
 
   const handleLogout = () => {
@@ -83,6 +120,9 @@ const PartnerDashboard = () => {
     return null;
   }
 
+  const isWineSupplier = currentUser.user === 'ytkj-wine';
+  const supplierType = isWineSupplier ? '酒类产品供应商' : '技术赋能型供应商';
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
@@ -100,7 +140,7 @@ const PartnerDashboard = () => {
                   供应商工作台
                 </h1>
                 <p className="text-gray-300">
-                  欢迎回来，{currentUser.user} | 模式A：技术赋能型供应商
+                  欢迎回来，{currentUser.user} | 模式A：{supplierType}
                 </p>
               </div>
               <div className="flex space-x-3">
@@ -134,9 +174,9 @@ const PartnerDashboard = () => {
                     <DollarSign className="h-4 w-4 text-green-400" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">¥{mockData.monthlyRevenue.total.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-white">¥{supplierData.monthlyRevenue.total.toLocaleString()}</div>
                     <p className="text-xs text-gray-400">
-                      <span className="text-green-400">+{mockData.monthlyRevenue.growth}%</span> 较上月
+                      <span className="text-green-400">+{supplierData.monthlyRevenue.growth}%</span> 较上月
                     </p>
                   </CardContent>
                 </Card>
@@ -153,8 +193,8 @@ const PartnerDashboard = () => {
                     <Package className="h-4 w-4 text-blue-400" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">{mockData.products.length}</div>
-                    <p className="text-xs text-gray-400">蓬莱小面系列</p>
+                    <div className="text-2xl font-bold text-white">{supplierData.products.length}</div>
+                    <p className="text-xs text-gray-400">{isWineSupplier ? '梅酒系列' : '蓬莱小面系列'}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -170,8 +210,8 @@ const PartnerDashboard = () => {
                     <Clock className="h-4 w-4 text-orange-400" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">{mockData.pendingOrders.length}</div>
-                    <p className="text-xs text-gray-400">总金额 ¥{mockData.pendingOrders.reduce((sum, order) => sum + order.amount, 0).toLocaleString()}</p>
+                    <div className="text-2xl font-bold text-white">{supplierData.pendingOrders.length}</div>
+                    <p className="text-xs text-gray-400">总金额 ¥{supplierData.pendingOrders.reduce((sum, order) => sum + order.amount, 0).toLocaleString()}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -187,8 +227,8 @@ const PartnerDashboard = () => {
                     <AlertTriangle className="h-4 w-4 text-red-400" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">¥{mockData.financials.unpaidAmount.toLocaleString()}</div>
-                    <p className="text-xs text-gray-400">下期应还 ¥{mockData.financials.nextPayment.toLocaleString()}</p>
+                    <div className="text-2xl font-bold text-white">¥{supplierData.financials.unpaidAmount.toLocaleString()}</div>
+                    <p className="text-xs text-gray-400">下期应还 ¥{supplierData.financials.nextPayment.toLocaleString()}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -211,11 +251,13 @@ const PartnerDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {mockData.products.map((product, index) => (
+                      {supplierData.products.map((product, index) => (
                         <div key={product.sku} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                           <div className="flex-1">
                             <h4 className="text-white font-medium">{product.name}</h4>
-                            <p className="text-gray-400 text-sm">SKU: {product.sku} | ¥{product.price}</p>
+                            <p className="text-gray-400 text-sm">
+                              SKU: {product.sku} | 成本: ¥{product.costPrice} | 零售: ¥{product.retailPrice}
+                            </p>
                           </div>
                           <div className="text-right">
                             <p className="text-white font-semibold">库存: {product.stock}</p>
@@ -249,7 +291,7 @@ const PartnerDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {mockData.pendingOrders.map((order, index) => (
+                      {supplierData.pendingOrders.map((order, index) => (
                         <div key={order.id} className="p-3 bg-white/5 rounded-lg">
                           <div className="flex justify-between items-start mb-2">
                             <h4 className="text-white font-medium">订单 {order.id}</h4>
@@ -294,18 +336,18 @@ const PartnerDashboard = () => {
                         <div className="space-y-3">
                           <div className="flex justify-between">
                             <span className="text-gray-400">总债务</span>
-                            <span className="text-white">¥{mockData.financials.totalDebt.toLocaleString()}</span>
+                            <span className="text-white">¥{supplierData.financials.totalDebt.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-400">已还金额</span>
-                            <span className="text-green-400">¥{(mockData.financials.totalDebt - mockData.financials.unpaidAmount).toLocaleString()}</span>
+                            <span className="text-green-400">¥{(supplierData.financials.totalDebt - supplierData.financials.unpaidAmount).toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-400">剩余金额</span>
-                            <span className="text-red-400">¥{mockData.financials.unpaidAmount.toLocaleString()}</span>
+                            <span className="text-red-400">¥{supplierData.financials.unpaidAmount.toLocaleString()}</span>
                           </div>
                           <Progress 
-                            value={((mockData.financials.totalDebt - mockData.financials.unpaidAmount) / mockData.financials.totalDebt) * 100} 
+                            value={((supplierData.financials.totalDebt - supplierData.financials.unpaidAmount) / supplierData.financials.totalDebt) * 100} 
                             className="w-full"
                           />
                         </div>
@@ -313,10 +355,10 @@ const PartnerDashboard = () => {
                       <div>
                         <h4 className="text-gray-300 mb-3">下期还款</h4>
                         <div className="p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-400/30">
-                          <p className="text-white text-2xl font-bold">¥{mockData.financials.nextPayment.toLocaleString()}</p>
-                          <p className="text-gray-400 text-sm">到期日期: {mockData.financials.paymentDue}</p>
+                          <p className="text-white text-2xl font-bold">¥{supplierData.financials.nextPayment.toLocaleString()}</p>
+                          <p className="text-gray-400 text-sm">到期日期: {supplierData.financials.paymentDue}</p>
                           <Badge className="mt-2 bg-blue-600 text-white">
-                            还有 9 天
+                            还有 {isWineSupplier ? '12' : '9'} 天
                           </Badge>
                         </div>
                       </div>
