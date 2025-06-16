@@ -24,6 +24,10 @@ const mockUsers = {
     {
       "user": "admin",
       "password": "admin"
+    },
+    {
+      "user": "ytkj-wine",
+      "password": "wine"
     }
   ]
 };
@@ -610,8 +614,8 @@ const PartnerLogin = () => {
                       演示账号（仅供测试）
                     </p>
                     <div className="text-xs text-gray-400 space-y-1">
-                      <div>账号: 17375411453 / ytkj / admin</div>
-                      <div>密码: 123456 / user / admin</div>
+                      <div>账号: 17375411453 / ytkj / admin / ytkj-wine</div>
+                      <div>密码: 123456 / user / admin / wine</div>
                       <div>验证码: 123456</div>
                     </div>
                   </motion.div>
