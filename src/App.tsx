@@ -17,6 +17,8 @@ import TicketPurchase from "./pages/TicketPurchase";
 import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import PartnerHub from "./pages/PartnerHub";
+import PartnerLogin from "./pages/PartnerLogin";
+import PartnerDashboard from "./pages/PartnerDashboard";
 import SupplyChainPartner from "./pages/SupplyChainPartner";
 import CooperationApplication from "./pages/CooperationApplication";
 import { CityProvider } from "./components/CityProvider";

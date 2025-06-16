@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Zap, Eye, EyeOff, Smartphone, Lock, Building2 } from 'lucide-react';
@@ -321,15 +320,15 @@ const PartnerLogin = () => {
                           </div>
                           
                           <motion.div className="mt-6">
-                            <Button
+                            <motion.button
                               onClick={handleLogin}
-                              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
                             >
-                              <Lock className="h-4 w-4 mr-2" />
+                              <Shield className="h-5 w-5 mr-2 inline" />
                               安全登录
-                            </Button>
+                            </motion.button>
                           </motion.div>
                           
                           <div className="mt-4 text-center">
