@@ -7,6 +7,8 @@ import { Star, ShoppingCart, Heart, Share2, MapPin, Clock, Users } from 'lucide-
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartProvider';
+import AIContentGenerator from '@/components/AIContentGenerator';
+import { useAIContent } from '@/hooks/useAIContent';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -14,6 +16,7 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedSpec, setSelectedSpec] = useState('标准版 5kg');
+  const [aiGeneratedContent, setAiGeneratedContent] = useState<any>(null);
 
   // 模拟商品数据
   const product = {
@@ -60,6 +63,10 @@ const ProductDetail = () => {
   const handleBuyNow = () => {
     handleAddToCart();
     navigate('/cart');
+  };
+
+  const handleAIContentGenerated = (content: any) => {
+    setAiGeneratedContent(content);
   };
 
   return (
@@ -208,6 +215,50 @@ const ProductDetail = () => {
             </Card>
           </div>
         </div>
+
+        {/* AI生成内容展示 */}
+        {aiGeneratedContent && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>AI智能推荐</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {aiGeneratedContent.highlights && (
+                <div className="mb-4">
+                  <h4 className="font-medium mb-2">产品亮点</h4>
+                  <ul className="space-y-1">
+                    {aiGeneratedContent.highlights.map((highlight: string, index: number) => (
+                      <li key={index} className="flex items-center text-sm">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                        {highlight}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {aiGeneratedContent.usageScenarios && (
+                <div>
+                  <h4 className="font-medium mb-2">适用场景</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {aiGeneratedContent.usageScenarios.map((scenario: string, index: number) => (
+                      <Badge key={index} variant="outline">{scenario}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* AI内容生成器 */}
+        <AIContentGenerator
+          type="product"
+          context={product}
+          onContentGenerated={handleAIContentGenerated}
+          buttonText="AI生成商品亮点"
+          title="AI商品分析"
+          description="让AI为您分析商品特色和使用场景"
+        />
 
         {/* 商品详情 */}
         <div className="mt-16">
