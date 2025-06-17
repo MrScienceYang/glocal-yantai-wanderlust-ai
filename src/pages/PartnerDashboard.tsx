@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -11,9 +12,7 @@ import {
   TrendingUp,
   ShoppingCart,
   Warehouse,
-  FileText,
-  LayoutDashboard,
-  Upload
+  FileText
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -117,14 +116,6 @@ const PartnerDashboard = () => {
     toast.info('投诉功能正在开发中');
   };
 
-  const handleDashboard = () => {
-    navigate('/supplier-dashboard');
-  };
-
-  const handleUploadProduct = () => {
-    navigate('/supplier-upload-product');
-  };
-
   if (!currentUser) {
     return null;
   }
@@ -153,20 +144,6 @@ const PartnerDashboard = () => {
                 </p>
               </div>
               <div className="flex space-x-3">
-                <Button 
-                  onClick={handleDashboard}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white"
-                >
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
-                  看板
-                </Button>
-                <Button 
-                  onClick={handleUploadProduct}
-                  className="bg-gradient-to-r from-purple-600 to-purple-700 text-white"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  上架商品
-                </Button>
                 <Button 
                   onClick={handleContactManager}
                   className="bg-gradient-to-r from-green-600 to-green-700 text-white"
@@ -451,20 +428,6 @@ const PartnerDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <Button 
-                        onClick={handleDashboard}
-                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white"
-                      >
-                        <LayoutDashboard className="h-4 w-4 mr-2" />
-                        SCM看板
-                      </Button>
-                      <Button 
-                        onClick={handleUploadProduct}
-                        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        上架商品
-                      </Button>
                       <Button 
                         onClick={handleContactManager}
                         className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white"

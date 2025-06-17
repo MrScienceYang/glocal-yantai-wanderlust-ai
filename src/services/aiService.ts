@@ -1,16 +1,17 @@
 
-// AI服务配置 - 使用通义千问API
+// AI服务配置
 export class AIService {
-  private apiKey: string = 'sk-a2931a57b70840219a4f2058351f9977';
-  private baseUrl = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+  private apiKey: string | null = null;
+  private baseUrl = 'https://api.openai.com/v1/chat/completions';
 
   constructor() {
-    // 通义千问使用固定API密钥
+    // 从localStorage获取API密钥
+    this.apiKey = localStorage.getItem('ai_api_key');
   }
 
   setApiKey(apiKey: string) {
-    // 通义千问API密钥已固定，此方法保留兼容性
-    console.log('通义千问API密钥已配置');
+    this.apiKey = apiKey;
+    localStorage.setItem('ai_api_key', apiKey);
   }
 
   getApiKey(): string | null {
@@ -18,6 +19,10 @@ export class AIService {
   }
 
   async generateItinerary(preferences: any): Promise<any> {
+    if (!this.apiKey) {
+      throw new Error('请先设置AI API密钥');
+    }
+
     const prompt = `
     作为一个烟台旅游专家，请根据以下用户偏好生成一个详细的旅行行程：
     
@@ -41,28 +46,22 @@ export class AIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-DashScope-SSE': 'disable'
+          'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'qwen-plus',
-          input: {
-            messages: [
-              {
-                role: 'system',
-                content: '你是一个专业的烟台旅游顾问，熟悉烟台的所有景点、餐厅和文化。'
-              },
-              {
-                role: 'user',
-                content: prompt
-              }
-            ]
-          },
-          parameters: {
-            temperature: 0.7,
-            max_tokens: 2000,
-            top_p: 0.8
-          }
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个专业的烟台旅游顾问，熟悉烟台的所有景点、餐厅和文化。'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
         })
       });
 
@@ -71,7 +70,7 @@ export class AIService {
       }
 
       const data = await response.json();
-      const content = data.output.text;
+      const content = data.choices[0].message.content;
       
       // 尝试解析JSON响应
       try {
@@ -86,12 +85,16 @@ export class AIService {
         };
       }
     } catch (error) {
-      console.error('通义千问AI服务错误:', error);
+      console.error('AI服务错误:', error);
       throw error;
     }
   }
 
   async generateExpertRecommendation(userProfile: any): Promise<any> {
+    if (!this.apiKey) {
+      throw new Error('请先设置AI API密钥');
+    }
+
     const prompt = `
     根据用户画像为其推荐最合适的烟台本地达人：
     
@@ -110,34 +113,29 @@ export class AIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-DashScope-SSE': 'disable'
+          'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'qwen-plus',
-          input: {
-            messages: [
-              {
-                role: 'system',
-                content: '你是一个烟台本地达人推荐系统，了解各个达人的特长和服务。'
-              },
-              {
-                role: 'user',
-                content: prompt
-              }
-            ]
-          },
-          parameters: {
-            temperature: 0.8,
-            max_tokens: 1500
-          }
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个烟台本地达人推荐系统，了解各个达人的特长和服务。'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.8,
+          max_tokens: 1500
         })
       });
 
       const data = await response.json();
-      return data.output.text;
+      return data.choices[0].message.content;
     } catch (error) {
-      console.error('通义千问推荐服务错误:', error);
+      console.error('AI推荐服务错误:', error);
       throw error;
     }
   }
