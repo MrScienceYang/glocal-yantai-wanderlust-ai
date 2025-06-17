@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
 import { useNavigate } from 'react-router-dom';
+import AIContentGenerator from '@/components/AIContentGenerator';
 
 const Trains = () => {
   const { selectedCountry } = useCityContext();
@@ -19,6 +19,7 @@ const Trains = () => {
     to: '',
     departure: ''
   });
+  const [aiEnhancedTrains, setAiEnhancedTrains] = useState<any>({});
 
   // 模拟车次数据
   const trains = [
@@ -69,6 +70,13 @@ const Trains = () => {
     };
     localStorage.setItem('pendingOrder', JSON.stringify(orderData));
     navigate('/checkout');
+  };
+
+  const handleAITrainInfoGenerated = (trainId: number, content: any) => {
+    setAiEnhancedTrains(prev => ({
+      ...prev,
+      [trainId]: content
+    }));
   };
 
   if (showTransition) {
@@ -221,6 +229,39 @@ const Trains = () => {
                         </Button>
                       </div>
                     </div>
+                  </div>
+
+                  {/* AI增强信息 */}
+                  {aiEnhancedTrains[train.id] && (
+                    <div className="mt-4 p-4 bg-green-50 rounded-lg">
+                      <h4 className="font-medium text-green-800 mb-2">AI服务分析</h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-green-700">准点率: {aiEnhancedTrains[train.id].punctuality}</p>
+                          <p className="text-green-700">舒适度: {aiEnhancedTrains[train.id].comfort}</p>
+                        </div>
+                        <div>
+                          <p className="text-green-700">车内设施:</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {aiEnhancedTrains[train.id].facilities?.slice(0, 3).map((facility: string, index: number) => (
+                              <Badge key={index} variant="outline" className="text-xs">{facility}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI内容生成按钮 */}
+                  <div className="mt-4">
+                    <AIContentGenerator
+                      type="train"
+                      context={train}
+                      onContentGenerated={(content) => handleAITrainInfoGenerated(train.id, content)}
+                      buttonText="AI分析列车服务"
+                      title=""
+                      description=""
+                    />
                   </div>
                 </CardContent>
               </Card>

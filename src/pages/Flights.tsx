@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
 import { useNavigate } from 'react-router-dom';
+import AIContentGenerator from '@/components/AIContentGenerator';
 
 const Flights = () => {
   const { selectedCountry } = useCityContext();
@@ -20,6 +20,7 @@ const Flights = () => {
     departure: '',
     travelers: '1'
   });
+  const [aiEnhancedFlights, setAiEnhancedFlights] = useState<any>({});
 
   // 模拟航班数据
   const flights = [
@@ -78,6 +79,13 @@ const Flights = () => {
     };
     localStorage.setItem('pendingOrder', JSON.stringify(orderData));
     navigate('/checkout');
+  };
+
+  const handleAIFlightInfoGenerated = (flightId: number, content: any) => {
+    setAiEnhancedFlights(prev => ({
+      ...prev,
+      [flightId]: content
+    }));
   };
 
   if (showTransition) {
@@ -187,14 +195,50 @@ const Flights = () => {
                     </div>
                     <div className="text-right ml-6">
                       <div className="text-2xl font-bold text-red-600">¥{flight.price}</div>
-                      <Button 
-                        onClick={() => handleBookFlight(flight)}
-                        className="mt-2 gradient-ocean text-white"
-                      >
-                        立即预订
-                      </Button>
+                      {/* AI内容生成按钮 */}
+                      <div className="mt-4 flex justify-between items-center">
+                        <div className="flex-1">
+                          <Button 
+                            onClick={() => handleBookFlight(flight)}
+                            className="mt-2 gradient-ocean text-white"
+                          >
+                            立即预订
+                          </Button>
+                        </div>
+                        <div className="ml-4">
+                          <AIContentGenerator
+                            type="flight"
+                            context={flight}
+                            onContentGenerated={(content) => handleAIFlightInfoGenerated(flight.id, content)}
+                            buttonText="AI分析"
+                            title=""
+                            description=""
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* AI增强信息 */}
+                  {aiEnhancedFlights[flight.id] && (
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                      <h4 className="font-medium text-blue-800 mb-2">AI服务亮点</h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-blue-700">准点率: {aiEnhancedFlights[flight.id].punctualityRate}</p>
+                          <p className="text-blue-700">乘客评价: {aiEnhancedFlights[flight.id].passengerReview}</p>
+                        </div>
+                        <div>
+                          <p className="text-blue-700">服务特色:</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {aiEnhancedFlights[flight.id].additionalServices?.slice(0, 3).map((service: string, index: number) => (
+                              <Badge key={index} variant="outline" className="text-xs">{service}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
