@@ -21,6 +21,8 @@ import PartnerLogin from "./pages/PartnerLogin";
 import PartnerDashboard from "./pages/PartnerDashboard";
 import SupplyChainPartner from "./pages/SupplyChainPartner";
 import CooperationApplication from "./pages/CooperationApplication";
+import SupplierDashboard from "./pages/SupplierDashboard";
+import SupplierUploadProduct from "./pages/SupplierUploadProduct";
 import { CityProvider } from "./components/CityProvider";
 import { UserProvider } from "./components/UserProvider";
 import LoginPage from "./pages/Login";
@@ -69,6 +71,8 @@ const App = () => (
                 <Route path="/partner-hub" element={<PartnerHub />} />
                 <Route path="/partner-login" element={<PartnerLogin />} />
                 <Route path="/partner-dashboard" element={<PartnerDashboard />} />
+                <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
+                <Route path="/supplier-upload-product" element={<SupplierUploadProduct />} />
                 <Route path="/supply-chain-partner" element={<SupplyChainPartner />} />
                 <Route path="/cooperation-application" element={<CooperationApplication />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
