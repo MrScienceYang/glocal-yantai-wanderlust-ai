@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,6 @@ import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
 import { useNavigate } from 'react-router-dom';
-import AIContentGenerator from '@/components/AIContentGenerator';
 
 const Tickets = () => {
   const { selectedCountry } = useCityContext();
@@ -19,7 +19,6 @@ const Tickets = () => {
     date: '',
     category: ''
   });
-  const [aiEnhancedTickets, setAiEnhancedTickets] = useState<any>({});
 
   // 模拟门票数据
   const tickets = [
@@ -80,13 +79,6 @@ const Tickets = () => {
     };
     localStorage.setItem('pendingOrder', JSON.stringify(orderData));
     navigate('/checkout');
-  };
-
-  const handleAITicketInfoGenerated = (ticketId: number, content: any) => {
-    setAiEnhancedTickets(prev => ({
-      ...prev,
-      [ticketId]: content
-    }));
   };
 
   if (showTransition) {
@@ -201,31 +193,6 @@ const Tickets = () => {
                         >
                           立即预订
                         </Button>
-                      </div>
-
-                      {/* AI增强信息 */}
-                      {aiEnhancedTickets[ticket.id] && (
-                        <div className="mt-4 p-4 bg-purple-50 rounded-lg">
-                          <h4 className="font-medium text-purple-800 mb-2">AI景点亮点</h4>
-                          <p className="text-sm text-purple-700 mb-2">{aiEnhancedTickets[ticket.id].introduction}</p>
-                          <div className="flex flex-wrap gap-2">
-                            {aiEnhancedTickets[ticket.id].highlights?.slice(0, 3).map((highlight: string, index: number) => (
-                              <Badge key={index} variant="outline" className="text-xs">{highlight}</Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* AI内容生成按钮 */}
-                      <div className="mt-4">
-                        <AIContentGenerator
-                          type="ticket"
-                          context={ticket}
-                          onContentGenerated={(content) => handleAITicketInfoGenerated(ticket.id, content)}
-                          buttonText="AI景点分析"
-                          title=""
-                          description=""
-                        />
                       </div>
                     </div>
                   </CardContent>
