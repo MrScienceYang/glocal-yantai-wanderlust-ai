@@ -1,0 +1,208 @@
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Plane, MapPin, Clock, Users, Shield } from 'lucide-react';
+import Layout from '@/components/Layout';
+import { useCityContext } from '@/components/CityProvider';
+import ForeignTransition from '@/components/ForeignTransition';
+import { useNavigate } from 'react-router-dom';
+
+const Flights = () => {
+  const { selectedCountry } = useCityContext();
+  const navigate = useNavigate();
+  const [showTransition, setShowTransition] = useState(false);
+  const [searchParams, setSearchParams] = useState({
+    from: '',
+    to: '',
+    departure: '',
+    travelers: '1'
+  });
+
+  // 模拟航班数据
+  const flights = [
+    {
+      id: 1,
+      airline: '中国国航',
+      flightNumber: 'CA1234',
+      departure: { time: '08:30', airport: '北京首都机场' },
+      arrival: { time: '11:20', airport: '上海浦东机场' },
+      duration: '2小时50分钟',
+      price: 680,
+      seats: 23,
+      class: '经济舱'
+    },
+    {
+      id: 2,
+      airline: '东方航空',
+      flightNumber: 'MU5678',
+      departure: { time: '14:15', airport: '北京首都机场' },
+      arrival: { time: '17:05', airport: '上海浦东机场' },
+      duration: '2小时50分钟',
+      price: 720,
+      seats: 8,
+      class: '经济舱'
+    },
+    {
+      id: 3,
+      airline: '南方航空',
+      flightNumber: 'CZ9012',
+      departure: { time: '19:40', airport: '北京首都机场' },
+      arrival: { time: '22:30', airport: '上海浦东机场' },
+      duration: '2小时50分钟',
+      price: 650,
+      seats: 156,
+      class: '经济舱'
+    }
+  ];
+
+  const handleSearch = () => {
+    if (selectedCountry !== '中国') {
+      setShowTransition(true);
+    }
+  };
+
+  const handleTransitionComplete = () => {
+    window.open('https://www.booking.com/flights/', '_blank');
+    setShowTransition(false);
+  };
+
+  const handleBookFlight = (flight: any) => {
+    // 添加到购物车并跳转到结算页面
+    const orderData = {
+      type: 'flight',
+      item: flight,
+      totalPrice: flight.price
+    };
+    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+    navigate('/checkout');
+  };
+
+  if (showTransition) {
+    return <ForeignTransition onComplete={handleTransitionComplete} />;
+  }
+
+  return (
+    <Layout>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">机票预订</h1>
+          {selectedCountry === '中国' && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-center space-x-2 text-green-800">
+                <Shield className="h-5 w-5" />
+                <span className="font-bold text-lg">诚信承诺：不额外收保险费，不搞霸王条款</span>
+              </div>
+              <p className="text-green-700 mt-2">只做最让用户放心的OTA平台</p>
+            </div>
+          )}
+        </div>
+
+        {/* 搜索区域 */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Plane className="mr-2 h-5 w-5" />
+              航班搜索
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">出发地</label>
+                <Input
+                  placeholder="输入城市或机场"
+                  value={searchParams.from}
+                  onChange={(e) => setSearchParams({...searchParams, from: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">目的地</label>
+                <Input
+                  placeholder="输入城市或机场"
+                  value={searchParams.to}
+                  onChange={(e) => setSearchParams({...searchParams, to: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">出发日期</label>
+                <Input
+                  type="date"
+                  value={searchParams.departure}
+                  onChange={(e) => setSearchParams({...searchParams, departure: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">乘客人数</label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={searchParams.travelers}
+                  onChange={(e) => setSearchParams({...searchParams, travelers: e.target.value})}
+                />
+              </div>
+            </div>
+            <Button onClick={handleSearch} className="w-full gradient-ocean text-white">
+              搜索航班
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* 航班列表 */}
+        {selectedCountry === '中国' && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold mb-4">可预订航班</h2>
+            {flights.map((flight) => (
+              <Card key={flight.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold">{flight.departure.time}</div>
+                          <div className="text-sm text-gray-600">{flight.departure.airport}</div>
+                        </div>
+                        <div className="flex-1 text-center">
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className="h-0.5 bg-gray-300 flex-1"></div>
+                            <Plane className="h-4 w-4 text-gray-400" />
+                            <div className="h-0.5 bg-gray-300 flex-1"></div>
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">{flight.duration}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold">{flight.arrival.time}</div>
+                          <div className="text-sm text-gray-600">{flight.arrival.airport}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <span>{flight.airline} {flight.flightNumber}</span>
+                        <span>{flight.class}</span>
+                        <Badge variant={flight.seats < 10 ? "destructive" : "secondary"}>
+                          余票 {flight.seats} 张
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-right ml-6">
+                      <div className="text-2xl font-bold text-red-600">¥{flight.price}</div>
+                      <Button 
+                        onClick={() => handleBookFlight(flight)}
+                        className="mt-2 gradient-ocean text-white"
+                      >
+                        立即预订
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+};
+
+export default Flights;

@@ -28,6 +28,11 @@ import { CartProvider } from "./components/CartProvider";
 import CartPage from "./pages/Cart";
 import CheckoutPage from "./pages/Checkout";
 import LogisticsPage from "./pages/Logistics";
+import Flights from "./pages/Flights";
+import Trains from "./pages/Trains";
+import Hotels from "./pages/Hotels";
+import Tickets from "./pages/Tickets";
+import OrderDetail from "./pages/OrderDetail";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +50,10 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/ai-planning" element={<AIPlanning />} />
+                <Route path="/flights" element={<Flights />} />
+                <Route path="/trains" element={<Trains />} />
+                <Route path="/hotels" element={<Hotels />} />
+                <Route path="/tickets" element={<Tickets />} />
                 <Route path="/local-experts" element={<LocalExperts />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/mystery-box" element={<MysteryBox />} />
@@ -56,6 +65,7 @@ const App = () => (
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/logistics/:orderId" element={<LogisticsPage />} />
+                <Route path="/order/:orderId" element={<OrderDetail />} />
                 <Route path="/partner-hub" element={<PartnerHub />} />
                 <Route path="/partner-login" element={<PartnerLogin />} />
                 <Route path="/partner-dashboard" element={<PartnerDashboard />} />

@@ -1,160 +1,163 @@
-
-import React, { useState } from 'react';
-import { useCart } from '@/components/CartProvider';
-import { useUser } from '@/components/UserProvider';
-import Layout from '@/components/Layout';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import AddressSelector from '@/components/AddressSelector';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, Navigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCart } from '@/components/CartProvider';
+import { MapPin, PackageCheck, CreditCard, ShieldCheck, Loader2 } from 'lucide-react';
+import Layout from '@/components/Layout';
+
+interface CheckoutItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  mysteryBox?: boolean;
+}
 
 const CheckoutPage = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
-  const { isLoggedIn, addOrder } = useUser();
-  
-  const [address, setAddress] = useState({ province: '', city: '', district: '' });
-  const [detailedAddress, setDetailedAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('wechat');
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [orderItems, setOrderItems] = useState<CheckoutItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [address, setAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('credit-card');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentComplete, setPaymentComplete] = useState(false);
 
-  if (!isLoggedIn) {
-    return <Navigate to="/login" />;
-  }
-
-  if (cartItems.length === 0) {
-      return <Navigate to="/shop" />;
-  }
-  
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  // 检查是否有盲盒商品
-  const hasMysteryBox = cartItems.some(item => item.mysteryBox);
-  
-  // 获取URL参数
-  const urlParams = new URLSearchParams(window.location.search);
-  const boxId = urlParams.get('box_id');
-  const returnTo = urlParams.get('return_to');
-
-  const handlePlaceOrder = async () => {
-    if (!address.province || !address.city || !address.district || !detailedAddress) {
-      toast.error(t('checkout.address_required'));
-      return;
+  useEffect(() => {
+    const pendingOrder = localStorage.getItem('pendingOrder');
+    if (pendingOrder) {
+      const orderData = JSON.parse(pendingOrder);
+      setOrderItems([orderData.item]);
+      setTotal(orderData.totalPrice);
+      localStorage.removeItem('pendingOrder');
+    } else {
+      setOrderItems(cartItems);
+      setTotal(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0));
     }
+  }, [cartItems]);
 
-    setIsProcessingPayment(true);
-
-    // 模拟支付处理
+  const handlePaymentComplete = () => {
+    setIsProcessing(true);
+    
     setTimeout(() => {
-      const fullAddress = `${address.province} ${address.city} ${address.district} ${detailedAddress}`;
-      const newOrder = addOrder({
-        items: cartItems,
-        total,
-        shippingAddress: fullAddress,
-        paymentMethod,
-      });
-
-      if (newOrder) {
-        toast.success(t('checkout.payment_successful'), {
-          description: t('checkout.order_created', { orderId: newOrder.id }),
-        });
-        clearCart();
-        
-        // 如果是盲盒订单，跳转回盲盒页面并触发开启动画
-        if (hasMysteryBox && returnTo === 'mystery-box' && boxId) {
-          navigate(`/mystery-box?payment_completed=true&box_id=${boxId}`);
-        } else {
-          navigate(`/logistics/${newOrder.id}`);
-        }
+      setIsProcessing(false);
+      setPaymentComplete(true);
+      
+      // 检查是否是盲盒订单
+      const isMysteryBox = orderItems.some(item => item.mysteryBox);
+      
+      if (isMysteryBox) {
+        navigate('/mystery-box?openBox=true');
       } else {
-        toast.error(t('checkout.order_failed'));
+        // 生成订单ID并跳转到订单详情
+        const orderId = 'ORDER' + Date.now();
+        navigate(`/order/${orderId}`);
       }
       
-      setIsProcessingPayment(false);
-    }, 2000); // 模拟2秒支付处理时间
+      clearCart();
+    }, 2000);
   };
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">{t('checkout.title')}</h1>
-        
-        {hasMysteryBox && (
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <div className="text-purple-600 mr-3">🎁</div>
-              <div>
-                <h3 className="font-semibold text-purple-800">盲盒订单</h3>
-                <p className="text-purple-600 text-sm">支付完成后将自动开启盲盒，请耐心等待惊喜揭晓！</p>
+      <div className="max-w-2xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">结算</CardTitle>
+            <CardDescription>请填写您的收货地址和支付信息</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* 订单商品 */}
+            <div>
+              <h3 className="text-lg font-medium mb-2">订单商品</h3>
+              <ul className="border rounded-md divide-y">
+                {orderItems.map((item) => (
+                  <li key={item.id} className="p-4 flex items-center">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-md mr-4" />
+                    <div>
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-gray-500">
+                        {item.quantity ? `数量: ${item.quantity}` : ''}
+                      </p>
+                      <p className="text-gray-500">¥{item.price}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 flex justify-between font-bold">
+                <span>总计:</span>
+                <span>¥{total}</span>
               </div>
             </div>
-          </div>
-        )}
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader><CardTitle>{t('checkout.shipping_address')}</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
-                <AddressSelector value={address} onAddressChange={setAddress} />
-                <Input 
-                  placeholder={t('checkout.detailed_address_placeholder')}
-                  value={detailedAddress}
-                  onChange={(e) => setDetailedAddress(e.target.value)}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>{t('checkout.payment_method')}</CardTitle></CardHeader>
-              <CardContent>
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="wechat" id="wechat" />
-                    <Label htmlFor="wechat">{t('checkout.wechat_pay')}</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="alipay" id="alipay" />
-                    <Label htmlFor="alipay">{t('checkout.alipay')}</Label>
-                  </div>
-                </RadioGroup>
-              </CardContent>
-            </Card>
-          </div>
-          <div>
-            <Card>
-              <CardHeader><CardTitle>{t('cart.summary')}</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                {cartItems.map(item => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span>
-                      {item.name} {item.mysteryBox && '🎁'} x {item.quantity}
-                    </span>
-                    <span>¥{(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-                <div className="flex justify-between font-bold text-lg border-t pt-4 mt-4">
-                  <span>{t('cart.total')}</span>
-                  <span>¥{total.toFixed(2)}</span>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className="w-full" 
-                  onClick={handlePlaceOrder}
-                  disabled={isProcessingPayment}
+
+            {/* 收货地址 */}
+            <div>
+              <h3 className="text-lg font-medium mb-2 flex items-center">
+                <MapPin className="mr-2 h-5 w-5 text-gray-500" />
+                收货地址
+              </h3>
+              <Input
+                type="text"
+                placeholder="请输入收货地址"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+
+            {/* 支付方式 */}
+            <div>
+              <h3 className="text-lg font-medium mb-2 flex items-center">
+                <CreditCard className="mr-2 h-5 w-5 text-gray-500" />
+                支付方式
+              </h3>
+              <div className="flex space-x-4">
+                <Button
+                  variant={paymentMethod === 'credit-card' ? 'default' : 'outline'}
+                  onClick={() => setPaymentMethod('credit-card')}
                 >
-                  {isProcessingPayment ? '正在处理支付...' : t('checkout.place_order')}
+                  信用卡
                 </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
+                <Button
+                  variant={paymentMethod === 'paypal' ? 'default' : 'outline'}
+                  onClick={() => setPaymentMethod('paypal')}
+                  disabled
+                >
+                  PayPal (暂未开通)
+                </Button>
+              </div>
+            </div>
+
+            {/* 服务保障 */}
+            <div className="text-sm text-gray-600 flex items-center">
+              <ShieldCheck className="mr-2 h-4 w-4 text-green-500" />
+              我们承诺：所有交易均安全可靠，您的支付信息将被加密保护。
+            </div>
+
+            {/* 结算按钮 */}
+            <Button
+              className="w-full gradient-ocean text-white relative"
+              onClick={handlePaymentComplete}
+              disabled={isProcessing || paymentComplete}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  处理中...
+                </>
+              ) : paymentComplete ? (
+                <>
+                  <PackageCheck className="mr-2 h-4 w-4" />
+                  支付完成!
+                </>
+              ) : (
+                '确认支付'
+              )}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
