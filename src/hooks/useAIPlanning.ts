@@ -1,5 +1,7 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { aiService } from '@/services/aiService';
 
 interface TravelPreferences {
   country: string;
@@ -96,19 +98,36 @@ const realAttractionsDatabase = {
 export const useAIPlanning = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [plan, setPlan] = useState<TravelPlan | null>(null);
+  const [hasPermission, setHasPermission] = useState(false);
 
   const generatePlan = async (preferences: TravelPreferences) => {
+    if (!hasPermission) {
+      toast.error('请先获取AI服务使用权限');
+      return;
+    }
+
     setIsLoading(true);
     
     try {
-      // 模拟AI生成过程
+      // 优先使用通义千问AI生成行程
+      try {
+        const aiPlan = await aiService.generateItinerary(preferences);
+        if (aiPlan && aiPlan.itinerary) {
+          setPlan(aiPlan);
+          toast.success(`AI智能行程规划生成成功！`);
+          return;
+        }
+      } catch (error) {
+        console.error('AI生成失败，使用本地数据:', error);
+      }
+
+      // 如果AI失败，使用本地数据生成
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const cityAttractions = realAttractionsDatabase[preferences.city];
       const startDate = new Date();
       
       if (!cityAttractions) {
-        // 如果没有该城市的数据，生成通用行程
         const mockPlan: TravelPlan = {
           itinerary: [
             {
@@ -138,7 +157,7 @@ export const useAIPlanning = () => {
           startDate: startDate.toLocaleDateString('zh-CN'),
         };
         setPlan(mockPlan);
-        toast.success(`${preferences.city}AI行程规划生成成功！`);
+        toast.success(`${preferences.city}行程规划生成成功！`);
         return;
       }
 
@@ -232,9 +251,15 @@ export const useAIPlanning = () => {
     }
   };
 
+  const grantPermission = () => {
+    setHasPermission(true);
+  };
+
   return {
     generatePlan,
     isLoading,
-    plan
+    plan,
+    hasPermission,
+    grantPermission
   };
 };
