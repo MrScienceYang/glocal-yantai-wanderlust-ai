@@ -20,7 +20,7 @@ const PWASplashScreen = () => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[9999] bg-gradient-to-br from-ocean-500 to-ocean-700 flex items-center justify-center"
+          className="fixed inset-0 z-[9999] bg-white flex items-center justify-center"
         >
           <div className="text-center">
             <motion.img
@@ -40,7 +40,7 @@ const PWASplashScreen = () => {
               className="relative"
             >
               <motion.div
-                className="w-8 h-8 bg-white rounded-sm transform rotate-45"
+                className="w-8 h-8 bg-ocean-500 rounded-sm transform rotate-45"
                 animate={{ rotate: [45, 50, 45] }}
                 transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
               />
@@ -50,7 +50,7 @@ const PWASplashScreen = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 1, duration: 0.8 }}
-              className="text-3xl font-bold text-white mt-8"
+              className="text-3xl font-bold text-gray-800 mt-8"
             >
               Glocal
             </motion.h1>
@@ -58,9 +58,9 @@ const PWASplashScreen = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 1.2, duration: 0.8 }}
-              className="text-white opacity-90 mt-2"
+              className="text-gray-600 mt-2"
             >
-              发现真正的本地味道
+              想去哪里自己定，glocal就是行
             </motion.p>
           </div>
         </motion.div>
