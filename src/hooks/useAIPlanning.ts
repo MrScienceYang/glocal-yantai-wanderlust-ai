@@ -95,6 +95,52 @@ const realAttractionsDatabase = {
   }
 };
 
+// 生成有意义的活动名称
+const generateActivityName = (activity: any): string => {
+  // 如果有明确的活动名称且不是"未命名活动"，直接使用
+  const originalName = activity.activity || activity.name;
+  if (originalName && originalName.trim() !== '' && originalName.trim() !== '未命名活动') {
+    return originalName;
+  }
+  
+  // 根据描述生成活动名称
+  const description = activity.description || '';
+  const location = activity.location || '';
+  
+  // 如果描述中包含关键词，提取作为活动名称
+  if (description.includes('游览') || description.includes('参观')) {
+    if (location && location !== '位置待定') {
+      return `游览${location}`;
+    }
+    return description.substring(0, 20) + (description.length > 20 ? '...' : '');
+  }
+  
+  if (description.includes('品尝') || description.includes('美食') || description.includes('餐')) {
+    return description.substring(0, 20) + (description.length > 20 ? '...' : '');
+  }
+  
+  if (description.includes('入住') || description.includes('酒店')) {
+    return '入住酒店';
+  }
+  
+  if (description.includes('交通') || description.includes('机场') || description.includes('抵达')) {
+    return '交通安排';
+  }
+  
+  // 如果位置信息有用，使用位置作为活动名称
+  if (location && location !== '位置待定') {
+    return `前往${location}`;
+  }
+  
+  // 最后备选：使用描述的前几个字
+  if (description && description !== '暂无描述') {
+    return description.substring(0, 15) + (description.length > 15 ? '...' : '');
+  }
+  
+  // 最终备选
+  return '行程安排';
+};
+
 // 转换DeepSeek API响应为组件期望的格式
 const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan => {
   console.log('开始转换DeepSeek响应:', deepSeekResponse);
@@ -112,22 +158,21 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
           
           if (day.activities && Array.isArray(day.activities)) {
             day.activities.forEach((activity: any) => {
-              // 只添加有名称的活动
-              const activityName = activity.activity || activity.name;
-              if (activityName && activityName.trim() !== '未命名活动' && activityName.trim() !== '') {
-                activities.push({
-                  name: activityName,
-                  description: activity.description || '暂无描述',
-                  location: activity.location || '位置待定',
-                  time: activity.time || '时间待定',
-                  estimatedCost: activity.price || activity.cost || activity.estimatedCost || 0,
-                  transportation: activity.transportation?.type || activity.transportation || '交通方式待定'
-                });
-              }
+              // 为每个活动生成有意义的名称
+              const activityName = generateActivityName(activity);
+              
+              activities.push({
+                name: activityName,
+                description: activity.description || '暂无描述',
+                location: activity.location || '位置待定',
+                time: activity.time || '时间待定',
+                estimatedCost: activity.price || activity.cost || activity.estimatedCost || 0,
+                transportation: activity.transportation?.type || activity.transportation || '交通方式待定'
+              });
             });
           }
           
-          // 只添加有活动的天数
+          // 添加所有活动，包括生成名称的活动
           if (activities.length > 0) {
             itinerary.push({
               date: day.date || `第${index + 1}天`,
@@ -150,21 +195,18 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
       const convertedItinerary: DayPlan[] = deepSeekResponse.itinerary.map((dayData: any, index: number) => {
         const activities: Activity[] = (dayData.activities || [])
           .map((activity: any) => {
-            const activityName = activity.activity || activity.name;
-            // 只处理有名称的活动
-            if (activityName && activityName.trim() !== '未命名活动' && activityName.trim() !== '') {
-              return {
-                name: activityName,
-                description: activity.description || '暂无描述',
-                location: activity.location || '位置待定',
-                time: activity.time || '时间待定',
-                estimatedCost: activity.cost || activity.estimatedCost || 0,
-                transportation: activity.transportation || '交通方式待定'
-              };
-            }
-            return null;
-          })
-          .filter((activity: Activity | null) => activity !== null) as Activity[];
+            // 为每个活动生成有意义的名称
+            const activityName = generateActivityName(activity);
+            
+            return {
+              name: activityName,
+              description: activity.description || '暂无描述',
+              location: activity.location || '位置待定',
+              time: activity.time || '时间待定',
+              estimatedCost: activity.cost || activity.estimatedCost || 0,
+              transportation: activity.transportation || '交通方式待定'
+            };
+          });
 
         return {
           date: dayData.date || `第${index + 1}天`,
@@ -186,7 +228,7 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
       itinerary: [{
         date: new Date().toLocaleDateString('zh-CN'),
         activities: [{
-          name: 'AI生成的行程',
+          name: 'AI生成的行程安排',
           description: deepSeekResponse.textResponse || '已收到AI生成的行程信息，请查看详细内容',
           location: '目标城市',
           time: '全天',
