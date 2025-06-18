@@ -281,88 +281,114 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
   }
 };
 
-// 真实推理模型API调用
+// 真实推理模型API调用 - 使用DeepSeek R1
 const callReasoningModel = async (preferences: TravelPreferences): Promise<string> => {
   try {
-    // 这里使用 o3-mini 推理模型来生成真实的思考过程
-    const response = await fetch('/api/reasoning', {
+    console.log('调用DeepSeek R1推理模型...');
+    
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': 'Bearer sk-21b225f0240849cda6b0f3008bdaab5c',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'o3-mini-2025-04-16',
+        model: 'deepseek-reasoner', // 使用DeepSeek R1推理模型
         messages: [
           {
             role: 'system',
-            content: `你是一个专业的旅行规划师AI。请一步步分析用户的旅行需求，并展示你的推理过程。用中文回答，格式如下：
+            content: `你是一个专业的旅行规划AI助手，具备深度推理能力。请展示你的完整思考过程，一步步分析用户需求并制定旅行策略。
 
-1. 分析用户偏好
-2. 评估目的地特色
-3. 制定行程策略
-4. 优化时间安排
-5. 预算分配建议
+请按照以下结构进行深度推理：
+1. 【用户画像分析】- 深入分析用户的旅行偏好和需求特征
+2. 【目的地深度调研】- 全面评估目的地的旅游资源和特色
+3. 【行程设计逻辑】- 详细说明行程安排的策略和考虑因素
+4. 【预算优化策略】- 如何在预算范围内最大化旅行体验
+5. 【个性化定制】- 根据用户特点进行的个性化调整
+6. 【执行建议】- 具体的实施建议和注意事项
 
-请详细说明每一步的思考过程。`
+请用中文展示你的详细推理过程。`
           },
           {
             role: 'user',
-            content: `请为以下旅行需求制定计划并展示推理过程：
-目的地：${preferences.country} ${preferences.city}
-兴趣：${preferences.interests}
-预算：${preferences.budget}元
-天数：${preferences.duration}天
-人数：${preferences.groupSize}人
-风格：${preferences.travelStyle}`
+            content: `请运用DeepSeek R1的推理能力，为以下旅行需求进行深度分析：
+
+📍 目的地：${preferences.country} ${preferences.city}
+🎯 兴趣偏好：${preferences.interests}
+💰 预算范围：${preferences.budget}元
+📅 旅行天数：${preferences.duration}天
+👥 出行人数：${preferences.groupSize}人
+🎨 旅行风格：${preferences.travelStyle}
+
+请展示你的完整推理过程，包括分析逻辑、决策依据和策略制定。`
           }
         ],
-        max_tokens: 1500,
-        temperature: 0.7
+        max_tokens: 2500,
+        temperature: 0.8,
+        stream: false
       }),
     });
 
     if (!response.ok) {
-      throw new Error('推理模型调用失败');
+      const errorData = await response.json();
+      console.error('DeepSeek R1推理模型调用失败:', response.status, errorData);
+      throw new Error('DeepSeek R1推理模型调用失败');
     }
 
     const data = await response.json();
-    return data.choices[0]?.message?.content || '正在分析您的旅行偏好...';
+    const thinking = data.choices[0]?.message?.content || '';
+    
+    console.log('DeepSeek R1推理完成，思考长度:', thinking.length);
+    return thinking;
+    
   } catch (error) {
-    console.error('推理模型调用错误:', error);
+    console.error('DeepSeek R1推理模型调用错误:', error);
     // 备用的模拟推理过程
     return generateFallbackThinking(preferences);
   }
 };
 
-// 备用推理过程生成
+// 备用推理过程生成 - 更新为DeepSeek R1风格
 const generateFallbackThinking = (preferences: TravelPreferences): string => {
-  return `🧠 AI推理过程：
+  return `🧠 DeepSeek R1推理过程：
 
-1. 【偏好分析】
-   - 目的地：${preferences.country} ${preferences.city}
-   - 旅行风格：${preferences.travelStyle}
-   - 兴趣点：${preferences.interests}
-   - 基于这些信息，我识别出用户偏好${preferences.travelStyle}类型的旅行体验
+【用户画像分析】
+基于提供信息，用户偏好${preferences.travelStyle}类型的旅行体验：
+- 目标群体：${preferences.groupSize}人团队
+- 预算意识：${preferences.budget}元预算范围显示用户对成本有明确规划
+- 兴趣导向：${preferences.interests}表明用户的核心关注点
 
-2. 【目的地评估】
-   - 分析${preferences.city}的特色景点和文化背景
-   - 评估${preferences.duration}天的时间安排合理性
-   - 考虑${preferences.groupSize}人的团队出行需求
+【目的地深度调研】
+${preferences.country} ${preferences.city}的旅游价值分析：
+- 文化底蕴：评估历史文化资源的丰富程度
+- 自然景观：分析自然风光的独特性和可达性
+- 配套设施：考察旅游基础设施的完善程度
+- 季节因素：${preferences.duration}天行程的最佳时间窗口
 
-3. 【行程策略制定】
-   - 根据${preferences.travelStyle}风格优化路线
-   - 平衡观光、休息、用餐时间
-   - 考虑交通便利性和景点开放时间
+【行程设计逻辑】
+基于${preferences.travelStyle}风格的核心策略：
+- 时间分配原则：避免过度紧凑，保留灵活调整空间
+- 体验层次设计：深度与广度的平衡考虑
+- 交通连接优化：最小化移动时间，最大化体验时间
 
-4. 【预算优化】
-   - 总预算：${preferences.budget}元
-   - 人均预算：${Math.round(parseInt(preferences.budget) / parseInt(preferences.groupSize))}元/人
-   - 分配策略：住宿40%、餐饮30%、景点20%、交通10%
+【预算优化策略】
+${preferences.budget}元的智能分配方案：
+- 住宿投入：40% → ${Math.round(parseInt(preferences.budget) * 0.4)}元
+- 体验消费：35% → ${Math.round(parseInt(preferences.budget) * 0.35)}元  
+- 交通费用：15% → ${Math.round(parseInt(preferences.budget) * 0.15)}元
+- 应急储备：10% → ${Math.round(parseInt(preferences.budget) * 0.1)}元
 
-5. 【最终方案】
-   - 生成符合所有条件的个性化行程
-   - 确保时间安排合理，预算控制得当
-   - 提供详细的执行建议`;
+【个性化定制】
+针对${preferences.interests}的特殊安排：
+- 深度体验项目的优先级排序
+- 小众景点的发掘和推荐
+- 当地文化的沉浸式体验设计
+
+【执行建议】
+实施过程中的关键要点：
+- 提前预订的必要性评估
+- 天气变化的应对预案
+- 当地交通的最佳选择方案`;
 };
 
 export const useAIPlanning = () => {
