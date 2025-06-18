@@ -84,7 +84,7 @@ class AIContentService {
 
     try {
       // 调用OpenAI ChatGPT 4o API
-      console.log(`开始生成${type}内容，使用模型: gpt-4o`);
+      console.log(`开始生成${type}内容，使用模型: gpt-4o，API密钥长度:`, this.apiKey.length);
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -108,9 +108,11 @@ class AIContentService {
         })
       });
 
+      console.log(`${type}内容生成API响应状态:`, response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
-        console.warn(`${type} OpenAI API失败:`, response.status, errorData, '使用模拟数据');
+        console.error(`${type} OpenAI API失败:`, response.status, errorData, '使用模拟数据');
         return this.getMockContent(type, context);
       }
 
@@ -136,6 +138,7 @@ class AIContentService {
   // 测试API连接
   async testConnection(): Promise<boolean> {
     try {
+      console.log('测试内容生成API连接...');
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {

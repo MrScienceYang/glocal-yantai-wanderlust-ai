@@ -1,3 +1,4 @@
+
 // AI服务配置 - 使用OpenAI ChatGPT 4o API
 export class AIService {
   private apiKey: string = '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';
@@ -5,7 +6,15 @@ export class AIService {
 
   constructor() {
     // OpenAI API密钥已配置
-    console.log('OpenAI ChatGPT 4o API已初始化');
+    console.log('OpenAI ChatGPT 4o API已初始化，测试连接中...');
+    // 自动测试连接
+    this.testConnection().then(success => {
+      if (success) {
+        console.log('OpenAI API连接成功');
+      } else {
+        console.error('OpenAI API连接失败，将使用本地模拟数据');
+      }
+    });
   }
 
   setApiKey(apiKey: string) {
@@ -20,6 +29,7 @@ export class AIService {
   // 测试API连接
   async testConnection(): Promise<boolean> {
     try {
+      console.log('正在测试OpenAI API连接...');
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -175,7 +185,7 @@ export class AIService {
     `;
 
     try {
-      console.log('发送AI请求，使用模型: gpt-4o');
+      console.log('发送AI请求，使用模型: gpt-4o，API密钥长度:', this.apiKey.length);
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -199,9 +209,12 @@ export class AIService {
         })
       });
 
+      console.log('OpenAI API响应状态:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
-        console.warn('OpenAI API请求失败:', response.status, errorData);
+        console.error('OpenAI API请求失败:', response.status, errorData);
+        console.log('API密钥前10位:', this.apiKey.substring(0, 10));
         throw new Error(`API请求失败: ${response.status} - ${errorData.error?.message || '未知错误'}`);
       }
 
@@ -266,7 +279,7 @@ export class AIService {
       });
 
       if (!response.ok) {
-        console.warn('OpenAI API请求失败，使用模拟数据');
+        console.log('OpenAI API请求失败，使用模拟数据');
         return this.getMockRecommendation(userProfile);
       }
 
