@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -113,21 +112,28 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
           
           if (day.activities && Array.isArray(day.activities)) {
             day.activities.forEach((activity: any) => {
-              activities.push({
-                name: activity.activity || activity.name || '未命名活动',
-                description: activity.description || '暂无描述',
-                location: activity.location || '位置待定',
-                time: activity.time || '时间待定',
-                estimatedCost: activity.price || activity.cost || activity.estimatedCost || 0,
-                transportation: activity.transportation?.type || activity.transportation || '交通方式待定'
-              });
+              // 只添加有名称的活动
+              const activityName = activity.activity || activity.name;
+              if (activityName && activityName.trim() !== '未命名活动' && activityName.trim() !== '') {
+                activities.push({
+                  name: activityName,
+                  description: activity.description || '暂无描述',
+                  location: activity.location || '位置待定',
+                  time: activity.time || '时间待定',
+                  estimatedCost: activity.price || activity.cost || activity.estimatedCost || 0,
+                  transportation: activity.transportation?.type || activity.transportation || '交通方式待定'
+                });
+              }
             });
           }
           
-          itinerary.push({
-            date: day.date || `第${index + 1}天`,
-            activities
-          });
+          // 只添加有活动的天数
+          if (activities.length > 0) {
+            itinerary.push({
+              date: day.date || `第${index + 1}天`,
+              activities
+            });
+          }
         });
       }
       
@@ -142,20 +148,29 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
     // 如果是直接的itinerary格式
     if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
       const convertedItinerary: DayPlan[] = deepSeekResponse.itinerary.map((dayData: any, index: number) => {
-        const activities: Activity[] = (dayData.activities || []).map((activity: any) => ({
-          name: activity.activity || activity.name || '未命名活动',
-          description: activity.description || '暂无描述',
-          location: activity.location || '位置待定',
-          time: activity.time || '时间待定',
-          estimatedCost: activity.cost || activity.estimatedCost || 0,
-          transportation: activity.transportation || '交通方式待定'
-        }));
+        const activities: Activity[] = (dayData.activities || [])
+          .map((activity: any) => {
+            const activityName = activity.activity || activity.name;
+            // 只处理有名称的活动
+            if (activityName && activityName.trim() !== '未命名活动' && activityName.trim() !== '') {
+              return {
+                name: activityName,
+                description: activity.description || '暂无描述',
+                location: activity.location || '位置待定',
+                time: activity.time || '时间待定',
+                estimatedCost: activity.cost || activity.estimatedCost || 0,
+                transportation: activity.transportation || '交通方式待定'
+              };
+            }
+            return null;
+          })
+          .filter((activity: Activity | null) => activity !== null) as Activity[];
 
         return {
           date: dayData.date || `第${index + 1}天`,
           activities
         };
-      });
+      }).filter(day => day.activities.length > 0); // 只保留有活动的天数
 
       return {
         itinerary: convertedItinerary,
