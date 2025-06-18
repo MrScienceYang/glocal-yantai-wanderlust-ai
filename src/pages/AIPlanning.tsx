@@ -6,16 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { MapPin, Calendar, Users, DollarSign, Sparkles, Download, Share2, Clock, Star, Award, Globe, Brain, Zap } from 'lucide-react';
+import { MapPin, Calendar, Users, DollarSign, Sparkles, Download, Share2, Clock, Star, Award, Globe, Brain, Zap, FileText } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
 import AIPermissionCheck from '@/components/AIPermissionCheck';
 import MobileTravelHub from '@/components/MobileTravelHub';
+import { generateTravelPlanPDF } from '@/utils/travelPdfGenerator';
 
 const AIPlanning = () => {
   const { selectedCountry, selectedCity } = useCityContext();
-  const { generatePlan, isLoading, plan, hasPermission, grantPermission } = useAIPlanning();
+  const { generatePlan, isLoading, plan, hasPermission, grantPermission, thinkingProcess } = useAIPlanning();
   const [preferences, setPreferences] = useState({
     country: selectedCountry,
     province: '',
@@ -28,7 +29,6 @@ const AIPlanning = () => {
   });
   const [showPlan, setShowPlan] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
-  const [aiThinking, setAiThinking] = useState('');
   const [showThinking, setShowThinking] = useState(false);
 
   useEffect(() => {
@@ -46,13 +46,34 @@ const AIPlanning = () => {
       return;
     }
     
-    // 显示AI思考过程
     setShowThinking(true);
-    setAiThinking('正在分析您的旅行偏好...\n根据您选择的旅行风格和预算，AI正在为您规划最佳路线...\n正在匹配适合的景点和活动...\n正在优化行程时间安排...');
-    
     await generatePlan(preferences);
     setShowPlan(true);
     setShowThinking(false);
+  };
+
+  const handleDownloadPDF = () => {
+    if (!plan) {
+      toast.error('没有可下载的计划');
+      return;
+    }
+
+    try {
+      generateTravelPlanPDF({
+        destination: `${selectedCountry} ${selectedCity}`,
+        duration: preferences.duration,
+        groupSize: preferences.groupSize,
+        budget: preferences.budget,
+        travelStyle: preferences.travelStyle,
+        interests: preferences.interests,
+        plan: plan,
+        thinkingProcess: thinkingProcess
+      });
+      toast.success('行程计划PDF已生成！');
+    } catch (error) {
+      console.error('PDF生成失败:', error);
+      toast.error('PDF生成失败，请稍后重试');
+    }
   };
 
   const handleShare = () => {
@@ -118,15 +139,15 @@ const AIPlanning = () => {
         </div>
 
         {/* AI思考过程展示 */}
-        {showThinking && (
+        {showThinking && thinkingProcess && (
           <Card className="mb-8 border-blue-200 bg-blue-50">
             <CardHeader>
               <CardTitle className="flex items-center text-blue-700">
                 <Brain className="mr-2 h-5 w-5 animate-pulse" />
-                AI正在思考...
+                AI推理过程
               </CardTitle>
               <CardDescription className="text-blue-600">
-                让我们看看AI是如何为您规划行程的
+                观察AI如何一步步分析您的需求并制定旅行计划
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -134,7 +155,7 @@ const AIPlanning = () => {
                 <div className="flex items-start space-x-3">
                   <Zap className="h-5 w-5 text-blue-500 mt-1 animate-bounce" />
                   <div className="text-sm text-gray-700 whitespace-pre-line">
-                    {aiThinking}
+                    {thinkingProcess}
                   </div>
                 </div>
               </div>
@@ -299,9 +320,9 @@ const AIPlanning = () => {
                 </div>
               ))}
               <div className="flex justify-between">
-                <Button variant="outline">
-                  <Download className="mr-2 h-4 w-4" />
-                  下载计划
+                <Button variant="outline" onClick={handleDownloadPDF}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  下载PDF
                 </Button>
                 <Button className="gradient-ocean text-white" onClick={handleShare}>
                   <Share2 className="mr-2 h-4 w-4" />

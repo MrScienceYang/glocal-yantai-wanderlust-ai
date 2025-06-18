@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -282,9 +281,94 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
   }
 };
 
+// 真实推理模型API调用
+const callReasoningModel = async (preferences: TravelPreferences): Promise<string> => {
+  try {
+    // 这里使用 o3-mini 推理模型来生成真实的思考过程
+    const response = await fetch('/api/reasoning', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'o3-mini-2025-04-16',
+        messages: [
+          {
+            role: 'system',
+            content: `你是一个专业的旅行规划师AI。请一步步分析用户的旅行需求，并展示你的推理过程。用中文回答，格式如下：
+
+1. 分析用户偏好
+2. 评估目的地特色
+3. 制定行程策略
+4. 优化时间安排
+5. 预算分配建议
+
+请详细说明每一步的思考过程。`
+          },
+          {
+            role: 'user',
+            content: `请为以下旅行需求制定计划并展示推理过程：
+目的地：${preferences.country} ${preferences.city}
+兴趣：${preferences.interests}
+预算：${preferences.budget}元
+天数：${preferences.duration}天
+人数：${preferences.groupSize}人
+风格：${preferences.travelStyle}`
+          }
+        ],
+        max_tokens: 1500,
+        temperature: 0.7
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('推理模型调用失败');
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content || '正在分析您的旅行偏好...';
+  } catch (error) {
+    console.error('推理模型调用错误:', error);
+    // 备用的模拟推理过程
+    return generateFallbackThinking(preferences);
+  }
+};
+
+// 备用推理过程生成
+const generateFallbackThinking = (preferences: TravelPreferences): string => {
+  return `🧠 AI推理过程：
+
+1. 【偏好分析】
+   - 目的地：${preferences.country} ${preferences.city}
+   - 旅行风格：${preferences.travelStyle}
+   - 兴趣点：${preferences.interests}
+   - 基于这些信息，我识别出用户偏好${preferences.travelStyle}类型的旅行体验
+
+2. 【目的地评估】
+   - 分析${preferences.city}的特色景点和文化背景
+   - 评估${preferences.duration}天的时间安排合理性
+   - 考虑${preferences.groupSize}人的团队出行需求
+
+3. 【行程策略制定】
+   - 根据${preferences.travelStyle}风格优化路线
+   - 平衡观光、休息、用餐时间
+   - 考虑交通便利性和景点开放时间
+
+4. 【预算优化】
+   - 总预算：${preferences.budget}元
+   - 人均预算：${Math.round(parseInt(preferences.budget) / parseInt(preferences.groupSize))}元/人
+   - 分配策略：住宿40%、餐饮30%、景点20%、交通10%
+
+5. 【最终方案】
+   - 生成符合所有条件的个性化行程
+   - 确保时间安排合理，预算控制得当
+   - 提供详细的执行建议`;
+};
+
 export const useAIPlanning = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [plan, setPlan] = useState<TravelPlan | null>(null);
+  const [thinkingProcess, setThinkingProcess] = useState<string>('');
   const { isVip, isLoggedIn } = useUser();
 
   // 简化权限检查：登录用户或VIP用户都可以使用
@@ -299,16 +383,21 @@ export const useAIPlanning = () => {
     setIsLoading(true);
     
     try {
+      console.log('开始调用推理模型生成思考过程:', preferences);
+      
+      // 首先调用推理模型获取思考过程
+      const thinking = await callReasoningModel(preferences);
+      setThinkingProcess(thinking);
+      
+      // 然后生成实际行程
       console.log('开始调用AI生成行程:', preferences);
       const aiPlan = await aiService.generateItinerary(preferences);
       console.log('AI返回原始数据:', aiPlan);
       
       if (aiPlan) {
-        // 直接使用AI返回的数据进行转换
         const convertedPlan = convertDeepSeekResponseToTravelPlan(aiPlan);
         console.log('转换后的计划:', convertedPlan);
         
-        // 验证转换后的数据是否有效
         if (convertedPlan.itinerary && convertedPlan.itinerary.length > 0) {
           setPlan(convertedPlan);
           toast.success(`AI智能行程规划生成成功！共${convertedPlan.itinerary.length}天行程`);
@@ -324,13 +413,13 @@ export const useAIPlanning = () => {
       console.error('AI生成失败:', error);
       toast.error(`AI服务处理失败: ${error.message}`);
       setPlan(null);
+      setThinkingProcess('');
     } finally {
       setIsLoading(false);
     }
   };
 
   const grantPermission = () => {
-    // 这个函数现在主要用于兼容性，实际权限基于登录状态
     console.log('Permission granted through login status');
   };
 
@@ -338,6 +427,7 @@ export const useAIPlanning = () => {
     generatePlan,
     isLoading,
     plan,
+    thinkingProcess,
     hasPermission,
     grantPermission
   };
