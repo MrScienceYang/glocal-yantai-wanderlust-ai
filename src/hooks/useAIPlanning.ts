@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -166,9 +167,9 @@ export const useAIPlanning = () => {
         return;
       }
 
-      // 根据用户兴趣选择景点
+      // 根据用户兴趣选择景点 - 添加空值检查
       let selectedAttractions: any[] = [];
-      const interests = preferences.interests.toLowerCase();
+      const interests = (preferences.interests || '').toLowerCase();
       
       if (interests.includes('历史') || interests.includes('文化')) {
         selectedAttractions.push(...cityAttractions.historical || []);
