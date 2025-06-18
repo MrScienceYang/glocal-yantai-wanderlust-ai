@@ -1,12 +1,12 @@
 
-// AI服务配置 - 使用OpenAI ChatGPT 4.1 API
+// AI服务配置 - 使用OpenAI ChatGPT 4o API
 export class AIService {
   private apiKey: string = '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';
   private baseUrl = 'https://api.openai.com/v1/chat/completions';
 
   constructor() {
     // OpenAI API密钥已配置
-    console.log('OpenAI ChatGPT 4.1 API已初始化');
+    console.log('OpenAI ChatGPT 4o API已初始化');
   }
 
   setApiKey(apiKey: string) {
@@ -28,7 +28,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'user',
@@ -176,7 +176,7 @@ export class AIService {
     `;
 
     try {
-      console.log('发送AI请求，使用模型: gpt-4.1-2025-04-14');
+      console.log('发送AI请求，使用模型: gpt-4o');
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -184,7 +184,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'system',
@@ -203,7 +203,7 @@ export class AIService {
       if (!response.ok) {
         const errorData = await response.json();
         console.warn('OpenAI API请求失败:', response.status, errorData);
-        throw new Error(`API请求失败: ${response.status}`);
+        throw new Error(`API请求失败: ${response.status} - ${errorData.error?.message || '未知错误'}`);
       }
 
       const data = await response.json();
@@ -250,7 +250,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'system',

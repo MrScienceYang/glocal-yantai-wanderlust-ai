@@ -83,8 +83,8 @@ class AIContentService {
     };
 
     try {
-      // 调用OpenAI ChatGPT 4.1 API
-      console.log(`开始生成${type}内容，使用模型: gpt-4.1-2025-04-14`);
+      // 调用OpenAI ChatGPT 4o API
+      console.log(`开始生成${type}内容，使用模型: gpt-4o`);
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -92,7 +92,7 @@ class AIContentService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'system',
@@ -143,7 +143,7 @@ class AIContentService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'user',
