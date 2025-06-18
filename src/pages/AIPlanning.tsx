@@ -618,21 +618,21 @@ const AIPlanning = () => {
                         {day.activities.map((activity, actIndex) => (
                           <div key={actIndex} className="bg-gray-50 p-3 rounded-lg">
                             <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium">{activity.name}</h4>
+                              <h4 className="font-medium">{activity.name || '未命名活动'}</h4>
                               <span className="text-sm text-gray-500 flex items-center">
                                 <Clock className="w-4 h-4 mr-1" />
-                                {activity.time}
+                                {activity.time || '时间待定'}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">{activity.description}</p>
+                            <p className="text-sm text-gray-600 mb-2">{activity.description || '暂无描述'}</p>
                             <div className="flex items-center justify-between text-xs text-gray-500">
                               <span className="flex items-center">
                                 <MapPin className="w-3 h-3 mr-1" />
-                                {activity.location}
+                                {activity.location || '位置待定'}
                               </span>
                               <span className="flex items-center">
                                 <DollarSign className="w-3 h-3 mr-1" />
-                                ¥{activity.estimatedCost}
+                                ¥{activity.estimatedCost || 0}
                               </span>
                             </div>
                             {activity.transportation && (
@@ -641,8 +641,8 @@ const AIPlanning = () => {
                                 <span>交通方式: {activity.transportation}</span>
                               </div>
                             )}
-                            {/* 添加门票购买链接 */}
-                            {activity.name.includes('蓬莱阁') && (
+                            {/* 添加门票购买链接 - 添加安全检查 */}
+                            {activity.name && activity.name.includes('蓬莱阁') && (
                               <div className="mt-2">
                                 <Link to="/ticket/1">
                                   <Button size="sm" variant="outline" className="text-xs">

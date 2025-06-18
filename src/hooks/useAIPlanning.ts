@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -140,8 +141,24 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
     
     // 如果是直接的itinerary格式
     if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
+      const convertedItinerary: DayPlan[] = deepSeekResponse.itinerary.map((dayData: any, index: number) => {
+        const activities: Activity[] = (dayData.activities || []).map((activity: any) => ({
+          name: activity.activity || activity.name || '未命名活动',
+          description: activity.description || '暂无描述',
+          location: activity.location || '位置待定',
+          time: activity.time || '时间待定',
+          estimatedCost: activity.cost || activity.estimatedCost || 0,
+          transportation: activity.transportation || '交通方式待定'
+        }));
+
+        return {
+          date: dayData.date || `第${index + 1}天`,
+          activities
+        };
+      });
+
       return {
-        itinerary: deepSeekResponse.itinerary,
+        itinerary: convertedItinerary,
         totalCost: deepSeekResponse.totalCost || 0,
         recommendedGroupSize: deepSeekResponse.recommendedGroupSize || '2',
         startDate: deepSeekResponse.startDate || new Date().toLocaleDateString('zh-CN')
