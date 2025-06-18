@@ -38,6 +38,9 @@ import Trains from "./pages/Trains";
 import Hotels from "./pages/Hotels";
 import Tickets from "./pages/Tickets";
 import OrderDetail from "./pages/OrderDetail";
+import DevelopmentMilestones from "./pages/DevelopmentMilestones";
+import InvestorRelations from "./pages/InvestorRelations";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +83,9 @@ const App = () => (
                   <Route path="/supplier-upload-product" element={<SupplierUploadProduct />} />
                   <Route path="/supply-chain-partner" element={<SupplyChainPartner />} />
                   <Route path="/cooperation-application" element={<CooperationApplication />} />
+                  <Route path="/development-milestones" element={<DevelopmentMilestones />} />
+                  <Route path="/investor-relations" element={<InvestorRelations />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <MobileBottomNav />

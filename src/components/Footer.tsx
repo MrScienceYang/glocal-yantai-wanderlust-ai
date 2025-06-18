@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { MapPin, Phone, Mail, MessageCircle, Share2, ExternalLink } from 'lucide-react';
 import { useCityContext } from './CityProvider';
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const { selectedCountry } = useCityContext();
@@ -104,15 +106,15 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('footer_quick_links')}</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_ai_trip')}</a></li>
+              <li><Link to="/ai-planning" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_ai_trip')}</Link></li>
               {selectedCountry === '中国' && (
                 <>
-                  <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_local_experts')}</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_shop')}</a></li>
+                  <li><Link to="/local-experts" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_local_experts')}</Link></li>
+                  <li><Link to="/shop" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_shop')}</Link></li>
                 </>
               )}
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_mystery_box')}</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_community')}</a></li>
+              <li><Link to="/mystery-box" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_mystery_box')}</Link></li>
+              <li><Link to="/community" className="text-gray-300 hover:text-white transition-colors">{t('footer_link_community')}</Link></li>
             </ul>
           </div>
 
@@ -157,10 +159,13 @@ const Footer = () => {
             <div className="text-gray-400 text-sm mb-4 md:mb-0">
               © 2024 Glocal. 保留所有权利.
             </div>
-            <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">隐私政策</a>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <Link to="/development-milestones" className="text-gray-400 hover:text-white transition-colors">开发历程</Link>
+              <Link to="/investor-relations" className="text-gray-400 hover:text-white transition-colors">投资者关系</Link>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">隐私政策</Link>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">服务条款</a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">关于我们</a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">加入我们</a>
             </div>
           </div>
         </div>

@@ -7,9 +7,9 @@ import NavbarNavigation from './NavbarNavigation';
 import NavbarUserActions from './NavbarUserActions';
 import CitySelector from './CitySelector';
 import ThemeToggle from './ThemeToggle';
-import { APIKeySettings } from './APIKeySettings';
-import { DailyCheckIn } from './DailyCheckIn';
-import { UserTypeSelection } from './UserTypeSelection';
+import APIKeySettings from './APIKeySettings';
+import DailyCheckIn from './DailyCheckIn';
+import UserTypeSelection from './UserTypeSelection';
 
 const Navbar = () => {
   const [isAPISettingsOpen, setIsAPISettingsOpen] = useState(false);
