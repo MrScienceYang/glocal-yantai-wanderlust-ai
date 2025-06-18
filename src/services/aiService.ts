@@ -1,5 +1,3 @@
-
-
 // AI服务配置 - 使用DeepSeek API
 export class AIService {
   private apiKey: string = 'sk-21b225f0240849cda6b0f3008bdaab5c';
@@ -222,11 +220,30 @@ export class AIService {
       const data = await response.json();
       const content = data.choices[0].message.content;
       console.log('AI响应成功，内容长度:', content.length);
+      console.log('AI响应原始内容:', content);
       
       // 尝试解析JSON响应
       try {
-        return JSON.parse(content);
-      } catch {
+        // 如果内容包含```json标记，提取JSON部分
+        let jsonContent = content;
+        if (content.includes('```json')) {
+          const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+          if (jsonMatch) {
+            jsonContent = jsonMatch[1];
+          }
+        } else if (content.includes('```')) {
+          const jsonMatch = content.match(/```\s*([\s\S]*?)\s*```/);
+          if (jsonMatch) {
+            jsonContent = jsonMatch[1];
+          }
+        }
+        
+        console.log('提取的JSON内容:', jsonContent);
+        const parsedResponse = JSON.parse(jsonContent);
+        console.log('解析成功的JSON:', parsedResponse);
+        return parsedResponse;
+      } catch (parseError) {
+        console.error('JSON解析失败:', parseError, '原始内容:', content);
         // 如果解析失败，返回格式化的文本响应
         return {
           textResponse: content,
@@ -294,4 +311,3 @@ export class AIService {
 }
 
 export const aiService = new AIService();
-

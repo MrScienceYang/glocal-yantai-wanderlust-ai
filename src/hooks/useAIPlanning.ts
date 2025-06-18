@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -96,6 +95,83 @@ const realAttractionsDatabase = {
   }
 };
 
+// 转换DeepSeek API响应为组件期望的格式
+const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan => {
+  console.log('开始转换DeepSeek响应:', deepSeekResponse);
+  
+  try {
+    // 如果响应包含trip_plan结构
+    if (deepSeekResponse.trip_plan) {
+      const tripPlan = deepSeekResponse.trip_plan;
+      const itinerary: DayPlan[] = [];
+      
+      // 转换每日行程
+      if (tripPlan.daily_itinerary && Array.isArray(tripPlan.daily_itinerary)) {
+        tripPlan.daily_itinerary.forEach((day: any, index: number) => {
+          const activities: Activity[] = [];
+          
+          if (day.activities && Array.isArray(day.activities)) {
+            day.activities.forEach((activity: any) => {
+              activities.push({
+                name: activity.activity || activity.name || '未命名活动',
+                description: activity.description || '暂无描述',
+                location: activity.location || '位置待定',
+                time: activity.time || '时间待定',
+                estimatedCost: activity.price || activity.cost || activity.estimatedCost || 0,
+                transportation: activity.transportation?.type || activity.transportation || '交通方式待定'
+              });
+            });
+          }
+          
+          itinerary.push({
+            date: day.date || `第${index + 1}天`,
+            activities
+          });
+        });
+      }
+      
+      return {
+        itinerary,
+        totalCost: tripPlan.total_expenses?.total || tripPlan.totalCost || 0,
+        recommendedGroupSize: tripPlan.number_of_people?.toString() || tripPlan.recommendedGroupSize || '2',
+        startDate: tripPlan.departure?.date || new Date().toLocaleDateString('zh-CN')
+      };
+    }
+    
+    // 如果是直接的itinerary格式
+    if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
+      return {
+        itinerary: deepSeekResponse.itinerary,
+        totalCost: deepSeekResponse.totalCost || 0,
+        recommendedGroupSize: deepSeekResponse.recommendedGroupSize || '2',
+        startDate: deepSeekResponse.startDate || new Date().toLocaleDateString('zh-CN')
+      };
+    }
+    
+    // 如果响应格式不匹配，返回默认结构
+    console.warn('DeepSeek响应格式不匹配，使用默认结构');
+    return {
+      itinerary: [{
+        date: new Date().toLocaleDateString('zh-CN'),
+        activities: [{
+          name: 'AI生成的行程',
+          description: deepSeekResponse.textResponse || '已收到AI生成的行程信息，请查看详细内容',
+          location: '目标城市',
+          time: '全天',
+          estimatedCost: 0,
+          transportation: '待定'
+        }]
+      }],
+      totalCost: 0,
+      recommendedGroupSize: '2',
+      startDate: new Date().toLocaleDateString('zh-CN')
+    };
+  } catch (error) {
+    console.error('转换DeepSeek响应时出错:', error);
+    throw new Error('数据转换失败');
+  }
+};
+
 export const useAIPlanning = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [plan, setPlan] = useState<TravelPlan | null>(null);
@@ -117,8 +193,14 @@ export const useAIPlanning = () => {
       try {
         console.log('开始调用AI生成行程:', preferences);
         const aiPlan = await aiService.generateItinerary(preferences);
-        if (aiPlan && aiPlan.itinerary) {
-          setPlan(aiPlan);
+        console.log('AI返回原始数据:', aiPlan);
+        
+        if (aiPlan) {
+          // 转换AI响应为组件期望的格式
+          const convertedPlan = convertDeepSeekResponseToTravelPlan(aiPlan);
+          console.log('转换后的计划:', convertedPlan);
+          
+          setPlan(convertedPlan);
           toast.success(`AI智能行程规划生成成功！`);
           return;
         }
