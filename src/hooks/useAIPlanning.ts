@@ -364,151 +364,33 @@ export const useAIPlanning = () => {
     setIsLoading(true);
     
     try {
-      // 优先使用ChatGPT 4o AI生成行程
-      try {
-        console.log('开始调用AI生成行程:', preferences);
-        const aiPlan = await aiService.generateItinerary(preferences);
-        console.log('AI返回原始数据:', aiPlan);
+      console.log('开始调用AI生成行程:', preferences);
+      const aiPlan = await aiService.generateItinerary(preferences);
+      console.log('AI返回原始数据:', aiPlan);
+      
+      if (aiPlan) {
+        // 直接使用AI返回的数据，不要回退到本地数据
+        const convertedPlan = convertDeepSeekResponseToTravelPlan(aiPlan);
+        console.log('转换后的计划:', convertedPlan);
         
-        if (aiPlan) {
-          // 转换AI响应为组件期望的格式
-          const convertedPlan = convertDeepSeekResponseToTravelPlan(aiPlan);
-          console.log('转换后的计划:', convertedPlan);
-          
+        // 验证转换后的数据是否有效
+        if (convertedPlan.itinerary && convertedPlan.itinerary.length > 0) {
           setPlan(convertedPlan);
           toast.success(`AI智能行程规划生成成功！`);
           return;
+        } else {
+          console.error('AI数据转换后无有效行程');
+          throw new Error('AI返回的数据无效');
         }
-      } catch (error) {
-        console.error('AI生成失败，使用本地数据:', error);
-        toast.warning('AI服务暂不可用，使用本地数据生成行程');
-      }
-
-      // 如果AI失败，使用本地数据生成
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const cityAttractions = realAttractionsDatabase[preferences.city];
-      const startDate = new Date();
-      
-      if (!cityAttractions) {
-        const mockPlan: TravelPlan = {
-          itinerary: [
-            {
-              date: startDate.toLocaleDateString('zh-CN'),
-              activities: [
-                {
-                  name: `${preferences.city}历史文化游`,
-                  description: `探访${preferences.city}的历史文化景点，了解当地文化`,
-                  location: `${preferences.city}市中心`,
-                  time: '09:00-12:00',
-                  estimatedCost: 100,
-                  transportation: '建议步行或乘坐公共交通',
-                },
-                {
-                  name: `${preferences.city}特色美食`,
-                  description: `品尝${preferences.city}当地特色美食`,
-                  location: `${preferences.city}美食街`,
-                  time: '12:00-14:00',
-                  estimatedCost: 150,
-                  transportation: '建议步行',
-                }
-              ]
-            }
-          ],
-          totalCost: 250,
-          recommendedGroupSize: preferences.groupSize || '2',
-          startDate: startDate.toLocaleDateString('zh-CN'),
-        };
-        setPlan(mockPlan);
-        toast.success(`${preferences.city}行程规划生成成功！`);
-        return;
-      }
-
-      // 根据用户兴趣选择景点 - 添加空值检查
-      let selectedAttractions: any[] = [];
-      const interests = (preferences.interests || '').toLowerCase();
-      
-      if (interests.includes('历史') || interests.includes('文化')) {
-        selectedAttractions.push(...cityAttractions.historical || []);
-      }
-      if (interests.includes('自然') || interests.includes('风光') || interests.includes('海')) {
-        selectedAttractions.push(...cityAttractions.natural || []);
-      }
-      if (interests.includes('娱乐') || interests.includes('游玩')) {
-        selectedAttractions.push(...cityAttractions.entertainment || []);
-      }
-      if (interests.includes('美食') || interests.includes('吃')) {
-        selectedAttractions.push(...cityAttractions.food || []);
-      }
-
-      // 如果没有匹配的兴趣，随机选择
-      if (selectedAttractions.length === 0) {
-        const allAttractions = Object.values(cityAttractions).flat();
-        selectedAttractions = allAttractions.slice(0, 4);
       } else {
-        selectedAttractions = selectedAttractions.slice(0, 4);
+        throw new Error('AI服务返回空数据');
       }
-
-      // 生成行程
-      const days = parseInt(preferences.duration) || 2;
-      const attractionsPerDay = Math.ceil(selectedAttractions.length / days);
-      
-      const itinerary: DayPlan[] = [];
-      let totalCost = 0;
-
-      for (let day = 0; day < days; day++) {
-        const dayAttractions = selectedAttractions.slice(
-          day * attractionsPerDay, 
-          (day + 1) * attractionsPerDay
-        );
-
-        const currentDate = new Date(startDate);
-        currentDate.setDate(startDate.getDate() + day);
-
-        const activities: Activity[] = dayAttractions.map((attraction, index) => {
-          const startTime = 9 + index * 3;
-          const endTime = startTime + 2;
-          totalCost += attraction.cost;
-          
-          return {
-            name: attraction.name,
-            description: attraction.description,
-            location: `${preferences.city}${attraction.name}`,
-            time: `${startTime.toString().padStart(2, '0')}:00-${endTime.toString().padStart(2, '0')}:00`,
-            estimatedCost: attraction.cost,
-            transportation: '建议乘坐出租车或公共交通',
-          };
-        });
-
-        // 添加用餐
-        if (day === 0 || !cityAttractions.food) {
-          activities.push({
-            name: `${preferences.city}特色午餐`,
-            description: `品尝${preferences.city}当地特色菜肴`,
-            location: `${preferences.city}特色餐厅`,
-            time: '12:00-13:30',
-            estimatedCost: 80,
-            transportation: '根据景点位置决定',
-          });
-          totalCost += 80;
-        }
-
-        itinerary.push({ date: currentDate.toLocaleDateString('zh-CN'), activities });
-      }
-
-      const mockPlan: TravelPlan = {
-        itinerary,
-        totalCost,
-        recommendedGroupSize: preferences.groupSize || '2',
-        startDate: startDate.toLocaleDateString('zh-CN'),
-      };
-
-      setPlan(mockPlan);
-      toast.success(`${preferences.city}AI行程规划生成成功！`);
-      
     } catch (error) {
-      console.error('生成行程失败:', error);
-      toast.error('生成行程失败，请稍后重试');
+      console.error('AI生成失败:', error);
+      toast.error(`AI服务暂时不可用: ${error.message}`);
+      
+      // 只在AI完全失败时才显示错误，不再回退到本地数据
+      setPlan(null);
     } finally {
       setIsLoading(false);
     }
