@@ -24,9 +24,9 @@ const PWASplashScreen = () => {
         >
           <div className="text-center">
             <motion.img
-              src="/lovable-uploads/68b73a5f-0e47-4e84-bc10-68e8aceb1e32.png"
+              src="/lovable-uploads/c53a8e8d-fa2e-4442-87eb-933ed992241d.png"
               alt="Glocal Logo"
-              className="w-24 h-24 mx-auto mb-8"
+              className="w-32 h-32 mx-auto mb-8"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8 }}
