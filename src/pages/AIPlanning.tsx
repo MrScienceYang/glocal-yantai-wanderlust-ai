@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +28,7 @@ const AIPlanning = () => {
     travelStyle: '',
   });
   const [showPlan, setShowPlan] = useState(false);
+  const [permissionGranted, setPermissionGranted] = useState(false);
 
   useEffect(() => {
     setPreferences(prev => ({
@@ -62,6 +64,36 @@ const AIPlanning = () => {
     }
   };
 
+  const handlePermissionGranted = () => {
+    setPermissionGranted(true);
+    grantPermission();
+  };
+
+  // If user doesn't have permission and hasn't granted it yet, show permission check
+  if (!hasPermission && !permissionGranted) {
+    return (
+      <Layout>
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          {/* 英雄区域 */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">AI 智能旅行规划</h1>
+            <p className="text-gray-600">
+              {selectedCountry === '中国' ? '探索国内的无限可能，让AI为您量身定制完美行程。' : '开启国际旅行，AI智能规划您的每一步。'}
+            </p>
+          </div>
+
+          {/* 移动端出行服务快捷入口 */}
+          <div className="md:hidden mb-8">
+            <MobileTravelHub />
+          </div>
+
+          {/* AI权限检查 */}
+          <AIPermissionCheck onPermissionGranted={handlePermissionGranted} />
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -77,9 +109,6 @@ const AIPlanning = () => {
         <div className="md:hidden mb-8">
           <MobileTravelHub />
         </div>
-
-        {/* AI权限检查 */}
-        <AIPermissionCheck hasPermission={hasPermission} grantPermission={grantPermission} />
 
         {/* 偏好设置 */}
         <Card className="mb-8">
