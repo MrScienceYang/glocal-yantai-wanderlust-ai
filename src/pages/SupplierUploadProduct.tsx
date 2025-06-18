@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -11,7 +12,8 @@ import {
   CheckCircle,
   Sparkles,
   Bot,
-  Loader2
+  Loader2,
+  Brain
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,8 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import Layout from '@/components/Layout';
 import { useForm } from 'react-hook-form';
-import AIPermissionCheck from '@/components/AIPermissionCheck';
-import { aiService } from '@/services/aiService';
+import { supplierAIService } from '@/services/supplierAIService';
 import {
   Form,
   FormControl,
@@ -48,9 +49,9 @@ const SupplierUploadProduct = () => {
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [showAIModule, setShowAIModule] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
-  const [hasAIPermission, setHasAIPermission] = useState(false);
+  const [thinkingProcess, setThinkingProcess] = useState('');
+  const [showThinking, setShowThinking] = useState(false);
 
   const form = useForm<ProductFormData>({
     defaultValues: {
@@ -70,11 +71,6 @@ const SupplierUploadProduct = () => {
   };
 
   const handleAIGenerate = async (type: 'description' | 'tags' | 'specs') => {
-    if (!hasAIPermission) {
-      setShowAIModule(true);
-      return;
-    }
-
     const productName = form.getValues('name');
     const category = form.getValues('category');
     
@@ -84,39 +80,32 @@ const SupplierUploadProduct = () => {
     }
 
     setAiGenerating(true);
-    try {
-      const prompt = `
-        请为以下商品生成${type === 'description' ? '详细描述' : type === 'tags' ? '标签' : '规格'}：
-        商品名称：${productName}
-        商品分类：${category}
-        
-        ${type === 'description' ? '请生成一个详细的商品描述，包括特色、工艺、使用场景等。' : ''}
-        ${type === 'tags' ? '请生成适合的商品标签，多个标签用逗号分隔。' : ''}
-        ${type === 'specs' ? '请生成商品规格信息，包括尺寸、重量、包装等。' : ''}
-      `;
+    setShowThinking(true);
+    setThinkingProcess('DeepSeek R1 正在思考中...');
 
-      const response = await aiService.generateItinerary({ 
-        interests: prompt,
-        budget: '不限',
-        duration: '1',
-        groupSize: '1',
-        travelStyle: '商品描述生成'
+    try {
+      console.log('供应商AI生成开始:', { type, productName, category });
+      
+      const result = await supplierAIService.generateProductContent({
+        type,
+        productName,
+        category,
+        costPrice: form.getValues('costPrice'),
+        retailPrice: form.getValues('retailPrice')
       });
 
-      let generatedContent = '';
-      if (response.textResponse) {
-        generatedContent = response.textResponse;
-      } else if (typeof response === 'string') {
-        generatedContent = response;
+      if (result.thinking) {
+        setThinkingProcess(result.thinking);
       }
 
-      if (generatedContent) {
-        form.setValue(type, generatedContent);
+      if (result.content) {
+        form.setValue(type, result.content);
         toast.success(`AI${type === 'description' ? '描述' : type === 'tags' ? '标签' : '规格'}生成成功！`);
       }
     } catch (error) {
       console.error('AI生成失败:', error);
       toast.error('AI生成失败，请稍后重试');
+      setThinkingProcess('生成失败，请重试');
     } finally {
       setAiGenerating(false);
     }
@@ -125,7 +114,6 @@ const SupplierUploadProduct = () => {
   const onSubmit = async (data: ProductFormData) => {
     setIsUploading(true);
     
-    // 模拟上传过程
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -133,7 +121,6 @@ const SupplierUploadProduct = () => {
       toast.success('商品上架成功！');
       setUploadSuccess(true);
       
-      // 3秒后返回主页面
       setTimeout(() => {
         navigate('/partner-dashboard');
       }, 3000);
@@ -190,7 +177,7 @@ const SupplierUploadProduct = () => {
                   上架商城平台商品
                 </h1>
                 <p className="text-gray-300">
-                  填写商品信息，提交到商城平台进行销售
+                  填写商品信息，提交到商城平台进行销售 | 供应商专享AI免费服务
                 </p>
               </div>
             </motion.div>
@@ -213,7 +200,6 @@ const SupplierUploadProduct = () => {
                     <CardContent>
                       <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                          {/* ... keep existing code (form fields) */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* 商品名称 */}
                             <FormField
@@ -319,9 +305,9 @@ const SupplierUploadProduct = () => {
                                     {aiGenerating ? (
                                       <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                                     ) : (
-                                      <Sparkles className="h-3 w-3 mr-1" />
+                                      <Brain className="h-3 w-3 mr-1" />
                                     )}
-                                    AI生成
+                                    DeepSeek R1 生成
                                   </Button>
                                 </FormLabel>
                                 <FormControl>
@@ -354,9 +340,9 @@ const SupplierUploadProduct = () => {
                                     {aiGenerating ? (
                                       <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                                     ) : (
-                                      <Sparkles className="h-3 w-3 mr-1" />
+                                      <Brain className="h-3 w-3 mr-1" />
                                     )}
-                                    AI生成
+                                    DeepSeek R1 生成
                                   </Button>
                                 </FormLabel>
                                 <FormControl>
@@ -389,9 +375,9 @@ const SupplierUploadProduct = () => {
                                     {aiGenerating ? (
                                       <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                                     ) : (
-                                      <Sparkles className="h-3 w-3 mr-1" />
+                                      <Brain className="h-3 w-3 mr-1" />
                                     )}
-                                    AI生成
+                                    DeepSeek R1 生成
                                   </Button>
                                 </FormLabel>
                                 <FormControl>
@@ -466,92 +452,80 @@ const SupplierUploadProduct = () => {
 
               {/* 右侧AI助手模块 */}
               <div className="lg:col-span-1">
-                <motion.div
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                >
-                  <Card className="bg-white/10 backdrop-blur-md border-white/20 sticky top-24">
-                    <CardHeader>
-                      <CardTitle className="text-white flex items-center">
-                        <Bot className="h-5 w-5 mr-2 text-purple-400" />
-                        AI智能助手
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="bg-purple-500/20 border border-purple-400/30 rounded-lg p-4">
-                        <h4 className="font-medium text-purple-300 mb-2 flex items-center">
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          AI功能介绍
-                        </h4>
-                        <ul className="text-sm text-purple-200 space-y-1">
-                          <li>• 自动生成商品描述</li>
-                          <li>• 智能推荐商品标签</li>
-                          <li>• 规格信息生成</li>
-                          <li>• 基于商品特性优化</li>
-                        </ul>
-                      </div>
-
-                      <div className="space-y-3">
-                        <h4 className="font-medium text-white">使用说明：</h4>
-                        <div className="text-sm text-gray-300 space-y-2">
-                          <p>1. 先填写商品名称和分类</p>
-                          <p>2. 点击对应字段的"AI生成"按钮</p>
-                          <p>3. AI将自动生成相关内容</p>
-                          <p>4. 可根据需要修改生成内容</p>
-                        </div>
-                      </div>
-
-                      <Button
-                        onClick={() => setShowAIModule(true)}
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
-                        disabled={aiGenerating}
-                      >
-                        {aiGenerating ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            AI生成中...
-                          </>
-                        ) : (
-                          <>
+                <div className="space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                  >
+                    <Card className="bg-white/10 backdrop-blur-md border-white/20 sticky top-24">
+                      <CardHeader>
+                        <CardTitle className="text-white flex items-center">
+                          <Brain className="h-5 w-5 mr-2 text-purple-400" />
+                          DeepSeek R1 智能助手
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="bg-purple-500/20 border border-purple-400/30 rounded-lg p-4">
+                          <h4 className="font-medium text-purple-300 mb-2 flex items-center">
                             <Sparkles className="h-4 w-4 mr-2" />
-                            开始使用AI功能
-                          </>
-                        )}
-                      </Button>
+                            供应商专享AI服务
+                          </h4>
+                          <ul className="text-sm text-purple-200 space-y-1">
+                            <li>• 使用DeepSeek R1推理模型</li>
+                            <li>• 展示完整思考过程</li>
+                            <li>• 智能商品内容生成</li>
+                            <li>• 供应商账号免费使用</li>
+                          </ul>
+                        </div>
 
-                      <div className="text-xs text-gray-400 bg-gray-800/50 p-3 rounded">
-                        <p className="font-medium mb-1">提示：</p>
-                        <p>AI生成的内容仅供参考，请根据实际情况进行调整和完善。</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                        <div className="space-y-3">
+                          <h4 className="font-medium text-white">使用说明：</h4>
+                          <div className="text-sm text-gray-300 space-y-2">
+                            <p>1. 先填写商品名称和分类</p>
+                            <p>2. 点击对应字段的"DeepSeek R1 生成"按钮</p>
+                            <p>3. 查看AI的思考过程和生成结果</p>
+                            <p>4. 可根据需要修改生成内容</p>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-gray-400 bg-green-800/50 p-3 rounded border border-green-500/30">
+                          <p className="font-medium mb-1 text-green-300">供应商特权：</p>
+                          <p>作为供应商用户，您可以免费使用所有AI功能，无需观看广告或付费升级。</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+
+                  {/* AI思考过程显示 */}
+                  {showThinking && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Card className="bg-white/10 backdrop-blur-md border-white/20">
+                        <CardHeader>
+                          <CardTitle className="text-white flex items-center">
+                            <Brain className="h-5 w-5 mr-2 text-green-400" />
+                            DeepSeek R1 思考过程
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-600/30">
+                            <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono leading-relaxed">
+                              {thinkingProcess}
+                            </pre>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* AI权限检查模块 */}
-        {showAIModule && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-md w-full mx-4">
-              <AIPermissionCheck 
-                onPermissionGranted={() => {
-                  setHasAIPermission(true);
-                  setShowAIModule(false);
-                }}
-              />
-              <Button
-                onClick={() => setShowAIModule(false)}
-                variant="outline"
-                className="mt-4 w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                取消
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </Layout>
   );
