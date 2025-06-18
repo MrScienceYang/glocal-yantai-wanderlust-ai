@@ -7,6 +7,9 @@ export interface ContentGenerationRequest {
 }
 
 class AIContentService {
+  private apiKey: string = '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';
+  private baseUrl = 'https://api.openai.com/v1/chat/completions';
+
   // 模拟数据
   private getMockContent(type: string, context: any) {
     const mockData = {
@@ -80,32 +83,37 @@ class AIContentService {
     };
 
     try {
-      // 尝试调用Gemini API
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=AIzaSyCyIEdKFWHUwxEzRWud5zNI21mGTdam2jc`, {
+      // 调用OpenAI ChatGPT 4o API
+      const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompts[type]
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 1000
-          }
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个专业的内容生成助手，请根据用户需求生成高质量的内容。'
+            },
+            {
+              role: 'user',
+              content: prompts[type]
+            }
+          ],
+          max_tokens: 1000,
+          temperature: 0.8
         })
       });
 
       if (!response.ok) {
-        console.warn(`${type} AI内容生成API失败，使用模拟数据`);
+        console.warn(`${type} OpenAI API失败，使用模拟数据`);
         return this.getMockContent(type, context);
       }
 
       const data = await response.json();
-      const content = data.candidates[0].content.parts[0].text;
+      const content = data.choices[0].message.content;
       
       // 尝试解析结构化内容，失败则返回模拟数据
       try {
@@ -117,8 +125,43 @@ class AIContentService {
         };
       }
     } catch (error) {
-      console.error(`${type} AI内容生成失败，使用模拟数据:`, error);
+      console.error(`${type} OpenAI内容生成失败，使用模拟数据:`, error);
       return this.getMockContent(type, context);
+    }
+  }
+
+  // 测试API连接
+  async testConnection(): Promise<boolean> {
+    try {
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'user',
+              content: '请回复"内容生成API连接成功"来测试连接。'
+            }
+          ],
+          max_tokens: 50
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('OpenAI内容生成API测试成功:', data.choices[0].message.content);
+        return true;
+      } else {
+        console.error('OpenAI内容生成API测试失败:', response.status, response.statusText);
+        return false;
+      }
+    } catch (error) {
+      console.error('OpenAI内容生成API连接错误:', error);
+      return false;
     }
   }
 }

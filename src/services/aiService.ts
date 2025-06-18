@@ -1,20 +1,56 @@
 
-// AI服务配置 - 使用Google Gemini API
+// AI服务配置 - 使用OpenAI ChatGPT 4o API
 export class AIService {
-  private apiKey: string = 'AIzaSyCyIEdKFWHUwxEzRWud5zNI21mGTdam2jc';
-  private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+  private apiKey: string = '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';
+  private baseUrl = 'https://api.openai.com/v1/chat/completions';
 
   constructor() {
-    // Gemini API密钥已配置
+    // OpenAI API密钥已配置
+    console.log('OpenAI ChatGPT 4o API已初始化');
   }
 
   setApiKey(apiKey: string) {
-    // Gemini API密钥已固定，此方法保留兼容性
-    console.log('Gemini API密钥已配置');
+    this.apiKey = apiKey;
+    console.log('OpenAI API密钥已更新');
   }
 
   getApiKey(): string | null {
     return this.apiKey;
+  }
+
+  // 测试API连接
+  async testConnection(): Promise<boolean> {
+    try {
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'user',
+              content: '请回复"API连接成功"来测试连接。'
+            }
+          ],
+          max_tokens: 50
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('OpenAI API测试成功:', data.choices[0].message.content);
+        return true;
+      } else {
+        console.error('OpenAI API测试失败:', response.status, response.statusText);
+        return false;
+      }
+    } catch (error) {
+      console.error('OpenAI API连接错误:', error);
+      return false;
+    }
   }
 
   // 模拟AI响应数据
@@ -139,32 +175,36 @@ export class AIService {
     `;
 
     try {
-      const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
+      const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2000,
-            topP: 0.8
-          }
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个专业的旅游行程规划师，请根据用户需求生成详细的行程规划。'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 2000,
+          temperature: 0.7
         })
       });
 
       if (!response.ok) {
-        console.warn('Gemini API请求失败，使用模拟数据');
+        console.warn('OpenAI API请求失败，使用模拟数据');
         return this.getMockItinerary(preferences);
       }
 
       const data = await response.json();
-      const content = data.candidates[0].content.parts[0].text;
+      const content = data.choices[0].message.content;
       
       // 尝试解析JSON响应
       try {
@@ -179,7 +219,7 @@ export class AIService {
         };
       }
     } catch (error) {
-      console.error('Gemini AI服务错误，使用模拟数据:', error);
+      console.error('OpenAI AI服务错误，使用模拟数据:', error);
       return this.getMockItinerary(preferences);
     }
   }
@@ -199,33 +239,38 @@ export class AIService {
     `;
 
     try {
-      const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
+      const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 1500
-          }
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: '你是一个专业的本地旅游达人推荐系统，请根据用户画像推荐合适的达人。'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 1500,
+          temperature: 0.8
         })
       });
 
       if (!response.ok) {
-        console.warn('Gemini API请求失败，使用模拟数据');
+        console.warn('OpenAI API请求失败，使用模拟数据');
         return this.getMockRecommendation(userProfile);
       }
 
       const data = await response.json();
-      return data.candidates[0].content.parts[0].text;
+      return data.choices[0].message.content;
     } catch (error) {
-      console.error('Gemini推荐服务错误，使用模拟数据:', error);
+      console.error('OpenAI推荐服务错误，使用模拟数据:', error);
       return this.getMockRecommendation(userProfile);
     }
   }
