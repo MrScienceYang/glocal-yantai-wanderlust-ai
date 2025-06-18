@@ -1,7 +1,6 @@
-
 // AI服务配置 - 使用OpenAI ChatGPT 4o API
 export class AIService {
-  private apiKey: string = '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';
+  private apiKey: string = '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';
   private baseUrl = 'https://api.openai.com/v1/chat/completions';
 
   constructor() {
