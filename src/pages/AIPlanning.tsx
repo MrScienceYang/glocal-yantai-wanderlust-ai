@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink, Globe, Car, FileDown, Tv } from 'lucide-react';
+import { MapPin, Clock, Users, DollarSign, Sparkles, Calendar, ExternalLink, Globe, Car, FileDown, Tv, Plane } from 'lucide-react';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -47,14 +47,29 @@ const cityData = {
 
 const AIPlanning = () => {
   const [preferences, setPreferences] = useState({
-    country: '',
-    province: '',
-    city: '',
+    // 出发地
+    departureCountry: '',
+    departureProvince: '',
+    departureCity: '',
+    // 目的地
+    destinationCountry: '',
+    destinationProvince: '',
+    destinationCity: '',
+    // 出发时间
+    departureYear: '',
+    departureMonth: '',
+    departureDay: '',
+    departureHour: '',
+    // 返程时间
+    returnYear: '',
+    returnMonth: '',
+    returnDay: '',
+    returnHour: '',
     interests: '',
     budget: '',
     duration: '',
     groupSize: '',
-    travelStyle: 'relaxed'
+    travelStyle: 'elder' // 新的旅行风格
   });
   const { generatePlan, isLoading, plan } = useAIPlanning();
   const { isVip, points, spendPoints } = useUser();
@@ -64,14 +79,22 @@ const AIPlanning = () => {
     setPreferences(prev => {
       const newPrefs = { ...prev, [field]: value };
       
-      // 当选择国家时，重置省份和城市
-      if (field === 'country') {
-        newPrefs.province = '';
-        newPrefs.city = '';
+      // 出发地选择逻辑
+      if (field === 'departureCountry') {
+        newPrefs.departureProvince = '';
+        newPrefs.departureCity = '';
       }
-      // 当选择省份时，重置城市
-      if (field === 'province') {
-        newPrefs.city = '';
+      if (field === 'departureProvince') {
+        newPrefs.departureCity = '';
+      }
+      
+      // 目的地选择逻辑
+      if (field === 'destinationCountry') {
+        newPrefs.destinationProvince = '';
+        newPrefs.destinationCity = '';
+      }
+      if (field === 'destinationProvince') {
+        newPrefs.destinationCity = '';
       }
       
       return newPrefs;
@@ -79,11 +102,63 @@ const AIPlanning = () => {
   };
 
   const handleGeneratePlan = async () => {
-    if (!preferences.city || !preferences.interests || !preferences.budget || !preferences.duration) {
+    if (!preferences.destinationCity || !preferences.interests || !preferences.budget || !preferences.duration) {
       toast.error('请填写完整的旅行信息，包括目标城市');
       return;
     }
-    await generatePlan(preferences);
+    
+    // 构建新的preferences对象，兼容原有的generatePlan函数
+    const planPreferences = {
+      country: preferences.destinationCountry,
+      province: preferences.destinationProvince,
+      city: preferences.destinationCity,
+      departure: preferences.departureCity,
+      departureTime: `${preferences.departureYear}-${preferences.departureMonth}-${preferences.departureDay} ${preferences.departureHour}:00`,
+      returnTime: `${preferences.returnYear}-${preferences.returnMonth}-${preferences.returnDay} ${preferences.returnHour}:00`,
+      interests: preferences.interests,
+      budget: preferences.budget,
+      duration: preferences.duration,
+      groupSize: preferences.groupSize,
+      travelStyle: preferences.travelStyle
+    };
+    
+    await generatePlan(planPreferences);
+  };
+
+  // 获取省份选项
+  const getProvinces = (type: 'departure' | 'destination') => {
+    const country = type === 'departure' ? preferences.departureCountry : preferences.destinationCountry;
+    if (!country || !cityData[country]) return [];
+    return Object.keys(cityData[country]);
+  };
+
+  // 获取城市选项
+  const getCities = (type: 'departure' | 'destination') => {
+    const country = type === 'departure' ? preferences.departureCountry : preferences.destinationCountry;
+    const province = type === 'departure' ? preferences.departureProvince : preferences.destinationProvince;
+    if (!country || !province || !cityData[country]?.[province]) return [];
+    return cityData[country][province];
+  };
+
+  // 生成年份选项（当前年到未来3年）
+  const getYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 4 }, (_, i) => currentYear + i);
+  };
+
+  // 生成月份选项
+  const getMonthOptions = () => {
+    return Array.from({ length: 12 }, (_, i) => i + 1);
+  };
+
+  // 生成日期选项
+  const getDayOptions = () => {
+    return Array.from({ length: 31 }, (_, i) => i + 1);
+  };
+
+  // 生成小时选项
+  const getHourOptions = () => {
+    return Array.from({ length: 24 }, (_, i) => i);
   };
 
   const handleExportPDF = () => {
@@ -147,18 +222,8 @@ const AIPlanning = () => {
     }
   };
 
-  const getProvinces = () => {
-    if (!preferences.country || !cityData[preferences.country]) return [];
-    return Object.keys(cityData[preferences.country]);
-  };
-
-  const getCities = () => {
-    if (!preferences.country || !preferences.province || !cityData[preferences.country]?.[preferences.province]) return [];
-    return cityData[preferences.country][preferences.province];
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-ocean-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-ocean-50 to-white pb-20 md:pb-0">
       <AdModal isOpen={isAdModalOpen} onClose={() => setIsAdModalOpen(false)} />
       <div className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-12">
@@ -190,17 +255,17 @@ const AIPlanning = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* 城市选择 */}
+              {/* 出发地选择 */}
               <div className="space-y-4">
                 <Label className="flex items-center">
-                  <Globe className="mr-2 h-4 w-4 text-ocean-600" />
-                  目的地选择
+                  <Plane className="mr-2 h-4 w-4 text-ocean-600" />
+                  出发地选择
                 </Label>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <Label htmlFor="country" className="text-sm text-gray-600">国家</Label>
-                    <Select value={preferences.country} onValueChange={(value) => handleInputChange('country', value)}>
+                    <Label htmlFor="departureCountry" className="text-sm text-gray-600">国家</Label>
+                    <Select value={preferences.departureCountry} onValueChange={(value) => handleInputChange('departureCountry', value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="选择国家" />
                       </SelectTrigger>
@@ -213,17 +278,17 @@ const AIPlanning = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="province" className="text-sm text-gray-600">省/州/地区</Label>
+                    <Label htmlFor="departureProvince" className="text-sm text-gray-600">省/州/地区</Label>
                     <Select 
-                      value={preferences.province} 
-                      onValueChange={(value) => handleInputChange('province', value)}
-                      disabled={!preferences.country}
+                      value={preferences.departureProvince} 
+                      onValueChange={(value) => handleInputChange('departureProvince', value)}
+                      disabled={!preferences.departureCountry}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="选择省份" />
                       </SelectTrigger>
                       <SelectContent>
-                        {getProvinces().map((province) => (
+                        {getProvinces('departure').map((province) => (
                           <SelectItem key={province} value={province}>{province}</SelectItem>
                         ))}
                       </SelectContent>
@@ -231,18 +296,210 @@ const AIPlanning = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="city" className="text-sm text-gray-600">城市</Label>
+                    <Label htmlFor="departureCity" className="text-sm text-gray-600">城市</Label>
                     <Select 
-                      value={preferences.city} 
-                      onValueChange={(value) => handleInputChange('city', value)}
-                      disabled={!preferences.province}
+                      value={preferences.departureCity} 
+                      onValueChange={(value) => handleInputChange('departureCity', value)}
+                      disabled={!preferences.departureProvince}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="选择城市" />
                       </SelectTrigger>
                       <SelectContent>
-                        {getCities().map((city) => (
+                        {getCities('departure').map((city) => (
                           <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 目的地选择 */}
+              <div className="space-y-4">
+                <Label className="flex items-center">
+                  <Globe className="mr-2 h-4 w-4 text-ocean-600" />
+                  目的地选择
+                </Label>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <Label htmlFor="destinationCountry" className="text-sm text-gray-600">国家</Label>
+                    <Select value={preferences.destinationCountry} onValueChange={(value) => handleInputChange('destinationCountry', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择国家" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.keys(cityData).map((country) => (
+                          <SelectItem key={country} value={country}>{country}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="destinationProvince" className="text-sm text-gray-600">省/州/地区</Label>
+                    <Select 
+                      value={preferences.destinationProvince} 
+                      onValueChange={(value) => handleInputChange('destinationProvince', value)}
+                      disabled={!preferences.destinationCountry}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择省份" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getProvinces('destination').map((province) => (
+                          <SelectItem key={province} value={province}>{province}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="destinationCity" className="text-sm text-gray-600">城市</Label>
+                    <Select 
+                      value={preferences.destinationCity} 
+                      onValueChange={(value) => handleInputChange('destinationCity', value)}
+                      disabled={!preferences.destinationProvince}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择城市" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getCities('destination').map((city) => (
+                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 出发时间 */}
+              <div className="space-y-4">
+                <Label className="flex items-center">
+                  <Calendar className="mr-2 h-4 w-4 text-ocean-600" />
+                  出发时间
+                </Label>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <Label className="text-sm text-gray-600">年</Label>
+                    <Select value={preferences.departureYear} onValueChange={(value) => handleInputChange('departureYear', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="年" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getYearOptions().map((year) => (
+                          <SelectItem key={year} value={year.toString()}>{year}年</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">月</Label>
+                    <Select value={preferences.departureMonth} onValueChange={(value) => handleInputChange('departureMonth', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="月" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getMonthOptions().map((month) => (
+                          <SelectItem key={month} value={month.toString().padStart(2, '0')}>{month}月</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">日</Label>
+                    <Select value={preferences.departureDay} onValueChange={(value) => handleInputChange('departureDay', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="日" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getDayOptions().map((day) => (
+                          <SelectItem key={day} value={day.toString().padStart(2, '0')}>{day}日</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">时</Label>
+                    <Select value={preferences.departureHour} onValueChange={(value) => handleInputChange('departureHour', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="时" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getHourOptions().map((hour) => (
+                          <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>{hour}:00</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 返程时间 */}
+              <div className="space-y-4">
+                <Label className="flex items-center">
+                  <Calendar className="mr-2 h-4 w-4 text-ocean-600" />
+                  返程时间
+                </Label>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <Label className="text-sm text-gray-600">年</Label>
+                    <Select value={preferences.returnYear} onValueChange={(value) => handleInputChange('returnYear', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="年" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getYearOptions().map((year) => (
+                          <SelectItem key={year} value={year.toString()}>{year}年</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">月</Label>
+                    <Select value={preferences.returnMonth} onValueChange={(value) => handleInputChange('returnMonth', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="月" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getMonthOptions().map((month) => (
+                          <SelectItem key={month} value={month.toString().padStart(2, '0')}>{month}月</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">日</Label>
+                    <Select value={preferences.returnDay} onValueChange={(value) => handleInputChange('returnDay', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="日" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getDayOptions().map((day) => (
+                          <SelectItem key={day} value={day.toString().padStart(2, '0')}>{day}日</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-gray-600">时</Label>
+                    <Select value={preferences.returnHour} onValueChange={(value) => handleInputChange('returnHour', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="时" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getHourOptions().map((hour) => (
+                          <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>{hour}:00</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -290,26 +547,22 @@ const AIPlanning = () => {
                 />
               </div>
 
+              {/* 旅行风格下拉选择 */}
               <div>
                 <Label>旅行风格</Label>
-                <div className="grid grid-cols-2 gap-3 mt-2">
-                  {[
-                    { id: 'relaxed', label: '休闲放松', icon: '🏖️' },
-                    { id: 'adventure', label: '冒险刺激', icon: '🏔️' },
-                    { id: 'cultural', label: '文化深度', icon: '🏛️' },
-                    { id: 'foodie', label: '美食之旅', icon: '🍽️' }
-                  ].map((style) => (
-                    <Button
-                      key={style.id}
-                      variant={preferences.travelStyle === style.id ? "default" : "outline"}
-                      className="justify-start"
-                      onClick={() => handleInputChange('travelStyle', style.id)}
-                    >
-                      <span className="mr-2">{style.icon}</span>
-                      {style.label}
-                    </Button>
-                  ))}
-                </div>
+                <Select value={preferences.travelStyle} onValueChange={(value) => handleInputChange('travelStyle', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择旅行风格" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="elder">👴 带老人</SelectItem>
+                    <SelectItem value="children">👶 带孩子</SelectItem>
+                    <SelectItem value="student">🎓 大学生</SelectItem>
+                    <SelectItem value="couple">💑 情侣</SelectItem>
+                    <SelectItem value="honeymoon">💒 蜜月</SelectItem>
+                    <SelectItem value="team">🏢 公司团建</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button 

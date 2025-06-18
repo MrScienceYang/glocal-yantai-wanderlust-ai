@@ -1,74 +1,50 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
-import APIKeySettings from './APIKeySettings';
-import CitySelector from './CitySelector';
-import { useCityContext } from './CityProvider';
-import { DailyCheckIn } from './DailyCheckIn';
-import UserTypeSelection from './UserTypeSelection';
+import { Download } from 'lucide-react';
 import NavbarLogo from './NavbarLogo';
 import NavbarNavigation from './NavbarNavigation';
 import NavbarUserActions from './NavbarUserActions';
-import NavbarMobileMenu from './NavbarMobileMenu';
+import CitySelector from './CitySelector';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showAPISettings, setShowAPISettings] = useState(false);
-  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
-  const [showUserTypeSelection, setShowUserTypeSelection] = useState(false);
-  const { updateCity } = useCityContext();
+  const handleDownloadApp = () => {
+    // 这里可以添加PWA安装逻辑或跳转到下载页面
+    if ('serviceWorker' in navigator) {
+      // PWA安装逻辑
+      window.dispatchEvent(new Event('beforeinstallprompt'));
+    }
+  };
 
   return (
-    <>
-      <nav className="bg-white/95 backdrop-blur-md shadow-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 relative z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-8">
+            {/* 移动端下载App按钮 */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="md:hidden"
+              onClick={handleDownloadApp}
+            >
+              <Download className="h-4 w-4 mr-1" />
+              下载App
+            </Button>
+            
             <NavbarLogo />
-
-            {/* City Selector */}
-            <div className="hidden md:flex flex-shrink-0">
-              <CitySelector onCityChange={updateCity} />
-            </div>
-
             <NavbarNavigation />
+          </div>
 
-            <NavbarUserActions 
-              onAPISettingsOpen={() => setShowAPISettings(true)}
-              onCheckInOpen={() => setIsCheckInOpen(true)}
-              onUserTypeSelectionOpen={() => setShowUserTypeSelection(true)}
-            />
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
-              </Button>
-            </div>
+          <div className="flex items-center space-x-4">
+            <CitySelector />
+            <ThemeToggle />
+            <NavbarUserActions />
           </div>
         </div>
-
-        <NavbarMobileMenu 
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-          onAPISettingsOpen={() => setShowAPISettings(true)}
-          onCheckInOpen={() => setIsCheckInOpen(true)}
-          onUserTypeSelectionOpen={() => setShowUserTypeSelection(true)}
-        />
-      </nav>
-
-      <APIKeySettings isOpen={showAPISettings} onClose={() => setShowAPISettings(false)} onSuccess={() => {}} />
-      <DailyCheckIn isOpen={isCheckInOpen} onClose={() => setIsCheckInOpen(false)} />
-      <UserTypeSelection isOpen={showUserTypeSelection} onClose={() => setShowUserTypeSelection(false)} />
-    </>
+      </div>
+    </nav>
   );
 };
 

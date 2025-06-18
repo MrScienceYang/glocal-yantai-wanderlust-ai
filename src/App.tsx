@@ -5,6 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import PWASplashScreen from "@/components/PWASplashScreen";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import AIPlanning from "./pages/AIPlanning";
 import LocalExperts from "./pages/LocalExperts";
@@ -41,47 +44,50 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <PWAInstallPrompt />
-      <UserProvider>
-        <CityProvider>
-          <CartProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/ai-planning" element={<AIPlanning />} />
-                <Route path="/flights" element={<Flights />} />
-                <Route path="/trains" element={<Trains />} />
-                <Route path="/hotels" element={<Hotels />} />
-                <Route path="/tickets" element={<Tickets />} />
-                <Route path="/local-experts" element={<LocalExperts />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/mystery-box" element={<MysteryBox />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/membership" element={<Membership />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/ticket/:id" element={<TicketPurchase />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/logistics/:orderId" element={<LogisticsPage />} />
-                <Route path="/order/:orderId" element={<OrderDetail />} />
-                <Route path="/partner-hub" element={<PartnerHub />} />
-                <Route path="/partner-login" element={<PartnerLogin />} />
-                <Route path="/partner-dashboard" element={<PartnerDashboard />} />
-                <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
-                <Route path="/supplier-upload-product" element={<SupplierUploadProduct />} />
-                <Route path="/supply-chain-partner" element={<SupplyChainPartner />} />
-                <Route path="/cooperation-application" element={<CooperationApplication />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </CartProvider>
-        </CityProvider>
-      </UserProvider>
+      <ThemeProvider>
+        <Toaster />
+        <Sonner />
+        <PWAInstallPrompt />
+        <PWASplashScreen />
+        <UserProvider>
+          <CityProvider>
+            <CartProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/ai-planning" element={<AIPlanning />} />
+                  <Route path="/flights" element={<Flights />} />
+                  <Route path="/trains" element={<Trains />} />
+                  <Route path="/hotels" element={<Hotels />} />
+                  <Route path="/tickets" element={<Tickets />} />
+                  <Route path="/local-experts" element={<LocalExperts />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/mystery-box" element={<MysteryBox />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/membership" element={<Membership />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/ticket/:id" element={<TicketPurchase />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/logistics/:orderId" element={<LogisticsPage />} />
+                  <Route path="/order/:orderId" element={<OrderDetail />} />
+                  <Route path="/partner-hub" element={<PartnerHub />} />
+                  <Route path="/partner-login" element={<PartnerLogin />} />
+                  <Route path="/partner-dashboard" element={<PartnerDashboard />} />
+                  <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
+                  <Route path="/supplier-upload-product" element={<SupplierUploadProduct />} />
+                  <Route path="/supply-chain-partner" element={<SupplyChainPartner />} />
+                  <Route path="/cooperation-application" element={<CooperationApplication />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <MobileBottomNav />
+              </BrowserRouter>
+            </CartProvider>
+          </CityProvider>
+        </UserProvider>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
