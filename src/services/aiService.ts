@@ -1,12 +1,12 @@
 
-// AI服务配置 - 使用OpenAI ChatGPT 4o API
+// AI服务配置 - 使用OpenAI ChatGPT 4.1 API
 export class AIService {
   private apiKey: string = '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';
   private baseUrl = 'https://api.openai.com/v1/chat/completions';
 
   constructor() {
     // OpenAI API密钥已配置
-    console.log('OpenAI ChatGPT 4o API已初始化');
+    console.log('OpenAI ChatGPT 4.1 API已初始化');
   }
 
   setApiKey(apiKey: string) {
@@ -28,7 +28,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4.1-2025-04-14',
           messages: [
             {
               role: 'user',
@@ -44,7 +44,8 @@ export class AIService {
         console.log('OpenAI API测试成功:', data.choices[0].message.content);
         return true;
       } else {
-        console.error('OpenAI API测试失败:', response.status, response.statusText);
+        const errorData = await response.json();
+        console.error('OpenAI API测试失败:', response.status, errorData);
         return false;
       }
     } catch (error) {
@@ -163,7 +164,7 @@ export class AIService {
     - 人数：${preferences.groupSize}
     - 旅行风格：${preferences.travelStyle}
     - 出发地：${preferences.departure || '北京'}
-    - 目的地：${preferences.destination || '烟台'}
+    - 目的地：${preferences.destination || preferences.city}
     - 出发时间：${preferences.departureTime || '未指定'}
     - 返程时间：${preferences.returnTime || '未指定'}
     
@@ -175,6 +176,7 @@ export class AIService {
     `;
 
     try {
+      console.log('发送AI请求，使用模型: gpt-4.1-2025-04-14');
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -182,7 +184,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4.1-2025-04-14',
           messages: [
             {
               role: 'system',
@@ -199,12 +201,14 @@ export class AIService {
       });
 
       if (!response.ok) {
-        console.warn('OpenAI API请求失败，使用模拟数据');
-        return this.getMockItinerary(preferences);
+        const errorData = await response.json();
+        console.warn('OpenAI API请求失败:', response.status, errorData);
+        throw new Error(`API请求失败: ${response.status}`);
       }
 
       const data = await response.json();
       const content = data.choices[0].message.content;
+      console.log('AI响应成功，内容长度:', content.length);
       
       // 尝试解析JSON响应
       try {
@@ -219,8 +223,8 @@ export class AIService {
         };
       }
     } catch (error) {
-      console.error('OpenAI AI服务错误，使用模拟数据:', error);
-      return this.getMockItinerary(preferences);
+      console.error('OpenAI AI服务错误:', error);
+      throw error; // 抛出错误让调用方处理
     }
   }
 
@@ -246,7 +250,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4.1-2025-04-14',
           messages: [
             {
               role: 'system',

@@ -83,7 +83,8 @@ class AIContentService {
     };
 
     try {
-      // 调用OpenAI ChatGPT 4o API
+      // 调用OpenAI ChatGPT 4.1 API
+      console.log(`开始生成${type}内容，使用模型: gpt-4.1-2025-04-14`);
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -91,7 +92,7 @@ class AIContentService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4.1-2025-04-14',
           messages: [
             {
               role: 'system',
@@ -108,12 +109,14 @@ class AIContentService {
       });
 
       if (!response.ok) {
-        console.warn(`${type} OpenAI API失败，使用模拟数据`);
+        const errorData = await response.json();
+        console.warn(`${type} OpenAI API失败:`, response.status, errorData, '使用模拟数据');
         return this.getMockContent(type, context);
       }
 
       const data = await response.json();
       const content = data.choices[0].message.content;
+      console.log(`${type}内容生成成功，内容长度:`, content.length);
       
       // 尝试解析结构化内容，失败则返回模拟数据
       try {
@@ -125,7 +128,7 @@ class AIContentService {
         };
       }
     } catch (error) {
-      console.error(`${type} OpenAI内容生成失败，使用模拟数据:`, error);
+      console.error(`${type} OpenAI内容生成失败:`, error, '使用模拟数据');
       return this.getMockContent(type, context);
     }
   }
@@ -140,7 +143,7 @@ class AIContentService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4.1-2025-04-14',
           messages: [
             {
               role: 'user',
@@ -156,7 +159,8 @@ class AIContentService {
         console.log('OpenAI内容生成API测试成功:', data.choices[0].message.content);
         return true;
       } else {
-        console.error('OpenAI内容生成API测试失败:', response.status, response.statusText);
+        const errorData = await response.json();
+        console.error('OpenAI内容生成API测试失败:', response.status, errorData);
         return false;
       }
     } catch (error) {

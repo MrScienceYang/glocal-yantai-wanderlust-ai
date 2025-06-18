@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
+import { useUser } from '@/components/UserProvider';
 
 interface TravelPreferences {
   country: string;
@@ -98,19 +99,23 @@ const realAttractionsDatabase = {
 export const useAIPlanning = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [plan, setPlan] = useState<TravelPlan | null>(null);
-  const [hasPermission, setHasPermission] = useState(false);
+  const { isVip, isLoggedIn } = useUser();
+
+  // 简化权限检查：登录用户或VIP用户都可以使用
+  const hasPermission = isLoggedIn || isVip;
 
   const generatePlan = async (preferences: TravelPreferences) => {
     if (!hasPermission) {
-      toast.error('请先获取AI服务使用权限');
+      toast.error('请先登录使用AI服务');
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // 优先使用通义千问AI生成行程
+      // 优先使用ChatGPT 4o AI生成行程
       try {
+        console.log('开始调用AI生成行程:', preferences);
         const aiPlan = await aiService.generateItinerary(preferences);
         if (aiPlan && aiPlan.itinerary) {
           setPlan(aiPlan);
@@ -119,6 +124,7 @@ export const useAIPlanning = () => {
         }
       } catch (error) {
         console.error('AI生成失败，使用本地数据:', error);
+        toast.warn('AI服务暂不可用，使用本地数据生成行程');
       }
 
       // 如果AI失败，使用本地数据生成
@@ -252,7 +258,8 @@ export const useAIPlanning = () => {
   };
 
   const grantPermission = () => {
-    setHasPermission(true);
+    // 这个函数现在主要用于兼容性，实际权限基于登录状态
+    console.log('Permission granted through login status');
   };
 
   return {

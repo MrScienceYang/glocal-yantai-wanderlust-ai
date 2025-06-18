@@ -12,6 +12,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useUser } from '@/components/UserProvider';
 import { AdModal } from '@/components/AdModal';
+import AIPermissionCheck from '@/components/AIPermissionCheck';
 
 // 城市数据结构
 const cityData = {
@@ -71,9 +72,28 @@ const AIPlanning = () => {
     groupSize: '',
     travelStyle: 'elder' // 新的旅行风格
   });
-  const { generatePlan, isLoading, plan } = useAIPlanning();
+  const { generatePlan, isLoading, plan, hasPermission, grantPermission } = useAIPlanning();
   const { isVip, points, spendPoints } = useUser();
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+
+  // 如果没有权限，显示权限检查组件
+  if (!hasPermission) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-ocean-50 to-white pb-20 md:pb-0">
+        <div className="max-w-4xl mx-auto px-4 py-20">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              AI智能行程规划
+            </h1>
+            <p className="text-xl text-gray-600">
+              告诉我们你的偏好，AI为你定制专属旅行方案
+            </p>
+          </div>
+          <AIPermissionCheck onPermissionGranted={grantPermission} />
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = (field: string, value: string) => {
     setPreferences(prev => {
