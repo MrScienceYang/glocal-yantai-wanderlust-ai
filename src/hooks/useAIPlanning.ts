@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -146,14 +147,14 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
   console.log('开始转换DeepSeek响应:', deepSeekResponse);
   
   try {
-    // 如果响应包含trip_plan结构
+    // 处理trip_plan结构（DeepSeek返回的实际结构）
     if (deepSeekResponse.trip_plan) {
       const tripPlan = deepSeekResponse.trip_plan;
       const itinerary: DayPlan[] = [];
       
-      // 转换每日行程
-      if (tripPlan.daily_itinerary && Array.isArray(tripPlan.daily_itinerary)) {
-        tripPlan.daily_itinerary.forEach((day: any, index: number) => {
+      // 转换每日行程 - 修复字段名匹配
+      if (tripPlan.daily_plans && Array.isArray(tripPlan.daily_plans)) {
+        tripPlan.daily_plans.forEach((day: any, index: number) => {
           const activities: Activity[] = [];
           
           if (day.activities && Array.isArray(day.activities)) {
@@ -166,36 +167,33 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
                 description: activity.description || '暂无描述',
                 location: activity.location || '位置待定',
                 time: activity.time || '时间待定',
-                estimatedCost: activity.price || activity.cost || activity.estimatedCost || 0,
-                transportation: activity.transportation?.type || activity.transportation || '交通方式待定'
+                estimatedCost: activity.cost || 0,
+                transportation: activity.transport?.type || '交通方式待定'
               });
             });
           }
           
-          // 添加所有活动，包括生成名称的活动
-          if (activities.length > 0) {
-            itinerary.push({
-              date: day.date || `第${index + 1}天`,
-              activities
-            });
-          }
+          // 只要有数据就添加到行程中
+          itinerary.push({
+            date: day.date || `第${index + 1}天`,
+            activities
+          });
         });
       }
       
       return {
         itinerary,
-        totalCost: tripPlan.total_expenses?.total || tripPlan.totalCost || 0,
-        recommendedGroupSize: tripPlan.number_of_people?.toString() || tripPlan.recommendedGroupSize || '2',
+        totalCost: tripPlan.total_cost?.total || 0,
+        recommendedGroupSize: tripPlan.recommendations?.people?.toString() || '2',
         startDate: tripPlan.departure?.date || new Date().toLocaleDateString('zh-CN')
       };
     }
     
-    // 如果是直接的itinerary格式
-    if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
-      const convertedItinerary: DayPlan[] = deepSeekResponse.itinerary.map((dayData: any, index: number) => {
+    // 处理直接的daily_itinerary结构
+    if (deepSeekResponse.daily_itinerary && Array.isArray(deepSeekResponse.daily_itinerary)) {
+      const convertedItinerary: DayPlan[] = deepSeekResponse.daily_itinerary.map((dayData: any, index: number) => {
         const activities: Activity[] = (dayData.activities || [])
           .map((activity: any) => {
-            // 为每个活动生成有意义的名称
             const activityName = generateActivityName(activity);
             
             return {
@@ -212,7 +210,38 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
           date: dayData.date || `第${index + 1}天`,
           activities
         };
-      }).filter(day => day.activities.length > 0); // 只保留有活动的天数
+      });
+
+      return {
+        itinerary: convertedItinerary,
+        totalCost: deepSeekResponse.totalCost || 0,
+        recommendedGroupSize: deepSeekResponse.recommendedGroupSize || '2',
+        startDate: deepSeekResponse.startDate || new Date().toLocaleDateString('zh-CN')
+      };
+    }
+    
+    // 处理直接的itinerary格式
+    if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
+      const convertedItinerary: DayPlan[] = deepSeekResponse.itinerary.map((dayData: any, index: number) => {
+        const activities: Activity[] = (dayData.activities || [])
+          .map((activity: any) => {
+            const activityName = generateActivityName(activity);
+            
+            return {
+              name: activityName,
+              description: activity.description || '暂无描述',
+              location: activity.location || '位置待定',
+              time: activity.time || '时间待定',
+              estimatedCost: activity.cost || activity.estimatedCost || 0,
+              transportation: activity.transportation || '交通方式待定'
+            };
+          });
+
+        return {
+          date: dayData.date || `第${index + 1}天`,
+          activities
+        };
+      });
 
       return {
         itinerary: convertedItinerary,
