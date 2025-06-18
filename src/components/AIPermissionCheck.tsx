@@ -32,7 +32,6 @@ const AIPermissionCheck: React.FC<AIPermissionCheckProps> = ({ onPermissionGrant
 
   // 如果是VIP用户或已登录用户，直接允许使用
   if (isVip || isLoggedIn) {
-    onPermissionGranted();
     return <>{children}</>;
   }
 

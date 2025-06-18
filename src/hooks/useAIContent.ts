@@ -7,13 +7,14 @@ import { useUser } from '@/components/UserProvider';
 export const useAIContent = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<any>(null);
-  const [hasPermission, setHasPermission] = useState(false);
   const { isVip, isLoggedIn } = useUser();
 
+  // 简化权限检查：登录用户或VIP用户都可以使用
+  const hasPermission = isLoggedIn || isVip;
+
   const generateContent = async (request: ContentGenerationRequest) => {
-    // 登录用户或VIP用户直接允许使用
-    if (!hasPermission && !isVip && !isLoggedIn) {
-      toast.error('请先登录或获取AI服务使用权限');
+    if (!hasPermission) {
+      toast.error('请先登录使用AI服务');
       return;
     }
 
@@ -34,7 +35,8 @@ export const useAIContent = () => {
   };
 
   const grantPermission = () => {
-    setHasPermission(true);
+    // 这个函数现在主要用于兼容性，实际权限基于登录状态
+    console.log('Permission granted through login status');
   };
 
   const getContentTypeName = (type: string) => {
@@ -53,7 +55,7 @@ export const useAIContent = () => {
     generateContent,
     isGenerating,
     generatedContent,
-    hasPermission: hasPermission || isVip || isLoggedIn, // 登录用户自动获得权限
+    hasPermission,
     grantPermission,
     setGeneratedContent
   };

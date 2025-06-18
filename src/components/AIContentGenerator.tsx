@@ -42,10 +42,6 @@ const AIContentGenerator: React.FC<AIContentGeneratorProps> = ({
     }
   };
 
-  if (!hasPermission) {
-    return <AIPermissionCheck onPermissionGranted={grantPermission} />;
-  }
-
   const getDefaultTitle = () => {
     const titles: Record<string, string> = {
       product: 'AI商品内容生成',
@@ -69,6 +65,10 @@ const AIContentGenerator: React.FC<AIContentGeneratorProps> = ({
     };
     return descriptions[type] || '使用AI智能生成内容';
   };
+
+  if (!hasPermission) {
+    return <AIPermissionCheck onPermissionGranted={grantPermission} />;
+  }
 
   return (
     <Card className="w-full">
