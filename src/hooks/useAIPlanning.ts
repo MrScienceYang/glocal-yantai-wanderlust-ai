@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -98,14 +99,14 @@ const realAttractionsDatabase = {
 // 生成有意义的活动名称
 const generateActivityName = (activity: any): string => {
   // 如果有明确的活动名称且不是"未命名活动"，直接使用
-  const originalName = activity.activity || activity.name;
+  const originalName = activity.activity || activity.name || activity.活动 || activity.地点;
   if (originalName && originalName.trim() !== '' && originalName.trim() !== '未命名活动') {
     return originalName;
   }
   
   // 根据描述生成活动名称
-  const description = activity.description || '';
-  const location = activity.location || '';
+  const description = activity.description || activity.描述 || '';
+  const location = activity.location || activity.地点 || '';
   
   // 如果描述中包含关键词，提取作为活动名称
   if (description.includes('游览') || description.includes('参观')) {
@@ -141,95 +142,59 @@ const generateActivityName = (activity: any): string => {
   return '行程安排';
 };
 
-// 尝试从文本中提取行程信息
-const extractItineraryFromText = (textContent: string): DayPlan[] => {
-  const itinerary: DayPlan[] = [];
-  
-  // 按天分割内容
-  const dayMatches = textContent.match(/第?\s*(\d+)\s*天[\s\S]*?(?=第?\s*\d+\s*天|$)/g);
-  
-  if (dayMatches && dayMatches.length > 0) {
-    dayMatches.forEach((dayText, index) => {
-      const activities: Activity[] = [];
-      
-      // 提取时间和活动信息
-      const timeActivityMatches = dayText.match(/(\d{1,2}[:：]\d{2})\s*[-–—]\s*(\d{1,2}[:：]\d{2})?\s*[：:]\s*([^\n\r]+)/g);
-      
-      if (timeActivityMatches) {
-        timeActivityMatches.forEach(match => {
-          const parts = match.split(/[：:]/);
-          if (parts.length >= 2) {
-            const timeInfo = parts[0].trim();
-            const activityInfo = parts.slice(1).join(':').trim();
-            
-            // 提取费用信息
-            const costMatch = activityInfo.match(/(\d+)\s*元/);
-            const cost = costMatch ? parseInt(costMatch[1]) : 0;
-            
-            activities.push({
-              name: activityInfo.length > 30 ? activityInfo.substring(0, 30) + '...' : activityInfo,
-              description: activityInfo,
-              location: '详见行程安排',
-              time: timeInfo,
-              estimatedCost: cost,
-              transportation: '根据具体情况安排'
-            });
-          }
-        });
-      }
-      
-      // 如果没有找到具体时间活动，尝试提取其他格式
-      if (activities.length === 0) {
-        const generalMatches = dayText.match(/[•·▪▫◦‣⁃]\s*([^\n\r]+)/g);
-        if (generalMatches) {
-          generalMatches.forEach(match => {
-            const activity = match.replace(/[•·▪▫◦‣⁃]\s*/, '').trim();
-            if (activity.length > 0) {
-              activities.push({
-                name: activity.length > 30 ? activity.substring(0, 30) + '...' : activity,
-                description: activity,
-                location: '详见行程安排',
-                time: '待安排',
-                estimatedCost: 0,
-                transportation: '根据具体情况安排'
-              });
-            }
-          });
-        }
-      }
-      
-      // 如果还是没有活动，使用整段文本
-      if (activities.length === 0 && dayText.length > 10) {
-        const cleanText = dayText.replace(/第?\s*\d+\s*天\s*[：:]?\s*/, '').trim();
-        if (cleanText.length > 0) {
-          activities.push({
-            name: '行程详情',
-            description: cleanText,
-            location: '详见描述',
-            time: '全天',
-            estimatedCost: 0,
-            transportation: '根据具体情况安排'
-          });
-        }
-      }
-      
-      if (activities.length > 0) {
-        itinerary.push({
-          date: `第${index + 1}天`,
-          activities
-        });
-      }
-    });
-  }
-  
-  return itinerary;
-};
-
 // 转换DeepSeek API响应为组件期望的格式
 const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan => {
   console.log('开始转换DeepSeek响应:', deepSeekResponse);
   
   try {
+    // 处理中文字段名的响应格式（如："行程规划"）
+    if (deepSeekResponse['行程规划']) {
+      console.log('发现中文格式的行程规划');
+      const planData = deepSeekResponse['行程规划'];
+      const itinerary: DayPlan[] = [];
+      
+      // 处理每日行程
+      const dailyPlans = planData['每日行程'] || planData.dailyPlans || [];
+      
+      if (Array.isArray(dailyPlans)) {
+        dailyPlans.forEach((dayData: any, index: number) => {
+          const activities: Activity[] = [];
+          const dayActivities = dayData['活动'] || dayData.activities || [];
+          
+          if (Array.isArray(dayActivities)) {
+            dayActivities.forEach((activity: any) => {
+              const activityName = activity['地点'] || activity.location || activity['活动'] || activity.activity || '活动安排';
+              const description = activity['描述'] || activity.description || '详见行程安排';
+              const time = activity['时间'] || activity.time || '待安排';
+              const cost = activity['费用'] || activity.cost || activity.estimatedCost || 0;
+              const transportation = activity['交通方式'] || activity.transportation || activity.transport || '详见安排';
+              
+              activities.push({
+                name: activityName,
+                description: description,
+                location: activity['地点'] || activity.location || '详见行程',
+                time: time,
+                estimatedCost: typeof cost === 'number' ? cost : 0,
+                transportation: transportation
+              });
+            });
+          }
+          
+          itinerary.push({
+            date: dayData['日期'] || dayData.date || `第${index + 1}天`,
+            activities
+          });
+        });
+      }
+      
+      return {
+        itinerary,
+        totalCost: planData['总预算'] || planData.totalCost || planData['总费用'] || 0,
+        recommendedGroupSize: (planData['人数'] || planData.groupSize || planData.recommendedGroupSize || '2').toString(),
+        startDate: planData['出发时间'] || planData.startDate || new Date().toLocaleDateString('zh-CN')
+      };
+    }
+    
     // 如果直接有itinerary字段（已经是正确格式）
     if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
       console.log('发现标准itinerary格式，直接使用');
@@ -307,43 +272,13 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
       };
     }
     
-    // 如果有textResponse字段，尝试从文本中提取行程信息
-    if (deepSeekResponse.textResponse && typeof deepSeekResponse.textResponse === 'string') {
-      console.log('尝试从文本响应中提取行程信息');
-      const extractedItinerary = extractItineraryFromText(deepSeekResponse.textResponse);
-      
-      if (extractedItinerary.length > 0) {
-        return {
-          itinerary: extractedItinerary,
-          totalCost: 0,
-          recommendedGroupSize: '2',
-          startDate: new Date().toLocaleDateString('zh-CN')
-        };
-      }
-    }
-    
-    // 最后尝试：如果响应是字符串类型，直接解析
-    if (typeof deepSeekResponse === 'string') {
-      console.log('尝试从字符串响应中提取行程信息');
-      const extractedItinerary = extractItineraryFromText(deepSeekResponse);
-      
-      if (extractedItinerary.length > 0) {
-        return {
-          itinerary: extractedItinerary,
-          totalCost: 0,
-          recommendedGroupSize: '2',
-          startDate: new Date().toLocaleDateString('zh-CN')
-        };
-      }
-    }
-    
     // 如果所有解析都失败，返回错误提示
     console.error('无法解析AI响应格式，响应结构:', Object.keys(deepSeekResponse));
-    throw new Error('无法解析AI响应数据');
+    throw new Error('无法解析AI响应数据，响应格式不支持');
     
   } catch (error) {
     console.error('转换DeepSeek响应时出错:', error);
-    throw new Error('数据转换失败');
+    throw new Error('数据转换失败: ' + error.message);
   }
 };
 
@@ -369,27 +304,25 @@ export const useAIPlanning = () => {
       console.log('AI返回原始数据:', aiPlan);
       
       if (aiPlan) {
-        // 直接使用AI返回的数据，不要回退到本地数据
+        // 直接使用AI返回的数据进行转换
         const convertedPlan = convertDeepSeekResponseToTravelPlan(aiPlan);
         console.log('转换后的计划:', convertedPlan);
         
         // 验证转换后的数据是否有效
         if (convertedPlan.itinerary && convertedPlan.itinerary.length > 0) {
           setPlan(convertedPlan);
-          toast.success(`AI智能行程规划生成成功！`);
+          toast.success(`AI智能行程规划生成成功！共${convertedPlan.itinerary.length}天行程`);
           return;
         } else {
           console.error('AI数据转换后无有效行程');
-          throw new Error('AI返回的数据无效');
+          throw new Error('AI返回的数据转换失败，无有效行程信息');
         }
       } else {
         throw new Error('AI服务返回空数据');
       }
     } catch (error) {
       console.error('AI生成失败:', error);
-      toast.error(`AI服务暂时不可用: ${error.message}`);
-      
-      // 只在AI完全失败时才显示错误，不再回退到本地数据
+      toast.error(`AI服务处理失败: ${error.message}`);
       setPlan(null);
     } finally {
       setIsLoading(false);
