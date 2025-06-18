@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -124,7 +123,7 @@ export const useAIPlanning = () => {
         }
       } catch (error) {
         console.error('AI生成失败，使用本地数据:', error);
-        toast.warn('AI服务暂不可用，使用本地数据生成行程');
+        toast.warning('AI服务暂不可用，使用本地数据生成行程');
       }
 
       // 如果AI失败，使用本地数据生成
