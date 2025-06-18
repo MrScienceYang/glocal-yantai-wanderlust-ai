@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { MapPin, Calendar, Users, DollarSign, Sparkles, Download, Share2, Clock, Star, Award, Globe } from 'lucide-react';
+import { MapPin, Calendar, Users, DollarSign, Sparkles, Download, Share2, Clock, Star, Award, Globe, Brain, Zap } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
@@ -29,6 +28,8 @@ const AIPlanning = () => {
   });
   const [showPlan, setShowPlan] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [aiThinking, setAiThinking] = useState('');
+  const [showThinking, setShowThinking] = useState(false);
 
   useEffect(() => {
     setPreferences(prev => ({
@@ -44,8 +45,14 @@ const AIPlanning = () => {
       toast.error('请填写所有偏好设置');
       return;
     }
+    
+    // 显示AI思考过程
+    setShowThinking(true);
+    setAiThinking('正在分析您的旅行偏好...\n根据您选择的旅行风格和预算，AI正在为您规划最佳路线...\n正在匹配适合的景点和活动...\n正在优化行程时间安排...');
+    
     await generatePlan(preferences);
     setShowPlan(true);
+    setShowThinking(false);
   };
 
   const handleShare = () => {
@@ -109,6 +116,31 @@ const AIPlanning = () => {
         <div className="md:hidden mb-8">
           <MobileTravelHub />
         </div>
+
+        {/* AI思考过程展示 */}
+        {showThinking && (
+          <Card className="mb-8 border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-blue-700">
+                <Brain className="mr-2 h-5 w-5 animate-pulse" />
+                AI正在思考...
+              </CardTitle>
+              <CardDescription className="text-blue-600">
+                让我们看看AI是如何为您规划行程的
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-white rounded-lg p-4 border border-blue-200">
+                <div className="flex items-start space-x-3">
+                  <Zap className="h-5 w-5 text-blue-500 mt-1 animate-bounce" />
+                  <div className="text-sm text-gray-700 whitespace-pre-line">
+                    {aiThinking}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* 偏好设置 */}
         <Card className="mb-8">
@@ -196,6 +228,9 @@ const AIPlanning = () => {
                   <option value="冒险探索">冒险探索</option>
                   <option value="美食之旅">美食之旅</option>
                   <option value="亲子游">亲子游</option>
+                  <option value="说走就走">说走就走</option>
+                  <option value="酒店爱好者">酒店爱好者</option>
+                  <option value="飞友">飞友</option>
                 </select>
               </div>
               <Button type="submit" className="gradient-ocean text-white" disabled={isLoading}>
