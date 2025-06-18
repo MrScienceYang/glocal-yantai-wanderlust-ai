@@ -110,7 +110,7 @@ const PartnerDashboard = () => {
   };
 
   const handleChangePayment = () => {
-    toast.info('变更偿还方案功能正在开发中');
+    navigate('/payment-plan-adjustment');
   };
 
   const handleComplaint = () => {
@@ -149,7 +149,7 @@ const PartnerDashboard = () => {
                   供应商工作台
                 </h1>
                 <p className="text-gray-300">
-                  欢迎回来，{currentUser.user} | 模式A：{supplierType}
+                  欢迎回来，{currentUser.user} | 模式A：{supplierType} | 全平台流水抽成模式
                 </p>
               </div>
               <div className="flex space-x-3">
@@ -358,17 +358,17 @@ const PartnerDashboard = () => {
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
                       <TrendingUp className="h-5 w-5 mr-2 text-purple-400" />
-                      {isWineSupplier ? '销售概况' : '财务状况'}
+                      {isWineSupplier ? '全平台销售概况' : '财务状况'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {isWineSupplier ? (
                       <div className="grid grid-cols-2 gap-6">
                         <div>
-                          <h4 className="text-gray-300 mb-3">销售数据</h4>
+                          <h4 className="text-gray-300 mb-3">全平台销售数据</h4>
                           <div className="space-y-3">
                             <div className="flex justify-between">
-                              <span className="text-gray-400">当月销售额</span>
+                              <span className="text-gray-400">全平台销售额</span>
                               <span className="text-white">¥{supplierData.monthlyRevenue.total.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between">
@@ -387,10 +387,15 @@ const PartnerDashboard = () => {
                           </div>
                         </div>
                         <div>
-                          <h4 className="text-gray-300 mb-3">合作收益</h4>
+                          <h4 className="text-gray-300 mb-3">全平台流水抽成</h4>
                           <div className="p-4 bg-gradient-to-r from-green-600/20 to-blue-600/20 rounded-lg border border-green-400/30">
-                            <p className="text-white text-2xl font-bold">¥{(supplierData.monthlyRevenue.total * 0.8).toLocaleString()}</p>
-                            <p className="text-gray-400 text-sm">自有商品净收益</p>
+                            <p className="text-white text-2xl font-bold">¥{(supplierData.monthlyRevenue.total * 0.75).toLocaleString()}</p>
+                            <p className="text-gray-400 text-sm">全平台净收益 (75%抽成)</p>
+                            <div className="mt-2 space-y-1 text-xs text-gray-300">
+                              <div>• 京东/淘宝: 80%抽成</div>
+                              <div>• 拼多多/抖音: 70%抽成</div>
+                              <div>• 自有商城: 85%抽成</div>
+                            </div>
                             <Badge className="mt-2 bg-green-600 text-white">
                               无需垫资
                             </Badge>
@@ -479,7 +484,7 @@ const PartnerDashboard = () => {
                           className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
                         >
                           <FileText className="h-4 w-4 mr-2" />
-                          变更偿还方案
+                          偿还方案调整
                         </Button>
                       )}
                       <Button 

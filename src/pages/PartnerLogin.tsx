@@ -319,10 +319,10 @@ const PartnerLogin = () => {
                 className="text-center mb-8"
               >
                 <h1 className="text-3xl font-bold text-white mb-4">
-                  身份活体检测
+                  请验证您为指定的企业管理人员
                 </h1>
                 <p className="text-gray-300">
-                  为确保账户安全，请按照提示完成身份验证
+                  为确保企业账户安全，请按照提示完成企业管理人员身份验证
                 </p>
               </motion.div>
 
