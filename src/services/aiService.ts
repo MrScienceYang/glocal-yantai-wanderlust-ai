@@ -1,25 +1,26 @@
 
-// AI服务配置 - 使用OpenAI ChatGPT 4o API
+
+// AI服务配置 - 使用DeepSeek API
 export class AIService {
-  private apiKey: string = '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';
-  private baseUrl = 'https://api.openai.com/v1/chat/completions';
+  private apiKey: string = 'sk-21b225f0240849cda6b0f3008bdaab5c';
+  private baseUrl = 'https://api.deepseek.com/v1/chat/completions';
 
   constructor() {
-    // OpenAI API密钥已配置
-    console.log('OpenAI ChatGPT 4o API已初始化，测试连接中...');
+    // DeepSeek API密钥已配置
+    console.log('DeepSeek API已初始化，测试连接中...');
     // 自动测试连接
     this.testConnection().then(success => {
       if (success) {
-        console.log('OpenAI API连接成功');
+        console.log('DeepSeek API连接成功');
       } else {
-        console.error('OpenAI API连接失败，将使用本地模拟数据');
+        console.error('DeepSeek API连接失败，将使用本地模拟数据');
       }
     });
   }
 
   setApiKey(apiKey: string) {
     this.apiKey = apiKey;
-    console.log('OpenAI API密钥已更新');
+    console.log('DeepSeek API密钥已更新');
   }
 
   getApiKey(): string | null {
@@ -29,7 +30,7 @@ export class AIService {
   // 测试API连接
   async testConnection(): Promise<boolean> {
     try {
-      console.log('正在测试OpenAI API连接...');
+      console.log('正在测试DeepSeek API连接...');
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -37,7 +38,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'deepseek-chat',
           messages: [
             {
               role: 'user',
@@ -50,15 +51,15 @@ export class AIService {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('OpenAI API测试成功:', data.choices[0].message.content);
+        console.log('DeepSeek API测试成功:', data.choices[0].message.content);
         return true;
       } else {
         const errorData = await response.json();
-        console.error('OpenAI API测试失败:', response.status, errorData);
+        console.error('DeepSeek API测试失败:', response.status, errorData);
         return false;
       }
     } catch (error) {
-      console.error('OpenAI API连接错误:', error);
+      console.error('DeepSeek API连接错误:', error);
       return false;
     }
   }
@@ -185,7 +186,7 @@ export class AIService {
     `;
 
     try {
-      console.log('发送AI请求，使用模型: gpt-4o，API密钥长度:', this.apiKey.length);
+      console.log('发送AI请求，使用模型: deepseek-chat，API密钥长度:', this.apiKey.length);
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -193,7 +194,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'deepseek-chat',
           messages: [
             {
               role: 'system',
@@ -209,11 +210,11 @@ export class AIService {
         })
       });
 
-      console.log('OpenAI API响应状态:', response.status);
+      console.log('DeepSeek API响应状态:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('OpenAI API请求失败:', response.status, errorData);
+        console.error('DeepSeek API请求失败:', response.status, errorData);
         console.log('API密钥前10位:', this.apiKey.substring(0, 10));
         throw new Error(`API请求失败: ${response.status} - ${errorData.error?.message || '未知错误'}`);
       }
@@ -235,7 +236,7 @@ export class AIService {
         };
       }
     } catch (error) {
-      console.error('OpenAI AI服务错误:', error);
+      console.error('DeepSeek AI服务错误:', error);
       throw error; // 抛出错误让调用方处理
     }
   }
@@ -262,7 +263,7 @@ export class AIService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'deepseek-chat',
           messages: [
             {
               role: 'system',
@@ -279,17 +280,18 @@ export class AIService {
       });
 
       if (!response.ok) {
-        console.log('OpenAI API请求失败，使用模拟数据');
+        console.log('DeepSeek API请求失败，使用模拟数据');
         return this.getMockRecommendation(userProfile);
       }
 
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      console.error('OpenAI推荐服务错误，使用模拟数据:', error);
+      console.error('DeepSeek推荐服务错误，使用模拟数据:', error);
       return this.getMockRecommendation(userProfile);
     }
   }
 }
 
 export const aiService = new AIService();
+

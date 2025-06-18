@@ -28,7 +28,7 @@ const APIKeySettings: React.FC<APIKeySettingsProps> = ({ isOpen, onClose, onSucc
       
       if (aiServiceTest && aiContentServiceTest) {
         setConnectionStatus('success');
-        toast.success('ChatGPT 4o API连接测试成功！');
+        toast.success('DeepSeek API连接测试成功！');
       } else {
         setConnectionStatus('failed');
         toast.error('API连接测试失败，请检查网络连接');
@@ -43,7 +43,7 @@ const APIKeySettings: React.FC<APIKeySettingsProps> = ({ isOpen, onClose, onSucc
   };
 
   const handleConfirm = () => {
-    toast.success('ChatGPT 4o AI服务已配置完成！');
+    toast.success('DeepSeek AI服务已配置完成！');
     onSuccess();
     onClose();
   };
@@ -59,7 +59,7 @@ const APIKeySettings: React.FC<APIKeySettingsProps> = ({ isOpen, onClose, onSucc
             AI服务配置
           </CardTitle>
           <CardDescription>
-            系统已集成ChatGPT 4o AI服务
+            系统已集成DeepSeek AI服务
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -67,8 +67,8 @@ const APIKeySettings: React.FC<APIKeySettingsProps> = ({ isOpen, onClose, onSucc
             <div className="flex items-center">
               <CheckCircle className="h-5 w-5 text-blue-600 mr-2" />
               <div className="text-sm text-blue-800">
-                <p className="font-medium">ChatGPT 4o已就绪</p>
-                <p className="text-xs mt-1">系统已预配置OpenAI最新4o模型</p>
+                <p className="font-medium">DeepSeek AI已就绪</p>
+                <p className="text-xs mt-1">系统已预配置DeepSeek最新模型</p>
               </div>
             </div>
           </div>
@@ -119,7 +119,7 @@ const APIKeySettings: React.FC<APIKeySettingsProps> = ({ isOpen, onClose, onSucc
 
           <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
             <p className="font-medium mb-1">服务说明：</p>
-            <p>基于OpenAI ChatGPT 4o大模型，提供专业的智能旅游服务。</p>
+            <p>基于DeepSeek大模型，提供专业的智能旅游服务。</p>
           </div>
         </CardContent>
       </Card>
@@ -128,3 +128,4 @@ const APIKeySettings: React.FC<APIKeySettingsProps> = ({ isOpen, onClose, onSucc
 };
 
 export default APIKeySettings;
+

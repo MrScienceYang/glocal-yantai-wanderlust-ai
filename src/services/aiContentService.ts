@@ -1,4 +1,3 @@
-
 import { aiService } from './aiService';
 
 export interface ContentGenerationRequest {
@@ -7,8 +6,8 @@ export interface ContentGenerationRequest {
 }
 
 class AIContentService {
-  private apiKey: string = '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';
-  private baseUrl = 'https://api.openai.com/v1/chat/completions';
+  private apiKey: string = 'sk-21b225f0240849cda6b0f3008bdaab5c';
+  private baseUrl = 'https://api.deepseek.com/v1/chat/completions';
 
   // 模拟数据
   private getMockContent(type: string, context: any) {
@@ -83,8 +82,8 @@ class AIContentService {
     };
 
     try {
-      // 调用OpenAI ChatGPT 4o API
-      console.log(`开始生成${type}内容，使用模型: gpt-4o，API密钥长度:`, this.apiKey.length);
+      // 调用DeepSeek API
+      console.log(`开始生成${type}内容，使用模型: deepseek-chat，API密钥长度:`, this.apiKey.length);
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -92,7 +91,7 @@ class AIContentService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'deepseek-chat',
           messages: [
             {
               role: 'system',
@@ -112,7 +111,7 @@ class AIContentService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error(`${type} OpenAI API失败:`, response.status, errorData, '使用模拟数据');
+        console.error(`${type} DeepSeek API失败:`, response.status, errorData, '使用模拟数据');
         return this.getMockContent(type, context);
       }
 
@@ -130,7 +129,7 @@ class AIContentService {
         };
       }
     } catch (error) {
-      console.error(`${type} OpenAI内容生成失败:`, error, '使用模拟数据');
+      console.error(`${type} DeepSeek内容生成失败:`, error, '使用模拟数据');
       return this.getMockContent(type, context);
     }
   }
@@ -146,7 +145,7 @@ class AIContentService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'deepseek-chat',
           messages: [
             {
               role: 'user',
@@ -159,15 +158,15 @@ class AIContentService {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('OpenAI内容生成API测试成功:', data.choices[0].message.content);
+        console.log('DeepSeek内容生成API测试成功:', data.choices[0].message.content);
         return true;
       } else {
         const errorData = await response.json();
-        console.error('OpenAI内容生成API测试失败:', response.status, errorData);
+        console.error('DeepSeek内容生成API测试失败:', response.status, errorData);
         return false;
       }
     } catch (error) {
-      console.error('OpenAI内容生成API连接错误:', error);
+      console.error('DeepSeek内容生成API连接错误:', error);
       return false;
     }
   }
