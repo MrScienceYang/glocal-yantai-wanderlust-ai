@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -354,165 +355,165 @@ const SupplierUploadProduct = () => {
                               </FormItem>
                             )}
                           />
-                        </div>
 
-                        {/* 商品描述 */}
-                        <FormField
-                          control={form.control}
-                          name="description"
-                          rules={{ required: "请输入商品描述" }}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300 flex items-center justify-between">
-                                商品描述
-                                <Button
-                                  type="button"
-                                  onClick={() => handleAIGenerate('description')}
-                                  disabled={aiGenerating}
-                                  size="sm"
-                                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                                >
-                                  {aiGenerating ? (
-                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                  ) : (
-                                    <Brain className="h-3 w-3 mr-1" />
-                                  )}
-                                  DeepSeek R1 生成
-                                </Button>
-                              </FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  {...field}
-                                  placeholder="请详细描述商品特色、工艺、口感等信息"
-                                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 min-h-[100px]"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* 商品规格 */}
-                        <FormField
-                          control={form.control}
-                          name="specs"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300 flex items-center justify-between">
-                                商品规格
-                                <Button
-                                  type="button"
-                                  onClick={() => handleAIGenerate('specs')}
-                                  disabled={aiGenerating}
-                                  size="sm"
-                                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                                >
-                                  {aiGenerating ? (
-                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                  ) : (
-                                    <Brain className="h-3 w-3 mr-1" />
-                                  )}
-                                  DeepSeek R1 生成
-                                </Button>
-                              </FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field}
-                                  placeholder="如：750ml单瓶装、礼盒装等，多个规格用逗号分隔"
-                                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* 商品标签 */}
-                        <FormField
-                          control={form.control}
-                          name="tags"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300 flex items-center justify-between">
-                                商品标签
-                                <Button
-                                  type="button"
-                                  onClick={() => handleAIGenerate('tags')}
-                                  disabled={aiGenerating}
-                                  size="sm"
-                                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                                >
-                                  {aiGenerating ? (
-                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                  ) : (
-                                    <Brain className="h-3 w-3 mr-1" />
-                                  )}
-                                  DeepSeek R1 生成
-                                </Button>
-                              </FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field}
-                                  placeholder="如：传统工艺、地方特产、高端精品等，多个标签用逗号分隔"
-                                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* 商品图片 */}
-                        <FormField
-                          control={form.control}
-                          name="images"
-                          render={({ field: { onChange, value, ...field } }) => (
-                            <FormItem>
-                              <FormLabel className="text-gray-300">商品图片</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field}
-                                  type="file"
-                                  multiple
-                                  accept="image/*"
-                                  onChange={(e) => onChange(e.target.files)}
-                                  className="bg-white/10 border-white/20 text-white file:bg-white/20 file:text-white file:border-0"
-                                />
-                              </FormControl>
-                              <p className="text-xs text-gray-400">支持多张图片上传，建议尺寸 800x800px</p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* 提交按钮 */}
-                        <div className="flex justify-end space-x-4 pt-6">
-                          <Button 
-                            type="button"
-                            onClick={handleBack}
-                            variant="outline"
-                            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                          >
-                            取消
-                          </Button>
-                          <Button 
-                            type="submit"
-                            disabled={isUploading || selectedPlatforms.length === 0}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8"
-                          >
-                            {isUploading ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                                上架中...
-                              </>
-                            ) : (
-                              <>
-                                <Upload className="h-4 w-4 mr-2" />
-                                {uploadMode === 'multi' ? '同步上架' : '提交上架'}
-                              </>
+                          {/* 商品描述 */}
+                          <FormField
+                            control={form.control}
+                            name="description"
+                            rules={{ required: "请输入商品描述" }}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-gray-300 flex items-center justify-between">
+                                  商品描述
+                                  <Button
+                                    type="button"
+                                    onClick={() => handleAIGenerate('description')}
+                                    disabled={aiGenerating}
+                                    size="sm"
+                                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                                  >
+                                    {aiGenerating ? (
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <Brain className="h-3 w-3 mr-1" />
+                                    )}
+                                    DeepSeek R1 生成
+                                  </Button>
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    {...field}
+                                    placeholder="请详细描述商品特色、工艺、口感等信息"
+                                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 min-h-[100px]"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )}
-                          </Button>
-                        </div>
+                          />
+
+                          {/* 商品规格 */}
+                          <FormField
+                            control={form.control}
+                            name="specs"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-gray-300 flex items-center justify-between">
+                                  商品规格
+                                  <Button
+                                    type="button"
+                                    onClick={() => handleAIGenerate('specs')}
+                                    disabled={aiGenerating}
+                                    size="sm"
+                                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                                  >
+                                    {aiGenerating ? (
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <Brain className="h-3 w-3 mr-1" />
+                                    )}
+                                    DeepSeek R1 生成
+                                  </Button>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    placeholder="如：750ml单瓶装、礼盒装等，多个规格用逗号分隔"
+                                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* 商品标签 */}
+                          <FormField
+                            control={form.control}
+                            name="tags"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-gray-300 flex items-center justify-between">
+                                  商品标签
+                                  <Button
+                                    type="button"
+                                    onClick={() => handleAIGenerate('tags')}
+                                    disabled={aiGenerating}
+                                    size="sm"
+                                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                                  >
+                                    {aiGenerating ? (
+                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <Brain className="h-3 w-3 mr-1" />
+                                    )}
+                                    DeepSeek R1 生成
+                                  </Button>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    placeholder="如：传统工艺、地方特产、高端精品等，多个标签用逗号分隔"
+                                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* 商品图片 */}
+                          <FormField
+                            control={form.control}
+                            name="images"
+                            render={({ field: { onChange, value, ...field } }) => (
+                              <FormItem>
+                                <FormLabel className="text-gray-300">商品图片</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={(e) => onChange(e.target.files)}
+                                    className="bg-white/10 border-white/20 text-white file:bg-white/20 file:text-white file:border-0"
+                                  />
+                                </FormControl>
+                                <p className="text-xs text-gray-400">支持多张图片上传，建议尺寸 800x800px</p>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* 提交按钮 */}
+                          <div className="flex justify-end space-x-4 pt-6">
+                            <Button 
+                              type="button"
+                              onClick={handleBack}
+                              variant="outline"
+                              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                            >
+                              取消
+                            </Button>
+                            <Button 
+                              type="submit"
+                              disabled={isUploading || selectedPlatforms.length === 0}
+                              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8"
+                            >
+                              {isUploading ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                                  上架中...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="h-4 w-4 mr-2" />
+                                  {uploadMode === 'multi' ? '同步上架' : '提交上架'}
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </form>
                       </Form>
                     </CardContent>
                   </Card>
