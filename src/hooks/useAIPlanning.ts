@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { aiService } from '@/services/aiService';
@@ -231,23 +230,31 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
   console.log('开始转换DeepSeek响应:', deepSeekResponse);
   
   try {
+    // 如果直接有itinerary字段（已经是正确格式）
+    if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
+      console.log('发现标准itinerary格式，直接使用');
+      return {
+        itinerary: deepSeekResponse.itinerary,
+        totalCost: deepSeekResponse.totalCost || 0,
+        recommendedGroupSize: deepSeekResponse.recommendedGroupSize || '2',
+        startDate: deepSeekResponse.startDate || new Date().toLocaleDateString('zh-CN')
+      };
+    }
+
     // 处理trip_plan结构（DeepSeek返回的实际结构）
     if (deepSeekResponse.trip_plan) {
       const tripPlan = deepSeekResponse.trip_plan;
       const itinerary: DayPlan[] = [];
       
-      // 转换每日行程 - 修复字段名匹配
+      // 转换每日行程
       if (tripPlan.daily_plans && Array.isArray(tripPlan.daily_plans)) {
         tripPlan.daily_plans.forEach((day: any, index: number) => {
           const activities: Activity[] = [];
           
           if (day.activities && Array.isArray(day.activities)) {
             day.activities.forEach((activity: any) => {
-              // 为每个活动生成有意义的名称
-              const activityName = generateActivityName(activity);
-              
               activities.push({
-                name: activityName,
+                name: generateActivityName(activity),
                 description: activity.description || '暂无描述',
                 location: activity.location || '位置待定',
                 time: activity.time || '时间待定',
@@ -257,7 +264,6 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
             });
           }
           
-          // 只要有数据就添加到行程中
           itinerary.push({
             date: day.date || `第${index + 1}天`,
             activities
@@ -273,53 +279,19 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
       };
     }
     
-    // 处理直接的daily_itinerary结构
+    // 处理包含daily_itinerary的结构
     if (deepSeekResponse.daily_itinerary && Array.isArray(deepSeekResponse.daily_itinerary)) {
+      console.log('发现daily_itinerary格式');
       const convertedItinerary: DayPlan[] = deepSeekResponse.daily_itinerary.map((dayData: any, index: number) => {
         const activities: Activity[] = (dayData.activities || [])
-          .map((activity: any) => {
-            const activityName = generateActivityName(activity);
-            
-            return {
-              name: activityName,
-              description: activity.description || '暂无描述',
-              location: activity.location || '位置待定',
-              time: activity.time || '时间待定',
-              estimatedCost: activity.cost || activity.estimatedCost || 0,
-              transportation: activity.transportation || '交通方式待定'
-            };
-          });
-
-        return {
-          date: dayData.date || `第${index + 1}天`,
-          activities
-        };
-      });
-
-      return {
-        itinerary: convertedItinerary,
-        totalCost: deepSeekResponse.totalCost || 0,
-        recommendedGroupSize: deepSeekResponse.recommendedGroupSize || '2',
-        startDate: deepSeekResponse.startDate || new Date().toLocaleDateString('zh-CN')
-      };
-    }
-    
-    // 处理直接的itinerary格式
-    if (deepSeekResponse.itinerary && Array.isArray(deepSeekResponse.itinerary)) {
-      const convertedItinerary: DayPlan[] = deepSeekResponse.itinerary.map((dayData: any, index: number) => {
-        const activities: Activity[] = (dayData.activities || [])
-          .map((activity: any) => {
-            const activityName = generateActivityName(activity);
-            
-            return {
-              name: activityName,
-              description: activity.description || '暂无描述',
-              location: activity.location || '位置待定',
-              time: activity.time || '时间待定',
-              estimatedCost: activity.cost || activity.estimatedCost || 0,
-              transportation: activity.transportation || '交通方式待定'
-            };
-          });
+          .map((activity: any) => ({
+            name: generateActivityName(activity),
+            description: activity.description || '暂无描述',
+            location: activity.location || '位置待定',
+            time: activity.time || '时间待定',
+            estimatedCost: activity.cost || activity.estimatedCost || 0,
+            transportation: activity.transportation || '交通方式待定'
+          }));
 
         return {
           date: dayData.date || `第${index + 1}天`,
@@ -337,7 +309,7 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
     
     // 如果有textResponse字段，尝试从文本中提取行程信息
     if (deepSeekResponse.textResponse && typeof deepSeekResponse.textResponse === 'string') {
-      console.log('尝试从文本响应中提取行程信息:', deepSeekResponse.textResponse);
+      console.log('尝试从文本响应中提取行程信息');
       const extractedItinerary = extractItineraryFromText(deepSeekResponse.textResponse);
       
       if (extractedItinerary.length > 0) {
@@ -352,7 +324,7 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
     
     // 最后尝试：如果响应是字符串类型，直接解析
     if (typeof deepSeekResponse === 'string') {
-      console.log('尝试从字符串响应中提取行程信息:', deepSeekResponse);
+      console.log('尝试从字符串响应中提取行程信息');
       const extractedItinerary = extractItineraryFromText(deepSeekResponse);
       
       if (extractedItinerary.length > 0) {
@@ -365,26 +337,10 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
       }
     }
     
-    // 如果所有解析都失败，但有任何形式的内容，创建一个通用活动来显示内容
-    const responseText = deepSeekResponse.textResponse || JSON.stringify(deepSeekResponse, null, 2);
-    console.log('所有解析方式都失败，创建通用活动显示内容');
+    // 如果所有解析都失败，返回错误提示
+    console.error('无法解析AI响应格式，响应结构:', Object.keys(deepSeekResponse));
+    throw new Error('无法解析AI响应数据');
     
-    return {
-      itinerary: [{
-        date: new Date().toLocaleDateString('zh-CN'),
-        activities: [{
-          name: 'AI智能行程规划结果',
-          description: responseText.length > 500 ? responseText.substring(0, 500) + '...' : responseText,
-          location: '请查看详细描述',
-          time: '全天',
-          estimatedCost: 0,
-          transportation: '详见行程安排'
-        }]
-      }],
-      totalCost: 0,
-      recommendedGroupSize: '2',
-      startDate: new Date().toLocaleDateString('zh-CN')
-    };
   } catch (error) {
     console.error('转换DeepSeek响应时出错:', error);
     throw new Error('数据转换失败');
