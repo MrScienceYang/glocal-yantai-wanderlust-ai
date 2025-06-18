@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -96,7 +95,7 @@ const SupplierDashboard = () => {
         if (data) {
           aggregated.production.dailyCapacity += data.production.dailyCapacity;
           aggregated.production.currentProduction += data.production.currentProduction;
-          aggregated.inventory.pendingShipments += data.logistics.pendingShipments;
+          aggregated.logistics.pendingShipments += data.logistics.pendingShipments;
           aggregated.suppliers.totalSuppliers += data.suppliers.totalSuppliers;
           aggregated.suppliers.activeSuppliers += data.suppliers.activeSuppliers;
         }
