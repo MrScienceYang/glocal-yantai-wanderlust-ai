@@ -8,11 +8,12 @@ export const useAIContent = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [hasPermission, setHasPermission] = useState(false);
-  const { isVip } = useUser();
+  const { isVip, isLoggedIn } = useUser();
 
   const generateContent = async (request: ContentGenerationRequest) => {
-    if (!hasPermission && !isVip) {
-      toast.error('请先获取AI服务使用权限');
+    // 登录用户或VIP用户直接允许使用
+    if (!hasPermission && !isVip && !isLoggedIn) {
+      toast.error('请先登录或获取AI服务使用权限');
       return;
     }
 
@@ -52,7 +53,7 @@ export const useAIContent = () => {
     generateContent,
     isGenerating,
     generatedContent,
-    hasPermission,
+    hasPermission: hasPermission || isVip || isLoggedIn, // 登录用户自动获得权限
     grantPermission,
     setGeneratedContent
   };
