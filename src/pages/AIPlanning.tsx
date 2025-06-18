@@ -213,7 +213,7 @@ const AIPlanning = () => {
           heightLeft -= pdfHeight;
         }
         
-        pdf.save(`行程单-${preferences.city}.pdf`);
+        pdf.save(`行程单-${preferences.destinationCity}.pdf`);
         toast.success('PDF文件已成功导出！');
       }).catch(err => {
         console.error("导出PDF时出错:", err);
