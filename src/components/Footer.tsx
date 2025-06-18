@@ -163,9 +163,9 @@ const Footer = () => {
               <Link to="/development-milestones" className="text-gray-400 hover:text-white transition-colors">开发历程</Link>
               <Link to="/investor-relations" className="text-gray-400 hover:text-white transition-colors">投资者关系</Link>
               <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">隐私政策</Link>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">服务条款</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">关于我们</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">加入我们</a>
+              <Link to="/terms-of-service" className="text-gray-400 hover:text-white transition-colors">服务条款</Link>
+              <Link to="/about-us" className="text-gray-400 hover:text-white transition-colors">关于我们</Link>
+              <Link to="/careers" className="text-gray-400 hover:text-white transition-colors">加入我们</Link>
             </div>
           </div>
         </div>

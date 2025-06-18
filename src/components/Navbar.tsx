@@ -8,7 +8,7 @@ import NavbarUserActions from './NavbarUserActions';
 import CitySelector from './CitySelector';
 import ThemeToggle from './ThemeToggle';
 import APIKeySettings from './APIKeySettings';
-import DailyCheckIn from './DailyCheckIn';
+import { DailyCheckIn } from './DailyCheckIn';
 import UserTypeSelection from './UserTypeSelection';
 
 const Navbar = () => {
@@ -22,6 +22,10 @@ const Navbar = () => {
       // PWA安装逻辑
       window.dispatchEvent(new Event('beforeinstallprompt'));
     }
+  };
+
+  const handleAPISuccess = () => {
+    console.log('API key saved successfully');
   };
 
   return (
@@ -60,7 +64,8 @@ const Navbar = () => {
 
       <APIKeySettings 
         isOpen={isAPISettingsOpen} 
-        onClose={() => setIsAPISettingsOpen(false)} 
+        onClose={() => setIsAPISettingsOpen(false)}
+        onSuccess={handleAPISuccess}
       />
       <DailyCheckIn 
         isOpen={isCheckInOpen} 
