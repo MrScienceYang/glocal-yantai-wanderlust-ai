@@ -142,6 +142,90 @@ const generateActivityName = (activity: any): string => {
   return '行程安排';
 };
 
+// 尝试从文本中提取行程信息
+const extractItineraryFromText = (textContent: string): DayPlan[] => {
+  const itinerary: DayPlan[] = [];
+  
+  // 按天分割内容
+  const dayMatches = textContent.match(/第?\s*(\d+)\s*天[\s\S]*?(?=第?\s*\d+\s*天|$)/g);
+  
+  if (dayMatches && dayMatches.length > 0) {
+    dayMatches.forEach((dayText, index) => {
+      const activities: Activity[] = [];
+      
+      // 提取时间和活动信息
+      const timeActivityMatches = dayText.match(/(\d{1,2}[:：]\d{2})\s*[-–—]\s*(\d{1,2}[:：]\d{2})?\s*[：:]\s*([^\n\r]+)/g);
+      
+      if (timeActivityMatches) {
+        timeActivityMatches.forEach(match => {
+          const parts = match.split(/[：:]/);
+          if (parts.length >= 2) {
+            const timeInfo = parts[0].trim();
+            const activityInfo = parts.slice(1).join(':').trim();
+            
+            // 提取费用信息
+            const costMatch = activityInfo.match(/(\d+)\s*元/);
+            const cost = costMatch ? parseInt(costMatch[1]) : 0;
+            
+            activities.push({
+              name: activityInfo.length > 30 ? activityInfo.substring(0, 30) + '...' : activityInfo,
+              description: activityInfo,
+              location: '详见行程安排',
+              time: timeInfo,
+              estimatedCost: cost,
+              transportation: '根据具体情况安排'
+            });
+          }
+        });
+      }
+      
+      // 如果没有找到具体时间活动，尝试提取其他格式
+      if (activities.length === 0) {
+        const generalMatches = dayText.match(/[•·▪▫◦‣⁃]\s*([^\n\r]+)/g);
+        if (generalMatches) {
+          generalMatches.forEach(match => {
+            const activity = match.replace(/[•·▪▫◦‣⁃]\s*/, '').trim();
+            if (activity.length > 0) {
+              activities.push({
+                name: activity.length > 30 ? activity.substring(0, 30) + '...' : activity,
+                description: activity,
+                location: '详见行程安排',
+                time: '待安排',
+                estimatedCost: 0,
+                transportation: '根据具体情况安排'
+              });
+            }
+          });
+        }
+      }
+      
+      // 如果还是没有活动，使用整段文本
+      if (activities.length === 0 && dayText.length > 10) {
+        const cleanText = dayText.replace(/第?\s*\d+\s*天\s*[：:]?\s*/, '').trim();
+        if (cleanText.length > 0) {
+          activities.push({
+            name: '行程详情',
+            description: cleanText,
+            location: '详见描述',
+            time: '全天',
+            estimatedCost: 0,
+            transportation: '根据具体情况安排'
+          });
+        }
+      }
+      
+      if (activities.length > 0) {
+        itinerary.push({
+          date: `第${index + 1}天`,
+          activities
+        });
+      }
+    });
+  }
+  
+  return itinerary;
+};
+
 // 转换DeepSeek API响应为组件期望的格式
 const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan => {
   console.log('开始转换DeepSeek响应:', deepSeekResponse);
@@ -251,18 +335,50 @@ const convertDeepSeekResponseToTravelPlan = (deepSeekResponse: any): TravelPlan 
       };
     }
     
-    // 如果响应格式不匹配，返回默认结构
-    console.warn('DeepSeek响应格式不匹配，使用默认结构');
+    // 如果有textResponse字段，尝试从文本中提取行程信息
+    if (deepSeekResponse.textResponse && typeof deepSeekResponse.textResponse === 'string') {
+      console.log('尝试从文本响应中提取行程信息:', deepSeekResponse.textResponse);
+      const extractedItinerary = extractItineraryFromText(deepSeekResponse.textResponse);
+      
+      if (extractedItinerary.length > 0) {
+        return {
+          itinerary: extractedItinerary,
+          totalCost: 0,
+          recommendedGroupSize: '2',
+          startDate: new Date().toLocaleDateString('zh-CN')
+        };
+      }
+    }
+    
+    // 最后尝试：如果响应是字符串类型，直接解析
+    if (typeof deepSeekResponse === 'string') {
+      console.log('尝试从字符串响应中提取行程信息:', deepSeekResponse);
+      const extractedItinerary = extractItineraryFromText(deepSeekResponse);
+      
+      if (extractedItinerary.length > 0) {
+        return {
+          itinerary: extractedItinerary,
+          totalCost: 0,
+          recommendedGroupSize: '2',
+          startDate: new Date().toLocaleDateString('zh-CN')
+        };
+      }
+    }
+    
+    // 如果所有解析都失败，但有任何形式的内容，创建一个通用活动来显示内容
+    const responseText = deepSeekResponse.textResponse || JSON.stringify(deepSeekResponse, null, 2);
+    console.log('所有解析方式都失败，创建通用活动显示内容');
+    
     return {
       itinerary: [{
         date: new Date().toLocaleDateString('zh-CN'),
         activities: [{
-          name: 'AI生成的行程安排',
-          description: deepSeekResponse.textResponse || '已收到AI生成的行程信息，请查看详细内容',
-          location: '目标城市',
+          name: 'AI智能行程规划结果',
+          description: responseText.length > 500 ? responseText.substring(0, 500) + '...' : responseText,
+          location: '请查看详细描述',
           time: '全天',
           estimatedCost: 0,
-          transportation: '待定'
+          transportation: '详见行程安排'
         }]
       }],
       totalCost: 0,
