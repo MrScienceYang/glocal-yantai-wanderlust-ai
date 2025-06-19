@@ -23,6 +23,12 @@ import PartnerDashboard from './pages/PartnerDashboard';
 import SupplierDashboard from './pages/SupplierDashboard';
 import SupplierUploadProduct from './pages/SupplierUploadProduct';
 import PaymentPlanAdjustment from './pages/PaymentPlanAdjustment';
+import DevelopmentMilestones from './pages/DevelopmentMilestones';
+import InvestorRelations from './pages/InvestorRelations';
+import AboutUs from './pages/AboutUs';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Careers from './pages/Careers';
 
 function App() {
   return (
@@ -52,6 +58,12 @@ function App() {
                 <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
                 <Route path="/supplier-upload-product" element={<SupplierUploadProduct />} />
                 <Route path="/payment-plan-adjustment" element={<PaymentPlanAdjustment />} />
+                <Route path="/development-milestones" element={<DevelopmentMilestones />} />
+                <Route path="/investor-relations" element={<InvestorRelations />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/careers" element={<Careers />} />
               </Routes>
             </Router>
           </CartProvider>
