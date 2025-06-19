@@ -16,6 +16,7 @@ import Tickets from './pages/Tickets';
 import LocalExperts from './pages/LocalExperts';
 import Community from './pages/Community';
 import Membership from './pages/Membership';
+import Login from './pages/Login';
 import PartnerHub from './pages/PartnerHub';
 import PartnerLogin from './pages/PartnerLogin';
 import PartnerDashboard from './pages/PartnerDashboard';
@@ -44,6 +45,7 @@ function App() {
                 <Route path="/mystery-box" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-2xl">盲盒旅行页面开发中...</h1></div>} />
                 <Route path="/community" element={<Community />} />
                 <Route path="/membership" element={<Membership />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/partner-hub" element={<PartnerHub />} />
                 <Route path="/partner-login" element={<PartnerLogin />} />
                 <Route path="/partner-dashboard" element={<PartnerDashboard />} />
