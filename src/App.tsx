@@ -9,6 +9,10 @@ import { CartProvider } from './components/CartProvider';
 import PWASplashScreen from './components/PWASplashScreen';
 import Index from './pages/Index';
 import AIPlanning from './pages/AIPlanning';
+import Flights from './pages/Flights';
+import Trains from './pages/Trains';
+import Hotels from './pages/Hotels';
+import Tickets from './pages/Tickets';
 import PartnerHub from './pages/PartnerHub';
 import PartnerLogin from './pages/PartnerLogin';
 import PartnerDashboard from './pages/PartnerDashboard';
@@ -28,6 +32,10 @@ function App() {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/ai-planning" element={<AIPlanning />} />
+                <Route path="/flights" element={<Flights />} />
+                <Route path="/trains" element={<Trains />} />
+                <Route path="/hotels" element={<Hotels />} />
+                <Route path="/tickets" element={<Tickets />} />
                 <Route path="/partner-hub" element={<PartnerHub />} />
                 <Route path="/partner-login" element={<PartnerLogin />} />
                 <Route path="/partner-dashboard" element={<PartnerDashboard />} />
