@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -195,10 +196,10 @@ const AIPlanning = () => {
                 </div>
               </div>
               <div>
-                <Label htmlFor="interests">兴趣爱好</Label>
+                <Label htmlFor="interests">出发地点</Label>
                 <Textarea
                   id="interests"
-                  placeholder="例如：历史古迹、自然风光、美食、购物"
+                  placeholder="例如：北京市朝阳区、上海市浦东新区、广州市天河区"
                   value={preferences.interests}
                   onChange={(e) => setPreferences({ ...preferences, interests: e.target.value })}
                 />
