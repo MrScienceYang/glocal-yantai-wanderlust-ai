@@ -3,7 +3,7 @@ import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trophy, FileText, Users, Building, Scale, Heart, ArrowRight } from 'lucide-react';
+import { Trophy, FileText, Users, Building, Scale, Heart, ArrowRight, Target, Award, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const InnovationCompetition = () => {
@@ -18,13 +18,13 @@ const InnovationCompetition = () => {
               <h1 className="text-5xl font-bold">创赛专区</h1>
             </div>
             <p className="text-xl leading-relaxed mb-8">
-              汇聚创新力量，连接投资资源，助力创业梦想实现
+              Glocal参与中国大学生创新创业大赛，展示我们的创新成果与发展历程
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">创新创业</span>
-              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">投资对接</span>
-              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">资源整合</span>
-              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">商业孵化</span>
+              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">参赛项目</span>
+              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">创新模式</span>
+              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">技术优势</span>
+              <span className="px-4 py-2 bg-white/20 rounded-full text-sm">商业价值</span>
             </div>
           </div>
         </div>
@@ -32,7 +32,7 @@ const InnovationCompetition = () => {
         <div className="max-w-6xl mx-auto px-4 py-16">
           {/* 快速导航 */}
           <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">快速导航</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">项目资料</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <Button asChild variant="outline" className="h-20 flex-col">
                 <Link to="/development-milestones">
@@ -78,24 +78,24 @@ const InnovationCompetition = () => {
             </div>
           </section>
 
-          {/* 创新大赛介绍 */}
+          {/* 参赛项目介绍 */}
           <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Glocal创新创业大赛</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">Glocal创新创业项目</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Trophy className="h-6 w-6 text-yellow-500 mr-2" />
-                    大赛亮点
+                    <Lightbulb className="h-6 w-6 text-yellow-500 mr-2" />
+                    项目创新点
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 text-gray-600">
-                    <li>• 🏆 总奖金池100万元，助力优秀项目快速发展</li>
-                    <li>• 🚀 一对一投资对接，直通知名投资机构</li>
-                    <li>• 🌟 专业导师团队，提供全程创业指导</li>
-                    <li>• 📈 平台资源支持，助力项目快速孵化</li>
-                    <li>• 🤝 产业合作机会，实现商业价值转化</li>
+                    <li>• 🤖 AI智能行程规划，个性化旅游体验</li>
+                    <li>• 🏘️ 本地达人服务模式，深度文化体验</li>
+                    <li>• 🛍️ 预制菜+文创产品一体化销售</li>
+                    <li>• 📱 多平台集成的本地化服务生态</li>
+                    <li>• 🎁 盲盒旅行创新玩法</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -103,41 +103,77 @@ const InnovationCompetition = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Users className="h-6 w-6 text-blue-500 mr-2" />
-                    参赛对象
+                    <Target className="h-6 w-6 text-blue-500 mr-2" />
+                    商业模式
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 text-gray-600">
-                    <li>• 🎓 高校大学生创新创业团队</li>
-                    <li>• 💼 初创企业和小微企业</li>
-                    <li>• 🔬 科研院所技术转化项目</li>
-                    <li>• 🌐 互联网+旅游创新项目</li>
-                    <li>• 🤖 AI技术应用创新项目</li>
+                    <li>• 💰 服务佣金：达人服务、票务预订</li>
+                    <li>• 🛒 产品销售：预制菜、文创产品</li>
+                    <li>• 👑 会员订阅：VIP服务与专属权益</li>
+                    <li>• 🤝 B端合作：供应商入驻、广告投放</li>
+                    <li>• 📊 数据价值：用户画像、市场洞察</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Award className="h-6 w-6 text-green-500 mr-2" />
+                    技术优势
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 text-gray-600">
+                    <li>• 🧠 多语言AI智能推荐算法</li>
+                    <li>• 🌐 跨平台技术架构</li>
+                    <li>• 📍 精准地理位置服务</li>
+                    <li>• 💳 完整的支付与物流体系</li>
+                    <li>• 📈 大数据分析与用户画像</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Trophy className="h-6 w-6 text-purple-500 mr-2" />
+                    市场前景
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 text-gray-600">
+                    <li>• 📊 本地旅游市场规模持续增长</li>
+                    <li>• 🍜 预制菜市场年增长率超30%</li>
+                    <li>• 👥 个性化服务需求日益增加</li>
+                    <li>• 🌍 文旅融合国家政策支持</li>
+                    <li>• 💡 AI+旅游创新模式领先</li>
                   </ul>
                 </CardContent>
               </Card>
             </div>
           </section>
 
-          {/* 行动号召 */}
+          {/* 参赛成果展示 */}
           <section className="text-center">
             <Card className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white">
               <CardContent className="p-12">
-                <h3 className="text-3xl font-bold mb-6">开启您的创业之旅</h3>
+                <h3 className="text-3xl font-bold mb-6">参赛成果与愿景</h3>
                 <p className="text-xl mb-8 opacity-90">
-                  加入Glocal创新生态，与行业领袖共创未来
+                  通过参与中国大学生创新创业大赛，展示Glocal的创新能力与商业价值
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100">
                     <Link to="/investor-relations" className="flex items-center">
-                      投资者入口
+                      查看投资信息
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20">
-                    <Link to="/careers" className="flex items-center">
-                      人才招聘
+                    <Link to="/about-us" className="flex items-center">
+                      了解团队
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
