@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { MapPin, Calendar, Users, DollarSign, Sparkles, Download, Share2, Clock, Star, Award, Globe, Brain, Zap, FileText } from 'lucide-react';
+import { MapPin, Calendar, Users, DollarSign, Sparkles, Download, Share2, Clock, Globe, Brain, Zap, FileText } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import { useAIPlanning } from '@/hooks/useAIPlanning';
@@ -31,7 +31,6 @@ const AIPlanning = () => {
   });
   const [showPlan, setShowPlan] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
-  const [showThinking, setShowThinking] = useState(false);
 
   useEffect(() => {
     setPreferences(prev => ({
@@ -43,15 +42,33 @@ const AIPlanning = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!preferences.departure || !preferences.interests || !preferences.budget || !preferences.duration || !preferences.groupSize || !preferences.travelStyle) {
-      toast.error('请填写所有偏好设置');
+    
+    // 验证必填字段
+    const requiredFields = [
+      { field: preferences.departure, name: '出发地点' },
+      { field: preferences.interests, name: '旅行偏好' },
+      { field: preferences.budget, name: '预算范围' },
+      { field: preferences.duration, name: '旅行天数' },
+      { field: preferences.groupSize, name: '出行人数' },
+      { field: preferences.travelStyle, name: '旅行风格' }
+    ];
+
+    const missingFields = requiredFields.filter(item => !item.field?.trim());
+    
+    if (missingFields.length > 0) {
+      toast.error(`请填写：${missingFields.map(item => item.name).join('、')}`);
       return;
     }
+
+    console.log('提交AI规划请求:', preferences);
     
-    setShowThinking(true);
-    await generatePlan(preferences);
-    setShowPlan(true);
-    setShowThinking(false);
+    try {
+      await generatePlan(preferences);
+      setShowPlan(true);
+    } catch (error) {
+      console.error('生成计划失败:', error);
+      toast.error('生成计划失败，请稍后重试');
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -99,58 +116,36 @@ const AIPlanning = () => {
     grantPermission();
   };
 
-  // 安全格式化总费用显示
-  const formatTotalCost = (totalCost: any): string => {
-    try {
-      if (typeof totalCost === 'string') {
-        return totalCost.includes('元') ? totalCost : `${totalCost}元`;
-      }
-      if (typeof totalCost === 'number') {
-        return `${totalCost}元`;
-      }
-      if (typeof totalCost === 'object' && totalCost !== null) {
-        // 尝试提取对象中的总计字段
-        const total = totalCost['总计'] || totalCost.total || totalCost['总费用'] || totalCost.totalCost;
-        if (total !== undefined) {
-          return typeof total === 'number' || typeof total === 'string' ? `${total}元` : '费用详见计划';
-        }
-        return '费用详见计划';
-      }
-      return '费用详见计划';
-    } catch (error) {
-      console.error('格式化费用时出错:', error);
-      return '费用详见计划';
-    }
-  };
-
   // 安全渲染文本内容
   const safeRenderText = (text: any): string => {
+    if (text === null || text === undefined) return '';
     if (typeof text === 'string') return text;
     if (typeof text === 'number') return String(text);
-    if (text === null || text === undefined) return '';
     if (typeof text === 'object') return JSON.stringify(text);
     return String(text);
   };
 
-  // If user doesn't have permission and hasn't granted it yet, show permission check
+  // 格式化费用显示
+  const formatCost = (cost: any): string => {
+    if (typeof cost === 'number') return `${cost}元`;
+    if (typeof cost === 'string') return cost.includes('元') ? cost : `${cost}元`;
+    return '费用待定';
+  };
+
+  // 如果没有权限且未授权，显示权限检查
   if (!hasPermission && !permissionGranted) {
     return (
       <Layout>
         <div className="max-w-5xl mx-auto px-4 py-8">
-          {/* 英雄区域 */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">AI 智能旅行规划</h1>
             <p className="text-gray-600">
               {selectedCountry === '中国' ? '探索国内的无限可能，让AI为您量身定制完美行程。' : '开启国际旅行，AI智能规划您的每一步。'}
             </p>
           </div>
-
-          {/* 移动端出行服务快捷入口 */}
           <div className="md:hidden mb-8">
             <MobileTravelHub />
           </div>
-
-          {/* AI权限检查 */}
           <AIPermissionCheck onPermissionGranted={handlePermissionGranted} />
         </div>
       </Layout>
@@ -160,7 +155,7 @@ const AIPlanning = () => {
   return (
     <Layout>
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* 英雄区域 */}
+        {/* 页面标题 */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">AI 智能旅行规划</h1>
           <p className="text-gray-600">
@@ -168,27 +163,27 @@ const AIPlanning = () => {
           </p>
         </div>
 
-        {/* 移动端出行服务快捷入口 */}
+        {/* 移动端快捷入口 */}
         <div className="md:hidden mb-8">
           <MobileTravelHub />
         </div>
 
         {/* AI思考过程展示 */}
-        {showThinking && thinkingProcess && (
+        {thinkingProcess && (
           <Card className="mb-8 border-blue-200 bg-blue-50">
             <CardHeader>
               <CardTitle className="flex items-center text-blue-700">
-                <Brain className="mr-2 h-5 w-5 animate-pulse" />
+                <Brain className="mr-2 h-5 w-5" />
                 AI推理过程
               </CardTitle>
               <CardDescription className="text-blue-600">
-                观察AI如何一步步分析您的需求并制定旅行计划
+                观察AI如何分析您的需求并制定旅行计划
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="bg-white rounded-lg p-4 border border-blue-200">
                 <div className="flex items-start space-x-3">
-                  <Zap className="h-5 w-5 text-blue-500 mt-1 animate-bounce" />
+                  <Zap className="h-5 w-5 text-blue-500 mt-1" />
                   <div className="text-sm text-gray-700 whitespace-pre-line">
                     {safeRenderText(thinkingProcess)}
                   </div>
@@ -198,7 +193,7 @@ const AIPlanning = () => {
           </Card>
         )}
 
-        {/* 偏好设置 */}
+        {/* 偏好设置表单 */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -208,7 +203,8 @@ const AIPlanning = () => {
             <CardDescription>告诉我们您的旅行偏好，AI将为您生成个性化行程。</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="grid gap-4">
+            <form onSubmit={handleSubmit} className="grid gap-6">
+              {/* 目的地信息 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="country">国家</Label>
@@ -217,6 +213,7 @@ const AIPlanning = () => {
                     id="country"
                     value={preferences.country}
                     disabled
+                    className="bg-gray-50"
                   />
                 </div>
                 <div>
@@ -226,89 +223,115 @@ const AIPlanning = () => {
                     id="city"
                     value={preferences.city}
                     disabled
+                    className="bg-gray-50"
                   />
                 </div>
               </div>
+
+              {/* 出发地点 */}
               <div>
-                <Label htmlFor="departure">出发地点</Label>
+                <Label htmlFor="departure">出发地点 *</Label>
                 <Input
                   type="text"
                   id="departure"
                   placeholder="例如：北京市朝阳区、上海市浦东新区、广州市天河区"
                   value={preferences.departure}
                   onChange={(e) => setPreferences({ ...preferences, departure: e.target.value })}
+                  required
                 />
               </div>
+
+              {/* 旅行偏好 */}
               <div>
-                <Label htmlFor="interests">旅行偏好</Label>
+                <Label htmlFor="interests">旅行偏好 *</Label>
                 <Textarea
                   id="interests"
                   placeholder="例如：喜欢历史文化景点、偏爱自然风光、热爱美食体验、享受休闲度假等"
                   value={preferences.interests}
                   onChange={(e) => setPreferences({ ...preferences, interests: e.target.value })}
+                  rows={3}
+                  required
                 />
               </div>
+
+              {/* 基本信息 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="budget">预算范围 (元)</Label>
+                  <Label htmlFor="budget">预算范围 (元) *</Label>
                   <Input
                     type="number"
                     id="budget"
                     placeholder="例如：5000"
                     value={preferences.budget}
                     onChange={(e) => setPreferences({ ...preferences, budget: e.target.value })}
+                    min="100"
+                    required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="duration">旅行天数</Label>
+                  <Label htmlFor="duration">旅行天数 *</Label>
                   <Input
                     type="number"
                     id="duration"
                     placeholder="例如：3"
                     value={preferences.duration}
                     onChange={(e) => setPreferences({ ...preferences, duration: e.target.value })}
+                    min="1"
+                    max="30"
+                    required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="groupSize">人数</Label>
+                  <Label htmlFor="groupSize">出行人数 *</Label>
                   <Input
                     type="number"
                     id="groupSize"
                     placeholder="例如：2"
                     value={preferences.groupSize}
                     onChange={(e) => setPreferences({ ...preferences, groupSize: e.target.value })}
+                    min="1"
+                    max="20"
+                    required
                   />
                 </div>
               </div>
+
+              {/* 旅行风格 */}
               <div>
-                <Label htmlFor="travelStyle">旅行风格</Label>
+                <Label htmlFor="travelStyle">旅行风格 *</Label>
                 <select
                   id="travelStyle"
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={preferences.travelStyle}
                   onChange={(e) => setPreferences({ ...preferences, travelStyle: e.target.value })}
+                  required
                 >
-                  <option value="">选择旅行风格</option>
-                  <option value="休闲度假">休闲度假</option>
-                  <option value="深度文化">深度文化</option>
-                  <option value="冒险探索">冒险探索</option>
-                  <option value="美食之旅">美食之旅</option>
-                  <option value="亲子游">亲子游</option>
-                  <option value="说走就走">说走就走</option>
-                  <option value="酒店爱好者">酒店爱好者</option>
-                  <option value="飞友">飞友</option>
+                  <option value="">请选择旅行风格</option>
+                  <option value="休闲度假">休闲度假 - 轻松惬意，注重享受</option>
+                  <option value="深度文化">深度文化 - 探索历史，体验文化</option>
+                  <option value="冒险探索">冒险探索 - 挑战刺激，户外活动</option>
+                  <option value="美食之旅">美食之旅 - 品尝美食，体验当地</option>
+                  <option value="亲子游">亲子游 - 家庭出行，寓教于乐</option>
+                  <option value="说走就走">说走就走 - 自由随性，灵活安排</option>
                 </select>
               </div>
-              <Button type="submit" className="gradient-ocean text-white" disabled={isLoading}>
+
+              {/* 提交按钮 */}
+              <Button 
+                type="submit" 
+                className="gradient-ocean text-white" 
+                disabled={isLoading}
+                size="lg"
+              >
                 {isLoading ? (
                   <>
                     <Clock className="mr-2 h-4 w-4 animate-spin" />
-                    生成中...
+                    AI正在规划中...
                   </>
                 ) : (
                   <>
                     <MapPin className="mr-2 h-4 w-4" />
-                    生成旅行计划
+                    生成AI旅行计划
                   </>
                 )}
               </Button>
@@ -328,43 +351,62 @@ const AIPlanning = () => {
                 {safeRenderText(selectedCountry)} {safeRenderText(selectedCity)} {safeRenderText(preferences.duration)}日游
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2 mb-4">
-                <Badge variant="secondary">
+            <CardContent className="space-y-6">
+              {/* 计划概览 */}
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <Badge variant="secondary" className="text-sm">
                   <Calendar className="mr-1 h-4 w-4" />
                   {safeRenderText(plan.startDate)}
                 </Badge>
-                <Badge variant="secondary">
+                <Badge variant="secondary" className="text-sm">
                   <Users className="mr-1 h-4 w-4" />
                   {safeRenderText(plan.recommendedGroupSize)}人
                 </Badge>
-                <Badge variant="secondary">
+                <Badge variant="secondary" className="text-sm">
                   <DollarSign className="mr-1 h-4 w-4" />
-                  {formatTotalCost(plan.totalCost)}
+                  {formatCost(plan.totalCost)}
                 </Badge>
               </div>
-              {plan.itinerary && Array.isArray(plan.itinerary) && plan.itinerary.map((day, index) => (
-                <div key={index} className="border rounded-md p-4">
-                  <h3 className="text-xl font-bold mb-2">
-                    第{index + 1}天：{safeRenderText(day.date)}
-                  </h3>
-                  <ul className="list-disc pl-5">
-                    {day.activities && Array.isArray(day.activities) && day.activities.map((activity, i) => (
-                      <li key={i} className="mb-2">
-                        <div className="font-medium">{safeRenderText(activity.name)}</div>
-                        <div className="text-sm text-gray-500">
-                          {safeRenderText(activity.time)} - {safeRenderText(activity.location)}
+
+              {/* 每日行程 */}
+              <div className="space-y-6">
+                {plan.itinerary && Array.isArray(plan.itinerary) && plan.itinerary.map((day, index) => (
+                  <div key={index} className="border rounded-lg p-6 bg-gray-50">
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">
+                      {safeRenderText(day.date)}
+                    </h3>
+                    <div className="space-y-4">
+                      {day.activities && Array.isArray(day.activities) && day.activities.map((activity, i) => (
+                        <div key={i} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-semibold text-lg text-gray-800">
+                              {safeRenderText(activity.name)}
+                            </h4>
+                            <span className="text-sm text-gray-600 bg-blue-100 px-2 py-1 rounded">
+                              {safeRenderText(activity.time)}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 mb-2">
+                            📍 {safeRenderText(activity.location)}
+                          </p>
+                          <p className="text-gray-700 mb-3">
+                            {safeRenderText(activity.description)}
+                          </p>
+                          <div className="flex justify-between items-center text-sm text-gray-600">
+                            <span>🚗 {safeRenderText(activity.transportation)}</span>
+                            <span className="font-medium text-green-600">
+                              💰 {formatCost(activity.estimatedCost)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-gray-700">{safeRenderText(activity.description)}</div>
-                        <div className="text-sm text-gray-500">
-                          交通方式：{safeRenderText(activity.transportation)}，预计费用：{safeRenderText(activity.estimatedCost)}元
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-              <div className="flex justify-between">
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 操作按钮 */}
+              <div className="flex justify-between pt-6 border-t">
                 <Button variant="outline" onClick={handleDownloadPDF}>
                   <FileText className="mr-2 h-4 w-4" />
                   下载PDF

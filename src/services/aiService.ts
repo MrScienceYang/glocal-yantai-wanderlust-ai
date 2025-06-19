@@ -4,31 +4,20 @@ export class AIService {
   private baseUrl = 'https://api.deepseek.com/v1/chat/completions';
 
   constructor() {
-    // DeepSeek API密钥已配置
-    console.log('DeepSeek API已初始化，测试连接中...');
-    // 自动测试连接
-    this.testConnection().then(success => {
-      if (success) {
-        console.log('DeepSeek API连接成功');
-      } else {
-        console.error('DeepSeek API连接失败，将使用本地模拟数据');
-      }
-    });
+    console.log('DeepSeek AI服务已初始化');
   }
 
   setApiKey(apiKey: string) {
     this.apiKey = apiKey;
-    console.log('DeepSeek API密钥已更新');
+    console.log('API密钥已更新');
   }
 
   getApiKey(): string | null {
     return this.apiKey;
   }
 
-  // 测试API连接
   async testConnection(): Promise<boolean> {
     try {
-      console.log('正在测试DeepSeek API连接...');
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -37,154 +26,57 @@ export class AIService {
         },
         body: JSON.stringify({
           model: 'deepseek-chat',
-          messages: [
-            {
-              role: 'user',
-              content: '请回复"API连接成功"来测试连接。'
-            }
-          ],
-          max_tokens: 50
+          messages: [{ role: 'user', content: '测试连接' }],
+          max_tokens: 10
         })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('DeepSeek API测试成功:', data.choices[0].message.content);
-        return true;
-      } else {
-        const errorData = await response.json();
-        console.error('DeepSeek API测试失败:', response.status, errorData);
-        return false;
-      }
+      return response.ok;
     } catch (error) {
-      console.error('DeepSeek API连接错误:', error);
+      console.error('连接测试失败:', error);
       return false;
     }
   }
 
-  // 模拟AI响应数据
-  private getMockItinerary(preferences: any) {
-    return {
-      itinerary: [
-        {
-          day: 1,
-          activities: [
-            {
-              time: "09:00",
-              activity: "抵达烟台蓬莱国际机场",
-              location: "蓬莱国际机场",
-              description: "建议乘坐机场大巴前往市区",
-              cost: 25,
-              transportation: "机场大巴"
-            },
-            {
-              time: "11:00",
-              activity: "入住酒店",
-              location: "烟台希尔顿酒店",
-              description: "豪华海景房，可欣赏渤海美景",
-              cost: 680,
-              type: "住宿"
-            },
-            {
-              time: "14:00",
-              activity: "游览蓬莱阁",
-              location: "蓬莱阁景区",
-              description: "中国古代四大名楼之一，体验八仙过海传说",
-              cost: 120,
-              type: "景点"
-            },
-            {
-              time: "18:00",
-              activity: "品尝海鲜大餐",
-              location: "渔人码头海鲜城",
-              description: "新鲜的烟台海参、扇贝、海胆",
-              cost: 280,
-              type: "餐饮"
-            }
-          ]
-        },
-        {
-          day: 2,
-          activities: [
-            {
-              time: "08:00",
-              activity: "早餐",
-              location: "酒店自助餐厅",
-              description: "丰富的中西式早餐",
-              cost: 80,
-              type: "餐饮"
-            },
-            {
-              time: "09:30",
-              activity: "参观张裕酒文化博物馆",
-              location: "张裕酒文化博物馆",
-              description: "了解中国葡萄酒发展历史，品酒体验",
-              cost: 50,
-              type: "景点"
-            },
-            {
-              time: "14:00",
-              activity: "游览养马岛",
-              location: "养马岛旅游度假区",
-              description: "素有'东方夏威夷'之美称",
-              cost: 60,
-              type: "景点"
-            }
-          ]
-        }
-      ],
-      totalCost: 1295,
-      recommendedGroupSize: preferences.groupSize || 2,
-      summary: "精心为您定制的2日烟台深度游，包含历史文化、自然风光和美食体验"
-    };
-  }
-
-  private getMockRecommendation(userProfile: any) {
-    return `基于您的偏好，为您推荐以下本地达人：
-
-**王师傅 - 资深摄影向导**
-- 专长：海滨风光摄影、人文纪实
-- 适合原因：擅长捕捉烟台最美海景，10年摄影经验
-- 服务内容：全天陪同拍摄、景点讲解、修图服务
-- 价格：300元/天
-
-**李小姐 - 美食探店达人**
-- 专长：本地美食推荐、隐藏小店
-- 适合原因：土生土长烟台人，熟知地道美食
-- 服务内容：美食路线规划、陪同用餐、文化介绍
-- 价格：200元/半天
-
-**张导 - 历史文化专家**
-- 专长：烟台历史文化、古建筑讲解
-- 适合原因：文史专业背景，讲解生动有趣
-- 服务内容：景点深度讲解、文化背景介绍
-- 价格：250元/天`;
-  }
-
   async generateItinerary(preferences: any): Promise<any> {
-    const prompt = `
-    作为一个资深的行程规划师，现在请根据用户提供的信息，精准的生成符合用户需求的出行方案，需要提供具体的车次与费用、下榻酒店与推荐房型规划及费用、到达地交通方式规划与费用。
+    console.log('开始生成行程，参数:', preferences);
     
-    用户偏好：
-    - 兴趣爱好：${preferences.interests}
-    - 预算范围：${preferences.budget}元
-    - 旅行天数：${preferences.duration}
-    - 人数：${preferences.groupSize}
-    - 旅行风格：${preferences.travelStyle}
-    - 出发地：${preferences.departure || '北京'}
-    - 目的地：${preferences.destination || preferences.city}
-    - 出发时间：${preferences.departureTime || '未指定'}
-    - 返程时间：${preferences.returnTime || '未指定'}
-    
-    请生成一个JSON格式的行程规划，包含：
-    1. 每天的详细活动安排
-    2. 每个活动的时间、地点、描述和预估费用
-    3. 交通方式和住宿安排
-    4. 总预算和推荐人数
-    `;
+    const prompt = `请为以下旅行计划生成详细的行程安排：
+
+目的地：${preferences.destination}
+出发地：${preferences.departure}
+兴趣偏好：${preferences.interests}
+预算范围：${preferences.budget}元
+旅行天数：${preferences.duration}天
+出行人数：${preferences.groupSize}人
+旅行风格：${preferences.travelStyle}
+
+请生成JSON格式的行程规划，包含每天的具体活动安排、时间、地点、描述、预估费用和交通方式。
+
+返回格式示例：
+{
+  "itinerary": [
+    {
+      "date": "第1天",
+      "activities": [
+        {
+          "name": "活动名称",
+          "description": "活动描述",
+          "location": "具体地点",
+          "time": "时间安排",
+          "cost": 费用数字,
+          "transportation": "交通方式"
+        }
+      ]
+    }
+  ],
+  "totalCost": 总费用数字,
+  "recommendedGroupSize": "推荐人数",
+  "startDate": "开始日期"
+}`;
 
     try {
-      console.log('发送AI请求，使用模型: deepseek-chat，API密钥长度:', this.apiKey.length);
+      console.log('发送API请求到DeepSeek...');
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -196,7 +88,7 @@ export class AIService {
           messages: [
             {
               role: 'system',
-              content: '你是一个专业的旅游行程规划师，请根据用户需求生成详细的行程规划。'
+              content: '你是一个专业的旅游行程规划师。请生成详细、实用的旅行计划，确保返回有效的JSON格式数据。'
             },
             {
               role: 'user',
@@ -208,53 +100,73 @@ export class AIService {
         })
       });
 
-      console.log('DeepSeek API响应状态:', response.status);
+      console.log('API响应状态:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('DeepSeek API请求失败:', response.status, errorData);
-        console.log('API密钥前10位:', this.apiKey.substring(0, 10));
-        throw new Error(`API请求失败: ${response.status} - ${errorData.error?.message || '未知错误'}`);
+        console.error('API请求失败:', errorData);
+        throw new Error(`API请求失败: ${response.status}`);
       }
 
       const data = await response.json();
-      const content = data.choices[0].message.content;
-      console.log('AI响应成功，内容长度:', content.length);
-      console.log('AI响应原始内容:', content);
+      const content = data.choices[0]?.message?.content;
       
-      // 尝试解析JSON响应
+      console.log('API响应内容:', content);
+
+      if (!content) {
+        throw new Error('API响应内容为空');
+      }
+
+      // 尝试解析JSON
       try {
-        // 如果内容包含```json标记，提取JSON部分
         let jsonContent = content;
-        if (content.includes('```json')) {
-          const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
-          if (jsonMatch) {
-            jsonContent = jsonMatch[1];
-          }
-        } else if (content.includes('```')) {
-          const jsonMatch = content.match(/```\s*([\s\S]*?)\s*```/);
-          if (jsonMatch) {
-            jsonContent = jsonMatch[1];
-          }
-        }
         
-        console.log('提取的JSON内容:', jsonContent);
-        const parsedResponse = JSON.parse(jsonContent);
-        console.log('解析成功的JSON:', parsedResponse);
-        return parsedResponse;
+        // 清理JSON内容
+        if (content.includes('```json')) {
+          const match = content.match(/```json\s*([\s\S]*?)\s*```/);
+          if (match) jsonContent = match[1];
+        } else if (content.includes('```')) {
+          const match = content.match(/```\s*([\s\S]*?)\s*```/);
+          if (match) jsonContent = match[1];
+        }
+
+        // 清理可能的前后空白字符和注释
+        jsonContent = jsonContent.trim();
+        
+        const parsedData = JSON.parse(jsonContent);
+        console.log('成功解析JSON:', parsedData);
+        return parsedData;
+        
       } catch (parseError) {
-        console.error('JSON解析失败:', parseError, '原始内容:', content);
-        // 如果解析失败，返回格式化的文本响应
+        console.error('JSON解析失败:', parseError);
+        console.log('原始内容:', content);
+        
+        // 返回基础结构的模拟数据
         return {
-          textResponse: content,
-          itinerary: this.getMockItinerary(preferences).itinerary,
-          totalCost: this.getMockItinerary(preferences).totalCost,
-          recommendedGroupSize: preferences.groupSize
+          itinerary: [
+            {
+              date: `第1天`,
+              activities: [
+                {
+                  name: '开始您的旅程',
+                  description: content.substring(0, 100) + '...',
+                  location: preferences.destination,
+                  time: '全天',
+                  cost: 0,
+                  transportation: '根据实际情况安排'
+                }
+              ]
+            }
+          ],
+          totalCost: 0,
+          recommendedGroupSize: preferences.groupSize,
+          startDate: new Date().toLocaleDateString('zh-CN')
         };
       }
+      
     } catch (error) {
-      console.error('DeepSeek AI服务错误:', error);
-      throw error; // 抛出错误让调用方处理
+      console.error('AI行程生成错误:', error);
+      throw error;
     }
   }
 
@@ -307,6 +219,22 @@ export class AIService {
       console.error('DeepSeek推荐服务错误，使用模拟数据:', error);
       return this.getMockRecommendation(userProfile);
     }
+  }
+
+  private getMockRecommendation(userProfile: any) {
+    return `基于您的偏好，为您推荐以下本地达人：
+
+**王师傅 - 资深摄影向导**
+- 专长：海滨风光摄影、人文纪实
+- 适合原因：擅长捕捉烟台最美海景，10年摄影经验
+- 服务内容：全天陪同拍摄、景点讲解、修图服务
+- 价格：300元/天
+
+**李小姐 - 美食探店达人**
+- 专长：本地美食推荐、隐藏小店
+- 适合原因：土生土长烟台人，熟知地道美食
+- 服务内容：美食路线规划、陪同用餐、文化介绍
+- 价格：200元/半天`;
   }
 }
 
