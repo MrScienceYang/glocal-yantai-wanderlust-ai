@@ -13,6 +13,9 @@ import Flights from './pages/Flights';
 import Trains from './pages/Trains';
 import Hotels from './pages/Hotels';
 import Tickets from './pages/Tickets';
+import LocalExperts from './pages/LocalExperts';
+import Community from './pages/Community';
+import Membership from './pages/Membership';
 import PartnerHub from './pages/PartnerHub';
 import PartnerLogin from './pages/PartnerLogin';
 import PartnerDashboard from './pages/PartnerDashboard';
@@ -36,6 +39,11 @@ function App() {
                 <Route path="/trains" element={<Trains />} />
                 <Route path="/hotels" element={<Hotels />} />
                 <Route path="/tickets" element={<Tickets />} />
+                <Route path="/local-experts" element={<LocalExperts />} />
+                <Route path="/shop" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-2xl">特色商城页面开发中...</h1></div>} />
+                <Route path="/mystery-box" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-2xl">盲盒旅行页面开发中...</h1></div>} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/membership" element={<Membership />} />
                 <Route path="/partner-hub" element={<PartnerHub />} />
                 <Route path="/partner-login" element={<PartnerLogin />} />
                 <Route path="/partner-dashboard" element={<PartnerDashboard />} />
