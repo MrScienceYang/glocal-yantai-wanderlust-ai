@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -29,6 +30,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Careers from './pages/Careers';
 import InnovationCompetition from './pages/InnovationCompetition';
+import SupplyChainPartner from './pages/SupplyChainPartner';
+import CooperationApplication from './pages/CooperationApplication';
 
 function App() {
   return (
@@ -65,6 +68,8 @@ function App() {
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/innovation-competition" element={<InnovationCompetition />} />
+                <Route path="/supply-chain-partner" element={<SupplyChainPartner />} />
+                <Route path="/cooperation-application" element={<CooperationApplication />} />
               </Routes>
             </Router>
           </CartProvider>
