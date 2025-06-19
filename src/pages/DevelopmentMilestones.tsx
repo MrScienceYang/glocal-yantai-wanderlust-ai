@@ -8,7 +8,7 @@ const DevelopmentMilestones = () => {
   const milestones = [
     {
       version: "V1.0",
-      date: "2024年5月10日",
+      date: "2025年3月5日",
       title: "平台基础架构搭建",
       description: "完成基础技术架构设计，实现用户注册登录、城市选择等核心功能",
       features: ["用户管理系统", "城市切换功能", "基础UI框架", "响应式设计"],
@@ -16,7 +16,7 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.1",
-      date: "2024年5月25日", 
+      date: "2025年3月10日", 
       title: "AI智能规划模块",
       description: "引入AI行程规划功能，为用户提供个性化旅行建议",
       features: ["AI行程规划", "偏好设置", "智能推荐算法", "行程导出功能"],
@@ -24,7 +24,7 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.2",
-      date: "2024年6月10日",
+      date: "2025年3月15日",
       title: "本地达人服务",
       description: "上线本地达人服务，连接游客与本地文化专家",
       features: ["达人认证系统", "服务预订", "评价体系", "担保交易机制"],
@@ -32,7 +32,7 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.3",
-      date: "2024年6月25日",
+      date: "2025年3月20日",
       title: "电商平台集成",
       description: "推出特色商城，售卖烟台本地特产和文创产品",
       features: ["商品管理", "购物车系统", "支付集成", "物流跟踪"],
@@ -40,7 +40,7 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.4",
-      date: "2024年7月10日",
+      date: "2025年3月25日",
       title: "盲盒旅行体验",
       description: "创新推出盲盒旅行产品，为用户带来惊喜体验",
       features: ["盲盒产品设计", "随机算法", "价值保障机制", "开盒动画"],
@@ -48,7 +48,7 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.5",
-      date: "2024年7月25日",
+      date: "2025年3月30日",
       title: "供应链合作平台",
       description: "推出B端供应链合作平台，实现多方共赢生态",
       features: ["供应商入驻", "SCM系统", "品控管理", "数据分析"],
@@ -56,7 +56,7 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.6",
-      date: "2024年8月10日",
+      date: "2025年4月5日",
       title: "多语言国际化",
       description: "支持多语言切换，面向国际游客提供服务",
       features: ["8种语言支持", "文化适配", "国际支付", "多币种结算"],
@@ -64,7 +64,7 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.7",
-      date: "2024年8月25日",
+      date: "2025年4月10日",
       title: "移动端PWA优化",
       description: "全面优化移动端体验，推出PWA应用",
       features: ["PWA支持", "离线功能", "推送通知", "App式体验"],
@@ -72,23 +72,31 @@ const DevelopmentMilestones = () => {
     },
     {
       version: "V1.8",
-      date: "2024年9月10日",
-      title: "AI技术升级",
-      description: "升级AI服务至Gemini 2.5 Flash，提升智能化水平",
-      features: ["Gemini 2.5集成", "智能对话", "图像识别", "语音交互"],
+      date: "2025年4月15日",
+      title: "DeepSeek AI技术集成",
+      description: "部署DeepSeek AI服务，提升智能化水平和用户体验",
+      features: ["DeepSeek集成", "智能对话", "图像识别", "语音交互"],
       icon: <Zap className="h-6 w-6 text-violet-500" />
     },
     {
       version: "V1.9",
-      date: "2024年9月25日",
-      title: "主题系统上线",
-      description: "推出多主题系统，支持城市主题和深色模式",
-      features: ["城市主题", "深色模式", "个性化定制", "动态切换"],
+      date: "2025年4月20日",
+      title: "供应商管理平台上线",
+      description: "全面上线供应商管理系统，优化B端服务体验",
+      features: ["供应商门户", "库存管理", "订单处理", "财务结算"],
       icon: <Star className="h-6 w-6 text-pink-500" />
     },
     {
       version: "V2.0",
-      date: "2024年10月10日",
+      date: "2025年4月25日",
+      title: "主题系统完善",
+      description: "推出多主题系统，支持城市主题和深色模式",
+      features: ["城市主题", "深色模式", "个性化定制", "动态切换"],
+      icon: <CheckCircle className="h-6 w-6 text-teal-500" />
+    },
+    {
+      version: "V2.1",
+      date: "2025年4月30日",
       title: "生态平台完善",
       description: "完善整体生态，实现B2B2C全链路服务",
       features: ["生态闭环", "数据驱动", "智能决策", "可持续发展"],
