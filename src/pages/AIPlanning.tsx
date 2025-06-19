@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +22,7 @@ const AIPlanning = () => {
     country: selectedCountry,
     province: '',
     city: selectedCity,
-    departure: '', // 新增出发地点字段
+    departure: '',
     interests: '',
     budget: '',
     duration: '',
@@ -98,16 +99,37 @@ const AIPlanning = () => {
     grantPermission();
   };
 
-  // 格式化总费用显示
-  const formatTotalCost = (totalCost: any) => {
-    if (typeof totalCost === 'string' || typeof totalCost === 'number') {
-      return `${totalCost}元`;
+  // 安全格式化总费用显示
+  const formatTotalCost = (totalCost: any): string => {
+    try {
+      if (typeof totalCost === 'string') {
+        return totalCost.includes('元') ? totalCost : `${totalCost}元`;
+      }
+      if (typeof totalCost === 'number') {
+        return `${totalCost}元`;
+      }
+      if (typeof totalCost === 'object' && totalCost !== null) {
+        // 尝试提取对象中的总计字段
+        const total = totalCost['总计'] || totalCost.total || totalCost['总费用'] || totalCost.totalCost;
+        if (total !== undefined) {
+          return typeof total === 'number' || typeof total === 'string' ? `${total}元` : '费用详见计划';
+        }
+        return '费用详见计划';
+      }
+      return '费用详见计划';
+    } catch (error) {
+      console.error('格式化费用时出错:', error);
+      return '费用详见计划';
     }
-    if (typeof totalCost === 'object' && totalCost !== null) {
-      // 如果是对象，尝试提取总计字段
-      return `${totalCost['总计'] || totalCost.total || totalCost.总费用 || '费用详见计划'}`;
-    }
-    return '费用详见计划';
+  };
+
+  // 安全渲染文本内容
+  const safeRenderText = (text: any): string => {
+    if (typeof text === 'string') return text;
+    if (typeof text === 'number') return String(text);
+    if (text === null || text === undefined) return '';
+    if (typeof text === 'object') return JSON.stringify(text);
+    return String(text);
   };
 
   // If user doesn't have permission and hasn't granted it yet, show permission check
@@ -168,7 +190,7 @@ const AIPlanning = () => {
                 <div className="flex items-start space-x-3">
                   <Zap className="h-5 w-5 text-blue-500 mt-1 animate-bounce" />
                   <div className="text-sm text-gray-700 whitespace-pre-line">
-                    {thinkingProcess}
+                    {safeRenderText(thinkingProcess)}
                   </div>
                 </div>
               </div>
@@ -303,39 +325,39 @@ const AIPlanning = () => {
                 AI 生成的旅行计划
               </CardTitle>
               <CardDescription>
-                {selectedCountry} {selectedCity} {preferences.duration}日游
+                {safeRenderText(selectedCountry)} {safeRenderText(selectedCity)} {safeRenderText(preferences.duration)}日游
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2 mb-4">
                 <Badge variant="secondary">
                   <Calendar className="mr-1 h-4 w-4" />
-                  {plan.startDate}
+                  {safeRenderText(plan.startDate)}
                 </Badge>
                 <Badge variant="secondary">
                   <Users className="mr-1 h-4 w-4" />
-                  {plan.recommendedGroupSize}人
+                  {safeRenderText(plan.recommendedGroupSize)}人
                 </Badge>
                 <Badge variant="secondary">
                   <DollarSign className="mr-1 h-4 w-4" />
                   {formatTotalCost(plan.totalCost)}
                 </Badge>
               </div>
-              {plan.itinerary.map((day, index) => (
+              {plan.itinerary && Array.isArray(plan.itinerary) && plan.itinerary.map((day, index) => (
                 <div key={index} className="border rounded-md p-4">
                   <h3 className="text-xl font-bold mb-2">
-                    第{index + 1}天：{day.date}
+                    第{index + 1}天：{safeRenderText(day.date)}
                   </h3>
                   <ul className="list-disc pl-5">
-                    {day.activities.map((activity, i) => (
+                    {day.activities && Array.isArray(day.activities) && day.activities.map((activity, i) => (
                       <li key={i} className="mb-2">
-                        <div className="font-medium">{activity.name}</div>
+                        <div className="font-medium">{safeRenderText(activity.name)}</div>
                         <div className="text-sm text-gray-500">
-                          {activity.time} - {activity.location}
+                          {safeRenderText(activity.time)} - {safeRenderText(activity.location)}
                         </div>
-                        <div className="text-gray-700">{activity.description}</div>
+                        <div className="text-gray-700">{safeRenderText(activity.description)}</div>
                         <div className="text-sm text-gray-500">
-                          交通方式：{activity.transportation}，预计费用：{activity.estimatedCost}元
+                          交通方式：{safeRenderText(activity.transportation)}，预计费用：{safeRenderText(activity.estimatedCost)}元
                         </div>
                       </li>
                     ))}
