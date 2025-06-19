@@ -8,6 +8,7 @@ import { UserProvider } from './components/UserProvider';
 import { CartProvider } from './components/CartProvider';
 import PWASplashScreen from './components/PWASplashScreen';
 import Index from './pages/Index';
+import AIPlanning from './pages/AIPlanning';
 import PartnerHub from './pages/PartnerHub';
 import PartnerLogin from './pages/PartnerLogin';
 import PartnerDashboard from './pages/PartnerDashboard';
@@ -26,6 +27,7 @@ function App() {
               <PWASplashScreen />
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/ai-planning" element={<AIPlanning />} />
                 <Route path="/partner-hub" element={<PartnerHub />} />
                 <Route path="/partner-login" element={<PartnerLogin />} />
                 <Route path="/partner-dashboard" element={<PartnerDashboard />} />
