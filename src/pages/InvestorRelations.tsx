@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { TrendingUp, Users, Globe, Target, BarChart, PieChart } from 'lucide-react';
+import { Target, Users, Globe } from 'lucide-react';
 
 const InvestorRelations = () => {
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
@@ -83,51 +83,13 @@ const InvestorRelations = () => {
             </div>
           </section>
 
-          {/* 增长情况专栏 */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">增长情况</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="text-center bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                <CardContent className="pt-6">
-                  <BarChart className="h-8 w-8 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">50K+</div>
-                  <div className="text-sm opacity-90">注册用户</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center bg-gradient-to-br from-green-500 to-green-600 text-white">
-                <CardContent className="pt-6">
-                  <TrendingUp className="h-8 w-8 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">300%</div>
-                  <div className="text-sm opacity-90">月增长率</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-                <CardContent className="pt-6">
-                  <PieChart className="h-8 w-8 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">¥5M</div>
-                  <div className="text-sm opacity-90">月交易额</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-                <CardContent className="pt-6">
-                  <Users className="h-8 w-8 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">200+</div>
-                  <div className="text-sm opacity-90">合作伙伴</div>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
           {/* 投资意向专栏 */}
           <section className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-8">投资意向</h2>
             <div className="max-w-4xl mx-auto">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-center">A轮融资计划</CardTitle>
+                  <CardTitle className="text-center">欢迎参与天使轮领投</CardTitle>
                   <CardDescription className="text-center">寻求战略投资伙伴，共同推动平台规模化发展</CardDescription>
                 </CardHeader>
                 <CardContent>
