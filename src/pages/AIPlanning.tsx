@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -97,6 +96,18 @@ const AIPlanning = () => {
   const handlePermissionGranted = () => {
     setPermissionGranted(true);
     grantPermission();
+  };
+
+  // 格式化总费用显示
+  const formatTotalCost = (totalCost: any) => {
+    if (typeof totalCost === 'string' || typeof totalCost === 'number') {
+      return `${totalCost}元`;
+    }
+    if (typeof totalCost === 'object' && totalCost !== null) {
+      // 如果是对象，尝试提取总计字段
+      return `${totalCost['总计'] || totalCost.total || totalCost.总费用 || '费用详见计划'}`;
+    }
+    return '费用详见计划';
   };
 
   // If user doesn't have permission and hasn't granted it yet, show permission check
@@ -307,7 +318,7 @@ const AIPlanning = () => {
                 </Badge>
                 <Badge variant="secondary">
                   <DollarSign className="mr-1 h-4 w-4" />
-                  {plan.totalCost}元
+                  {formatTotalCost(plan.totalCost)}
                 </Badge>
               </div>
               {plan.itinerary.map((day, index) => (
