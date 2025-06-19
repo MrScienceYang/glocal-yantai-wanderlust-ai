@@ -22,6 +22,7 @@ const AIPlanning = () => {
     country: selectedCountry,
     province: '',
     city: selectedCity,
+    departure: '', // 新增出发地点字段
     interests: '',
     budget: '',
     duration: '',
@@ -42,7 +43,7 @@ const AIPlanning = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!preferences.interests || !preferences.budget || !preferences.duration || !preferences.groupSize || !preferences.travelStyle) {
+    if (!preferences.departure || !preferences.interests || !preferences.budget || !preferences.duration || !preferences.groupSize || !preferences.travelStyle) {
       toast.error('请填写所有偏好设置');
       return;
     }
@@ -196,10 +197,20 @@ const AIPlanning = () => {
                 </div>
               </div>
               <div>
-                <Label htmlFor="interests">出发地点</Label>
+                <Label htmlFor="departure">出发地点</Label>
+                <Input
+                  type="text"
+                  id="departure"
+                  placeholder="例如：北京市朝阳区、上海市浦东新区、广州市天河区"
+                  value={preferences.departure}
+                  onChange={(e) => setPreferences({ ...preferences, departure: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="interests">旅行偏好</Label>
                 <Textarea
                   id="interests"
-                  placeholder="例如：北京市朝阳区、上海市浦东新区、广州市天河区"
+                  placeholder="例如：喜欢历史文化景点、偏爱自然风光、热爱美食体验、享受休闲度假等"
                   value={preferences.interests}
                   onChange={(e) => setPreferences({ ...preferences, interests: e.target.value })}
                 />
