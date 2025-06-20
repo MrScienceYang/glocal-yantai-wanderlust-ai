@@ -133,14 +133,17 @@ const InnovationCompetition = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                       <h4 className="text-lg font-semibold mb-4 text-red-600">非公开专利六项</h4>
-                      <ul className="space-y-2 text-gray-700">
-                        <li>• 智能农业数据采集与分析系统专利</li>
-                        <li>• 农作物生长预测算法专利</li>
-                        <li>• 精准农业施肥优化技术专利</li>
-                        <li>• 农业物联网传感器网络专利</li>
-                        <li>• 农产品质量智能检测系统专利</li>
-                        <li>• 农业供应链溯源管理技术专利</li>
-                      </ul>
+                      <div className="p-4 bg-green-50 rounded-lg">
+                        <p className="text-gray-700 font-medium mb-2">主要涉及农业领域：</p>
+                        <ul className="space-y-2 text-gray-600 text-sm">
+                          <li>• 智能农业数据采集与处理技术</li>
+                          <li>• 农作物生长监测与预测系统</li>
+                          <li>• 精准农业管理优化方案</li>
+                          <li>• 农业物联网应用技术</li>
+                          <li>• 农产品质量检测与溯源</li>
+                          <li>• 农业供应链智能化管理</li>
+                        </ul>
+                      </div>
                     </div>
                     <div>
                       <h4 className="text-lg font-semibold mb-4 text-red-600">软件著作六项</h4>
