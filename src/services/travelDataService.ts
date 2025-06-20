@@ -12,15 +12,15 @@ interface SearchParams {
   limit?: number;
 }
 
-interface ApiResponse<T> {
-  data: T[];
+interface ApiResponse {
+  data: any[];
   source: 'api' | 'cache' | 'fallback';
   cached: boolean;
 }
 
 export const travelDataService = {
   // 统一的数据获取方法
-  async fetchData<T>(type: string, searchParams?: SearchParams): Promise<ApiResponse<T>> {
+  async fetchData(type: string, searchParams?: SearchParams): Promise<ApiResponse> {
     try {
       console.log(`正在获取${type}数据，参数:`, searchParams);
       
@@ -69,8 +69,11 @@ export const travelDataService = {
   // 从缓存获取数据
   async getCachedData(type: string, searchParams?: SearchParams): Promise<any[]> {
     try {
+      // 使用类型断言来处理动态表名
+      const tableName = type as 'flights' | 'trains' | 'hotels' | 'tickets';
+      
       let query = supabase
-        .from(type)
+        .from(tableName)
         .select('*')
         .limit(20);
 
@@ -133,8 +136,8 @@ export const travelDataService = {
     to?: string;
     date?: string;
   }): Promise<Flight[]> {
-    const result = await this.fetchData<Flight>('flights', searchParams);
-    return result.data;
+    const result = await this.fetchData('flights', searchParams);
+    return result.data as Flight[];
   },
 
   // 火车相关API
@@ -143,8 +146,8 @@ export const travelDataService = {
     to?: string;
     date?: string;
   }): Promise<Train[]> {
-    const result = await this.fetchData<Train>('trains', searchParams);
-    return result.data;
+    const result = await this.fetchData('trains', searchParams);
+    return result.data as Train[];
   },
 
   // 酒店相关API
@@ -153,8 +156,8 @@ export const travelDataService = {
     checkin?: string;
     checkout?: string;
   }): Promise<Hotel[]> {
-    const result = await this.fetchData<Hotel>('hotels', searchParams);
-    return result.data;
+    const result = await this.fetchData('hotels', searchParams);
+    return result.data as Hotel[];
   },
 
   // 门票相关API
@@ -163,8 +166,8 @@ export const travelDataService = {
     category?: string;
     date?: string;
   }): Promise<Ticket[]> {
-    const result = await this.fetchData<Ticket>('tickets', searchParams);
-    return result.data;
+    const result = await this.fetchData('tickets', searchParams);
+    return result.data as Ticket[];
   },
 
   // 强制刷新数据（手动触发API调用）
@@ -242,17 +245,17 @@ export const travelDataService = {
       console.log('批量获取所有旅行数据');
       
       const [flightsResult, trainsResult, hotelsResult, ticketsResult] = await Promise.allSettled([
-        this.fetchData<Flight>('flights', { limit: 6 }),
-        this.fetchData<Train>('trains', { limit: 6 }),
-        this.fetchData<Hotel>('hotels', { limit: 6 }),
-        this.fetchData<Ticket>('tickets', { limit: 6 })
+        this.fetchData('flights', { limit: 6 }),
+        this.fetchData('trains', { limit: 6 }),
+        this.fetchData('hotels', { limit: 6 }),
+        this.fetchData('tickets', { limit: 6 })
       ]);
 
       return {
-        flights: flightsResult.status === 'fulfilled' ? flightsResult.value.data : [],
-        trains: trainsResult.status === 'fulfilled' ? trainsResult.value.data : [],
-        hotels: hotelsResult.status === 'fulfilled' ? hotelsResult.value.data : [],
-        tickets: ticketsResult.status === 'fulfilled' ? ticketsResult.value.data : []
+        flights: flightsResult.status === 'fulfilled' ? flightsResult.value.data as Flight[] : [],
+        trains: trainsResult.status === 'fulfilled' ? trainsResult.value.data as Train[] : [],
+        hotels: hotelsResult.status === 'fulfilled' ? hotelsResult.value.data as Hotel[] : [],
+        tickets: ticketsResult.status === 'fulfilled' ? ticketsResult.value.data as Ticket[] : []
       };
     } catch (error) {
       console.error('批量获取旅行数据失败:', error);
