@@ -30,44 +30,6 @@ const InnovationCompetition = () => {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 py-16">
-          {/* Yantai as Starting Point */}
-          <section className="mb-16">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-4">
-                <MapPin className="h-8 w-8 text-blue-600 mr-2" />
-                <h2 className="text-3xl font-bold text-gray-900">项目起始地：烟台</h2>
-              </div>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Glocal项目起源于美丽的海滨城市烟台，从这里开始，我们致力于打造全球化的本地旅游服务平台，让世界了解烟台，让烟台走向世界。
-              </p>
-            </div>
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">地理优势</h3>
-                  <p className="text-gray-600">环渤海经济圈重要节点城市，连接东北亚的桥头堡</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Star className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">文旅资源</h3>
-                  <p className="text-gray-600">丰富的海洋文化和历史底蕴，为平台提供优质内容</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <TrendingUp className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">创新环境</h3>
-                  <p className="text-gray-600">良好的创新创业氛围，助力项目快速发展</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* 快速导航 */}
           <section className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-8">项目资料</h2>
@@ -113,6 +75,44 @@ const InnovationCompetition = () => {
                   <span>服务条款</span>
                 </Link>
               </Button>
+            </div>
+          </section>
+
+          {/* Yantai as Starting Point */}
+          <section className="mb-16">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <MapPin className="h-8 w-8 text-blue-600 mr-2" />
+                <h2 className="text-3xl font-bold text-gray-900">项目起始地：烟台</h2>
+              </div>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Glocal项目起源于美丽的海滨城市烟台，从这里开始，我们致力于打造全球化的本地旅游服务平台，让世界了解烟台，让烟台走向世界。
+              </p>
+            </div>
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">地理优势</h3>
+                  <p className="text-gray-600">环渤海经济圈重要节点城市，连接东北亚的桥头堡</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Star className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">文旅资源</h3>
+                  <p className="text-gray-600">丰富的海洋文化和历史底蕴，为平台提供优质内容</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">创新环境</h3>
+                  <p className="text-gray-600">良好的创新创业氛围，助力项目快速发展</p>
+                </div>
+              </div>
             </div>
           </section>
 
