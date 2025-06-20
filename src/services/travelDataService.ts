@@ -15,6 +15,18 @@ export const travelDataService = {
     date?: string;
   }) {
     try {
+      // 首先尝试从实时API获取数据
+      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
+        body: { type: 'flights', params: searchParams }
+      });
+
+      if (apiData?.success && apiData.data?.length > 0) {
+        console.log('使用实时航班数据:', apiData.data.length, '条记录');
+        return apiData.data;
+      }
+
+      // 如果API调用失败，使用数据库中的缓存数据
+      console.log('API调用失败，使用缓存数据');
       let query = supabase
         .from('flights')
         .select('*')
@@ -43,6 +55,18 @@ export const travelDataService = {
     date?: string;
   }) {
     try {
+      // 首先尝试从实时API获取数据
+      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
+        body: { type: 'trains', params: searchParams }
+      });
+
+      if (apiData?.success && apiData.data?.length > 0) {
+        console.log('使用实时火车数据:', apiData.data.length, '条记录');
+        return apiData.data;
+      }
+
+      // 如果API调用失败，使用数据库中的缓存数据
+      console.log('API调用失败，使用缓存数据');
       let query = supabase
         .from('trains')
         .select('*')
@@ -71,6 +95,18 @@ export const travelDataService = {
     checkout?: string;
   }) {
     try {
+      // 首先尝试从实时API获取数据
+      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
+        body: { type: 'hotels', params: searchParams }
+      });
+
+      if (apiData?.success && apiData.data?.length > 0) {
+        console.log('使用实时酒店数据:', apiData.data.length, '条记录');
+        return apiData.data;
+      }
+
+      // 如果API调用失败，使用数据库中的缓存数据
+      console.log('API调用失败，使用缓存数据');
       let query = supabase
         .from('hotels')
         .select('*')
@@ -96,6 +132,18 @@ export const travelDataService = {
     date?: string;
   }) {
     try {
+      // 首先尝试从实时API获取数据
+      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
+        body: { type: 'tickets', params: searchParams }
+      });
+
+      if (apiData?.success && apiData.data?.length > 0) {
+        console.log('使用实时门票数据:', apiData.data.length, '条记录');
+        return apiData.data;
+      }
+
+      // 如果API调用失败，使用数据库中的缓存数据
+      console.log('API调用失败，使用缓存数据');
       let query = supabase
         .from('tickets')
         .select('*')
@@ -154,6 +202,21 @@ export const travelDataService = {
       return data;
     } catch (error) {
       console.error('创建订单失败:', error);
+      throw error;
+    }
+  },
+
+  // 强制刷新数据（手动触发API调用）
+  async refreshData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
+    try {
+      const { data: apiData, error } = await supabase.functions.invoke('travel-api', {
+        body: { type, params: searchParams || {} }
+      });
+
+      if (error) throw error;
+      return apiData?.data || [];
+    } catch (error) {
+      console.error(`刷新${type}数据失败:`, error);
       throw error;
     }
   }
