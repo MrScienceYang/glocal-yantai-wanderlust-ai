@@ -132,25 +132,25 @@ const InnovationCompetition = () => {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                      <h4 className="text-lg font-semibold mb-4 text-red-600">公开专利六项</h4>
+                      <h4 className="text-lg font-semibold mb-4 text-red-600">非公开专利六项</h4>
                       <ul className="space-y-2 text-gray-700">
-                        <li>• AI智能行程规划系统专利</li>
-                        <li>• 本地化旅游服务匹配算法专利</li>
-                        <li>• 多语言旅游内容生成技术专利</li>
-                        <li>• 旅游社交网络构建方法专利</li>
-                        <li>• 预制菜智能推荐系统专利</li>
-                        <li>• 跨平台旅游数据同步技术专利</li>
+                        <li>• 智能农业数据采集与分析系统专利</li>
+                        <li>• 农作物生长预测算法专利</li>
+                        <li>• 精准农业施肥优化技术专利</li>
+                        <li>• 农业物联网传感器网络专利</li>
+                        <li>• 农产品质量智能检测系统专利</li>
+                        <li>• 农业供应链溯源管理技术专利</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="text-lg font-semibold mb-4 text-red-600">软件著作六项</h4>
                       <ul className="space-y-2 text-gray-700">
-                        <li>• Glocal旅游平台软件V1.0</li>
-                        <li>• AI行程规划引擎软件V2.0</li>
-                        <li>• 本地达人服务管理系统V1.5</li>
-                        <li>• 多语言内容管理系统V1.2</li>
-                        <li>• 旅游数据分析平台V2.1</li>
-                        <li>• 移动端旅游助手应用V3.0</li>
+                        <li>• DynaCloud Analytics——大数据云处理技术管理系统</li>
+                        <li>• 图形神经网络深度学习平台</li>
+                        <li>• 全息洞察-多模态数据分析与决策支持系统</li>
+                        <li>• 卷积神经网络深度学习平台</li>
+                        <li>• 基于张量神经网络的高效模型压缩平台</li>
+                        <li>• 基于Transformer神经网络架构的智能问答系统</li>
                       </ul>
                     </div>
                   </div>
