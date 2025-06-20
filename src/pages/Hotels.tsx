@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,11 +9,15 @@ import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
 import { useNavigate } from 'react-router-dom';
+import { travelDataService, type Hotel as HotelType } from '@/services/travelDataService';
+import { toast } from 'sonner';
 
 const Hotels = () => {
   const { selectedCountry } = useCityContext();
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [hotels, setHotels] = useState<HotelType[]>([]);
   const [searchParams, setSearchParams] = useState({
     location: '',
     checkin: '',
@@ -21,41 +25,46 @@ const Hotels = () => {
     guests: '2'
   });
 
-  // 模拟酒店数据
-  const hotels = [
-    {
-      id: 1,
-      name: '上海外滩茂悦大酒店',
-      rating: 4.8,
-      address: '上海市黄浦区中山东一路',
-      image: '/api/placeholder/300/200',
-      amenities: ['免费WiFi', '停车场', '餐厅', '健身房'],
-      rooms: {
-        standard: { price: 680, available: 12, type: '标准间' },
-        deluxe: { price: 880, available: 8, type: '豪华间' },
-        suite: { price: 1280, available: 3, type: '套房' }
-      },
-      description: '位于外滩核心区域，享有黄浦江美景'
-    },
-    {
-      id: 2,
-      name: '北京王府井希尔顿酒店',
-      rating: 4.7,
-      address: '北京市东城区王府井大街',
-      image: '/api/placeholder/300/200',
-      amenities: ['免费WiFi', '停车场', '餐厅', '商务中心'],
-      rooms: {
-        standard: { price: 720, available: 25, type: '标准间' },
-        deluxe: { price: 920, available: 15, type: '豪华间' },
-        suite: { price: 1580, available: 6, type: '套房' }
-      },
-      description: '地处王府井商业区核心，交通便利'
-    }
-  ];
+  // 加载酒店数据
+  useEffect(() => {
+    loadHotels();
+  }, []);
 
-  const handleSearch = () => {
+  const loadHotels = async () => {
+    setLoading(true);
+    try {
+      const data = await travelDataService.getHotels();
+      setHotels(data);
+    } catch (error) {
+      toast.error('加载酒店数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
     if (selectedCountry !== '中国') {
       setShowTransition(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 记录搜索日志
+      await travelDataService.logSearch('hotel', searchParams);
+      
+      // 搜索酒店
+      const data = await travelDataService.getHotels({
+        location: searchParams.location,
+        checkin: searchParams.checkin,
+        checkout: searchParams.checkout
+      });
+      setHotels(data);
+      toast.success(`找到 ${data.length} 家酒店`);
+    } catch (error) {
+      toast.error('搜索失败，请重试');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,11 +73,16 @@ const Hotels = () => {
     setShowTransition(false);
   };
 
-  const handleBookHotel = (hotel: any, roomType: string, room: any) => {
+  const handleBookHotel = (hotel: HotelType, roomType: string, price: number, available: number) => {
     const orderData = {
       type: 'hotel',
-      item: { ...hotel, roomType: room.type, price: room.price },
-      totalPrice: room.price
+      item: { 
+        ...hotel, 
+        roomType, 
+        price,
+        available
+      },
+      totalPrice: price
     };
     localStorage.setItem('pendingOrder', JSON.stringify(orderData));
     navigate('/checkout');
@@ -129,8 +143,12 @@ const Hotels = () => {
                 />
               </div>
             </div>
-            <Button onClick={handleSearch} className="w-full gradient-ocean text-white">
-              搜索酒店
+            <Button 
+              onClick={handleSearch} 
+              className="w-full gradient-ocean text-white"
+              disabled={loading}
+            >
+              {loading ? '搜索中...' : '搜索酒店'}
             </Button>
           </CardContent>
         </Card>
@@ -139,70 +157,135 @@ const Hotels = () => {
         {selectedCountry === '中国' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold mb-4">推荐酒店</h2>
-            {hotels.map((hotel) => (
-              <Card key={hotel.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="lg:w-1/3">
-                      <img 
-                        src={hotel.image} 
-                        alt={hotel.name}
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                    </div>
-                    <div className="lg:w-2/3">
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-xl font-bold">{hotel.name}</h3>
-                          <div className="flex items-center">
-                            <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                            <span className="font-medium">{hotel.rating}</span>
-                          </div>
-                        </div>
-                        <p className="text-gray-600 mb-2">{hotel.address}</p>
-                        <p className="text-sm text-gray-500 mb-4">{hotel.description}</p>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {hotel.amenities.map((amenity, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {amenity}
-                            </Badge>
-                          ))}
-                        </div>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-gray-600">加载中...</p>
+              </div>
+            ) : hotels.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">暂无酒店数据</p>
+              </div>
+            ) : (
+              hotels.map((hotel) => (
+                <Card key={hotel.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      <div className="lg:w-1/3">
+                        <img 
+                          src={hotel.image_url || '/api/placeholder/300/200'} 
+                          alt={hotel.name}
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
                       </div>
-
-                      <div className="space-y-3">
-                        {Object.entries(hotel.rooms).map(([key, room]: [string, any]) => (
-                          <div key={key} className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <span className="font-medium">{room.type}</span>
-                                <Badge 
-                                  variant={room.available < 5 ? "destructive" : "secondary"}
-                                  className="ml-2"
-                                >
-                                  余房 {room.available}
-                                </Badge>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-lg font-bold text-red-600">¥{room.price}/晚</div>
-                                <Button 
-                                  size="sm"
-                                  onClick={() => handleBookHotel(hotel, key, room)}
-                                  disabled={room.available === 0}
-                                  className="mt-1"
-                                >
-                                  预订
-                                </Button>
-                              </div>
+                      <div className="lg:w-2/3">
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xl font-bold">{hotel.name}</h3>
+                            <div className="flex items-center">
+                              <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
+                              <span className="font-medium">{hotel.rating || 'N/A'}</span>
                             </div>
                           </div>
-                        ))}
+                          <p className="text-gray-600 mb-2">{hotel.address}</p>
+                          <p className="text-sm text-gray-500 mb-4">{hotel.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {hotel.amenities?.map((amenity, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {amenity}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          {hotel.standard_price && (
+                            <div className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <span className="font-medium">标准间</span>
+                                  <Badge 
+                                    variant={hotel.standard_available && hotel.standard_available < 5 ? "destructive" : "secondary"}
+                                    className="ml-2"
+                                  >
+                                    余房 {hotel.standard_available || 0}
+                                  </Badge>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-red-600">¥{hotel.standard_price}/晚</div>
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => handleBookHotel(hotel, '标准间', hotel.standard_price, hotel.standard_available || 0)}
+                                    disabled={!hotel.standard_available}
+                                    className="mt-1"
+                                  >
+                                    预订
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {hotel.deluxe_price && (
+                            <div className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <span className="font-medium">豪华间</span>
+                                  <Badge 
+                                    variant={hotel.deluxe_available && hotel.deluxe_available < 5 ? "destructive" : "secondary"}
+                                    className="ml-2"
+                                  >
+                                    余房 {hotel.deluxe_available || 0}
+                                  </Badge>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-red-600">¥{hotel.deluxe_price}/晚</div>
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => handleBookHotel(hotel, '豪华间', hotel.deluxe_price, hotel.deluxe_available || 0)}
+                                    disabled={!hotel.deluxe_available}
+                                    className="mt-1"
+                                  >
+                                    预订
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {hotel.suite_price && (
+                            <div className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <span className="font-medium">套房</span>
+                                  <Badge 
+                                    variant={hotel.suite_available && hotel.suite_available < 5 ? "destructive" : "secondary"}
+                                    className="ml-2"
+                                  >
+                                    余房 {hotel.suite_available || 0}
+                                  </Badge>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-red-600">¥{hotel.suite_price}/晚</div>
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => handleBookHotel(hotel, '套房', hotel.suite_price, hotel.suite_available || 0)}
+                                    disabled={!hotel.suite_available}
+                                    className="mt-1"
+                                  >
+                                    预订
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>

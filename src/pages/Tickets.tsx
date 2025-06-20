@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,11 +10,15 @@ import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
 import { useNavigate } from 'react-router-dom';
 import AIContentGenerator from '@/components/AIContentGenerator';
+import { travelDataService, type Ticket as TicketType } from '@/services/travelDataService';
+import { toast } from 'sonner';
 
 const Tickets = () => {
   const { selectedCountry } = useCityContext();
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [tickets, setTickets] = useState<TicketType[]>([]);
   const [searchParams, setSearchParams] = useState({
     location: '',
     date: '',
@@ -21,49 +26,46 @@ const Tickets = () => {
   });
   const [aiEnhancedTickets, setAiEnhancedTickets] = useState<any>({});
 
-  // 模拟门票数据
-  const tickets = [
-    {
-      id: 1,
-      name: '故宫博物院',
-      category: '文化景点',
-      location: '北京市东城区',
-      image: '/api/placeholder/300/200',
-      price: 60,
-      available: 500,
-      openTime: '08:30-17:00',
-      description: '明清两代的皇家宫殿，世界文化遗产',
-      features: ['免排队', '含讲解器', '当日有效']
-    },
-    {
-      id: 2,
-      name: '上海迪士尼乐园',
-      category: '主题乐园',
-      location: '上海市浦东新区',
-      image: '/api/placeholder/300/200',
-      price: 399,
-      available: 1200,
-      openTime: '09:00-22:00',
-      description: '中国内地首座迪士尼主题乐园',
-      features: ['快速通道', '含园区接驳', '当日有效']
-    },
-    {
-      id: 3,
-      name: '《狮子王》音乐剧',
-      category: '演出',
-      location: '上海大剧院',
-      image: '/api/placeholder/300/200',
-      price: 280,
-      available: 45,
-      openTime: '19:30-21:30',
-      description: '百老汇经典音乐剧中文版',
-      features: ['VIP座位', '含节目单', '指定场次']
-    }
-  ];
+  // 加载门票数据
+  useEffect(() => {
+    loadTickets();
+  }, []);
 
-  const handleSearch = () => {
+  const loadTickets = async () => {
+    setLoading(true);
+    try {
+      const data = await travelDataService.getTickets();
+      setTickets(data);
+    } catch (error) {
+      toast.error('加载门票数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
     if (selectedCountry !== '中国') {
       setShowTransition(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 记录搜索日志
+      await travelDataService.logSearch('ticket', searchParams);
+      
+      // 搜索门票
+      const data = await travelDataService.getTickets({
+        location: searchParams.location,
+        category: searchParams.category,
+        date: searchParams.date
+      });
+      setTickets(data);
+      toast.success(`找到 ${data.length} 张门票`);
+    } catch (error) {
+      toast.error('搜索失败，请重试');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,7 +74,7 @@ const Tickets = () => {
     setShowTransition(false);
   };
 
-  const handleBookTicket = (ticket: any) => {
+  const handleBookTicket = (ticket: TicketType) => {
     const orderData = {
       type: 'ticket',
       item: ticket,
@@ -82,7 +84,7 @@ const Tickets = () => {
     navigate('/checkout');
   };
 
-  const handleAITicketInfoGenerated = (ticketId: number, content: any) => {
+  const handleAITicketInfoGenerated = (ticketId: string, content: any) => {
     setAiEnhancedTickets(prev => ({
       ...prev,
       [ticketId]: content
@@ -134,15 +136,20 @@ const Tickets = () => {
                   onChange={(e) => setSearchParams({...searchParams, category: e.target.value})}
                 >
                   <option value="">全部分类</option>
-                  <option value="景点">景点</option>
+                  <option value="文化景点">文化景点</option>
+                  <option value="主题乐园">主题乐园</option>
                   <option value="演出">演出</option>
                   <option value="展览">展览</option>
                   <option value="体验">体验</option>
                 </select>
               </div>
             </div>
-            <Button onClick={handleSearch} className="w-full gradient-ocean text-white">
-              搜索门票
+            <Button 
+              onClick={handleSearch} 
+              className="w-full gradient-ocean text-white"
+              disabled={loading}
+            >
+              {loading ? '搜索中...' : '搜索门票'}
             </Button>
           </CardContent>
         </Card>
@@ -151,87 +158,100 @@ const Tickets = () => {
         {selectedCountry === '中国' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold mb-4">热门门票</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {tickets.map((ticket) => (
-                <Card key={ticket.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-0">
-                    <img 
-                      src={ticket.image} 
-                      alt={ticket.name}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <div className="p-6">
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-xl font-bold">{ticket.name}</h3>
-                          <Badge variant="outline">{ticket.category}</Badge>
-                        </div>
-                        <p className="text-gray-600 mb-2 flex items-center">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {ticket.location}
-                        </p>
-                        <p className="text-gray-600 mb-2 flex items-center">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {ticket.openTime}
-                        </p>
-                        <p className="text-sm text-gray-500 mb-4">{ticket.description}</p>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {ticket.features.map((feature, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {feature}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-2xl font-bold text-red-600">¥{ticket.price}</div>
-                          <Badge 
-                            variant={ticket.available < 50 ? "destructive" : "secondary"}
-                            className="mt-1"
-                          >
-                            余票 {ticket.available}
-                          </Badge>
-                        </div>
-                        <Button 
-                          onClick={() => handleBookTicket(ticket)}
-                          disabled={ticket.available === 0}
-                          className="gradient-ocean text-white"
-                        >
-                          立即预订
-                        </Button>
-                      </div>
-
-                      {/* AI增强信息 */}
-                      {aiEnhancedTickets[ticket.id] && (
-                        <div className="mt-4 p-4 bg-purple-50 rounded-lg">
-                          <h4 className="font-medium text-purple-800 mb-2">AI景点亮点</h4>
-                          <p className="text-sm text-purple-700 mb-2">{aiEnhancedTickets[ticket.id].introduction}</p>
-                          <div className="flex flex-wrap gap-2">
-                            {aiEnhancedTickets[ticket.id].highlights?.slice(0, 3).map((highlight: string, index: number) => (
-                              <Badge key={index} variant="outline" className="text-xs">{highlight}</Badge>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-gray-600">加载中...</p>
+              </div>
+            ) : tickets.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">暂无门票数据</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {tickets.map((ticket) => (
+                  <Card key={ticket.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-0">
+                      <img 
+                        src={ticket.image_url || '/api/placeholder/300/200'} 
+                        alt={ticket.name}
+                        className="w-full h-48 object-cover rounded-t-lg"
+                      />
+                      <div className="p-6">
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xl font-bold">{ticket.name}</h3>
+                            <Badge variant="outline">{ticket.category}</Badge>
+                          </div>
+                          <p className="text-gray-600 mb-2 flex items-center">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            {ticket.location}
+                          </p>
+                          {ticket.open_time && (
+                            <p className="text-gray-600 mb-2 flex items-center">
+                              <Clock className="h-4 w-4 mr-1" />
+                              {ticket.open_time}
+                            </p>
+                          )}
+                          <p className="text-sm text-gray-500 mb-4">{ticket.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {ticket.features?.map((feature, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {feature}
+                              </Badge>
                             ))}
                           </div>
                         </div>
-                      )}
 
-                      {/* AI内容生成按钮 */}
-                      <div className="mt-4">
-                        <AIContentGenerator
-                          type="ticket"
-                          context={ticket}
-                          onContentGenerated={(content) => handleAITicketInfoGenerated(ticket.id, content)}
-                          buttonText="AI景点分析"
-                          title=""
-                          description=""
-                        />
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-2xl font-bold text-red-600">¥{ticket.price}</div>
+                            <Badge 
+                              variant={ticket.available_quantity < 50 ? "destructive" : "secondary"}
+                              className="mt-1"
+                            >
+                              余票 {ticket.available_quantity}
+                            </Badge>
+                          </div>
+                          <Button 
+                            onClick={() => handleBookTicket(ticket)}
+                            disabled={ticket.available_quantity === 0}
+                            className="gradient-ocean text-white"
+                          >
+                            立即预订
+                          </Button>
+                        </div>
+
+                        {/* AI增强信息 */}
+                        {aiEnhancedTickets[ticket.id] && (
+                          <div className="mt-4 p-4 bg-purple-50 rounded-lg">
+                            <h4 className="font-medium text-purple-800 mb-2">AI景点亮点</h4>
+                            <p className="text-sm text-purple-700 mb-2">{aiEnhancedTickets[ticket.id].introduction}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {aiEnhancedTickets[ticket.id].highlights?.slice(0, 3).map((highlight: string, index: number) => (
+                                <Badge key={index} variant="outline" className="text-xs">{highlight}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* AI内容生成按钮 */}
+                        <div className="mt-4">
+                          <AIContentGenerator
+                            type="ticket"
+                            context={ticket}
+                            onContentGenerated={(content) => handleAITicketInfoGenerated(ticket.id, content)}
+                            buttonText="AI景点分析"
+                            title=""
+                            description=""
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

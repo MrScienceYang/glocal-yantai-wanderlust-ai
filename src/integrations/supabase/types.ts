@@ -9,7 +9,279 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      flights: {
+        Row: {
+          airline: string
+          arrival_airport: string
+          arrival_time: string
+          available_seats: number
+          class_type: string
+          created_at: string
+          departure_airport: string
+          departure_time: string
+          duration_minutes: number
+          flight_number: string
+          id: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          airline: string
+          arrival_airport: string
+          arrival_time: string
+          available_seats: number
+          class_type?: string
+          created_at?: string
+          departure_airport: string
+          departure_time: string
+          duration_minutes: number
+          flight_number: string
+          id?: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          airline?: string
+          arrival_airport?: string
+          arrival_time?: string
+          available_seats?: number
+          class_type?: string
+          created_at?: string
+          departure_airport?: string
+          departure_time?: string
+          duration_minutes?: number
+          flight_number?: string
+          id?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hotels: {
+        Row: {
+          address: string
+          amenities: string[] | null
+          city: string
+          created_at: string
+          deluxe_available: number | null
+          deluxe_price: number | null
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          rating: number | null
+          standard_available: number | null
+          standard_price: number | null
+          suite_available: number | null
+          suite_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          amenities?: string[] | null
+          city: string
+          created_at?: string
+          deluxe_available?: number | null
+          deluxe_price?: number | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          rating?: number | null
+          standard_available?: number | null
+          standard_price?: number | null
+          suite_available?: number | null
+          suite_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          amenities?: string[] | null
+          city?: string
+          created_at?: string
+          deluxe_available?: number | null
+          deluxe_price?: number | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          rating?: number | null
+          standard_available?: number | null
+          standard_price?: number | null
+          suite_available?: number | null
+          suite_price?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          booking_details: Json | null
+          created_at: string
+          id: string
+          item_id: string
+          order_type: string
+          quantity: number | null
+          status: string
+          total_price: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          booking_details?: Json | null
+          created_at?: string
+          id?: string
+          item_id: string
+          order_type: string
+          quantity?: number | null
+          status?: string
+          total_price: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          booking_details?: Json | null
+          created_at?: string
+          id?: string
+          item_id?: string
+          order_type?: string
+          quantity?: number | null
+          status?: string
+          total_price?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      search_logs: {
+        Row: {
+          created_at: string
+          id: string
+          search_params: Json
+          search_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          search_params: Json
+          search_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          search_params?: Json
+          search_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          available_quantity: number
+          category: string
+          city: string
+          created_at: string
+          description: string | null
+          features: string[] | null
+          id: string
+          image_url: string | null
+          location: string
+          name: string
+          open_time: string | null
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          available_quantity: number
+          category: string
+          city: string
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          image_url?: string | null
+          location: string
+          name: string
+          open_time?: string | null
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          available_quantity?: number
+          category?: string
+          city?: string
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          image_url?: string | null
+          location?: string
+          name?: string
+          open_time?: string | null
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trains: {
+        Row: {
+          arrival_station: string
+          arrival_time: string
+          business_class_price: number | null
+          business_class_seats: number | null
+          created_at: string
+          departure_station: string
+          departure_time: string
+          duration_minutes: number
+          first_class_price: number | null
+          first_class_seats: number | null
+          id: string
+          second_class_price: number | null
+          second_class_seats: number | null
+          train_number: string
+          train_type: string
+          updated_at: string
+        }
+        Insert: {
+          arrival_station: string
+          arrival_time: string
+          business_class_price?: number | null
+          business_class_seats?: number | null
+          created_at?: string
+          departure_station: string
+          departure_time: string
+          duration_minutes: number
+          first_class_price?: number | null
+          first_class_seats?: number | null
+          id?: string
+          second_class_price?: number | null
+          second_class_seats?: number | null
+          train_number: string
+          train_type: string
+          updated_at?: string
+        }
+        Update: {
+          arrival_station?: string
+          arrival_time?: string
+          business_class_price?: number | null
+          business_class_seats?: number | null
+          created_at?: string
+          departure_station?: string
+          departure_time?: string
+          duration_minutes?: number
+          first_class_price?: number | null
+          first_class_seats?: number | null
+          id?: string
+          second_class_price?: number | null
+          second_class_seats?: number | null
+          train_number?: string
+          train_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

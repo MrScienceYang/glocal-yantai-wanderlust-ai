@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,11 +10,15 @@ import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
 import { useNavigate } from 'react-router-dom';
 import AIContentGenerator from '@/components/AIContentGenerator';
+import { travelDataService, type Flight } from '@/services/travelDataService';
+import { toast } from 'sonner';
 
 const Flights = () => {
   const { selectedCountry } = useCityContext();
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [flights, setFlights] = useState<Flight[]>([]);
   const [searchParams, setSearchParams] = useState({
     from: '',
     to: '',
@@ -22,46 +27,46 @@ const Flights = () => {
   });
   const [aiEnhancedFlights, setAiEnhancedFlights] = useState<any>({});
 
-  // 模拟航班数据
-  const flights = [
-    {
-      id: 1,
-      airline: '中国国航',
-      flightNumber: 'CA1234',
-      departure: { time: '08:30', airport: '北京首都机场' },
-      arrival: { time: '11:20', airport: '上海浦东机场' },
-      duration: '2小时50分钟',
-      price: 680,
-      seats: 23,
-      class: '经济舱'
-    },
-    {
-      id: 2,
-      airline: '东方航空',
-      flightNumber: 'MU5678',
-      departure: { time: '14:15', airport: '北京首都机场' },
-      arrival: { time: '17:05', airport: '上海浦东机场' },
-      duration: '2小时50分钟',
-      price: 720,
-      seats: 8,
-      class: '经济舱'
-    },
-    {
-      id: 3,
-      airline: '南方航空',
-      flightNumber: 'CZ9012',
-      departure: { time: '19:40', airport: '北京首都机场' },
-      arrival: { time: '22:30', airport: '上海浦东机场' },
-      duration: '2小时50分钟',
-      price: 650,
-      seats: 156,
-      class: '经济舱'
-    }
-  ];
+  // 加载航班数据
+  useEffect(() => {
+    loadFlights();
+  }, []);
 
-  const handleSearch = () => {
+  const loadFlights = async () => {
+    setLoading(true);
+    try {
+      const data = await travelDataService.getFlights();
+      setFlights(data);
+    } catch (error) {
+      toast.error('加载航班数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
     if (selectedCountry !== '中国') {
       setShowTransition(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 记录搜索日志
+      await travelDataService.logSearch('flight', searchParams);
+      
+      // 搜索航班
+      const data = await travelDataService.getFlights({
+        from: searchParams.from,
+        to: searchParams.to,
+        date: searchParams.departure
+      });
+      setFlights(data);
+      toast.success(`找到 ${data.length} 个航班`);
+    } catch (error) {
+      toast.error('搜索失败，请重试');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,18 +75,30 @@ const Flights = () => {
     setShowTransition(false);
   };
 
-  const handleBookFlight = (flight: any) => {
-    // 添加到购物车并跳转到结算页面
+  const handleBookFlight = (flight: Flight) => {
     const orderData = {
       type: 'flight',
-      item: flight,
+      item: {
+        ...flight,
+        departure: { 
+          time: new Date(flight.departure_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+          airport: flight.departure_airport 
+        },
+        arrival: { 
+          time: new Date(flight.arrival_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+          airport: flight.arrival_airport 
+        },
+        duration: `${Math.floor(flight.duration_minutes / 60)}小时${flight.duration_minutes % 60}分钟`,
+        seats: flight.available_seats,
+        class: flight.class_type
+      },
       totalPrice: flight.price
     };
     localStorage.setItem('pendingOrder', JSON.stringify(orderData));
     navigate('/checkout');
   };
 
-  const handleAIFlightInfoGenerated = (flightId: number, content: any) => {
+  const handleAIFlightInfoGenerated = (flightId: string, content: any) => {
     setAiEnhancedFlights(prev => ({
       ...prev,
       [flightId]: content
@@ -152,8 +169,12 @@ const Flights = () => {
                 />
               </div>
             </div>
-            <Button onClick={handleSearch} className="w-full gradient-ocean text-white">
-              搜索航班
+            <Button 
+              onClick={handleSearch} 
+              className="w-full gradient-ocean text-white"
+              disabled={loading}
+            >
+              {loading ? '搜索中...' : '搜索航班'}
             </Button>
           </CardContent>
         </Card>
@@ -162,86 +183,102 @@ const Flights = () => {
         {selectedCountry === '中国' && (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold mb-4">可预订航班</h2>
-            {flights.map((flight) => (
-              <Card key={flight.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold">{flight.departure.time}</div>
-                          <div className="text-sm text-gray-600">{flight.departure.airport}</div>
-                        </div>
-                        <div className="flex-1 text-center">
-                          <div className="flex items-center justify-center space-x-2">
-                            <div className="h-0.5 bg-gray-300 flex-1"></div>
-                            <Plane className="h-4 w-4 text-gray-400" />
-                            <div className="h-0.5 bg-gray-300 flex-1"></div>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-gray-600">加载中...</p>
+              </div>
+            ) : flights.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">暂无航班数据</p>
+              </div>
+            ) : (
+              flights.map((flight) => (
+                <Card key={flight.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold">
+                              {new Date(flight.departure_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <div className="text-sm text-gray-600">{flight.departure_airport}</div>
                           </div>
-                          <div className="text-sm text-gray-600 mt-1">{flight.duration}</div>
+                          <div className="flex-1 text-center">
+                            <div className="flex items-center justify-center space-x-2">
+                              <div className="h-0.5 bg-gray-300 flex-1"></div>
+                              <Plane className="h-4 w-4 text-gray-400" />
+                              <div className="h-0.5 bg-gray-300 flex-1"></div>
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              {Math.floor(flight.duration_minutes / 60)}小时{flight.duration_minutes % 60}分钟
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold">
+                              {new Date(flight.arrival_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <div className="text-sm text-gray-600">{flight.arrival_airport}</div>
+                          </div>
                         </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold">{flight.arrival.time}</div>
-                          <div className="text-sm text-gray-600">{flight.arrival.airport}</div>
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <span>{flight.airline} {flight.flight_number}</span>
+                          <span>{flight.class_type}</span>
+                          <Badge variant={flight.available_seats < 10 ? "destructive" : "secondary"}>
+                            余票 {flight.available_seats} 张
+                          </Badge>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
-                        <span>{flight.airline} {flight.flightNumber}</span>
-                        <span>{flight.class}</span>
-                        <Badge variant={flight.seats < 10 ? "destructive" : "secondary"}>
-                          余票 {flight.seats} 张
-                        </Badge>
+                      <div className="text-right ml-6">
+                        <div className="text-2xl font-bold text-red-600">¥{flight.price}</div>
+                        <div className="mt-4 flex justify-between items-center">
+                          <div className="flex-1">
+                            <Button 
+                              onClick={() => handleBookFlight(flight)}
+                              className="mt-2 gradient-ocean text-white"
+                            >
+                              立即预订
+                            </Button>
+                          </div>
+                          <div className="ml-4">
+                            <AIContentGenerator
+                              type="flight"
+                              context={flight}
+                              onContentGenerated={(content) => handleAIFlightInfoGenerated(flight.id, content)}
+                              buttonText="AI分析"
+                              title=""
+                              description=""
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right ml-6">
-                      <div className="text-2xl font-bold text-red-600">¥{flight.price}</div>
-                      {/* AI内容生成按钮 */}
-                      <div className="mt-4 flex justify-between items-center">
-                        <div className="flex-1">
-                          <Button 
-                            onClick={() => handleBookFlight(flight)}
-                            className="mt-2 gradient-ocean text-white"
-                          >
-                            立即预订
-                          </Button>
-                        </div>
-                        <div className="ml-4">
-                          <AIContentGenerator
-                            type="flight"
-                            context={flight}
-                            onContentGenerated={(content) => handleAIFlightInfoGenerated(flight.id, content)}
-                            buttonText="AI分析"
-                            title=""
-                            description=""
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* AI增强信息 */}
-                  {aiEnhancedFlights[flight.id] && (
-                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-2">AI服务亮点</h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-blue-700">准点率: {aiEnhancedFlights[flight.id].punctualityRate}</p>
-                          <p className="text-blue-700">乘客评价: {aiEnhancedFlights[flight.id].passengerReview}</p>
-                        </div>
-                        <div>
-                          <p className="text-blue-700">服务特色:</p>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {aiEnhancedFlights[flight.id].additionalServices?.slice(0, 3).map((service: string, index: number) => (
-                              <Badge key={index} variant="outline" className="text-xs">{service}</Badge>
-                            ))}
+                    {/* AI增强信息 */}
+                    {aiEnhancedFlights[flight.id] && (
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                        <h4 className="font-medium text-blue-800 mb-2">AI服务亮点</h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="text-blue-700">准点率: {aiEnhancedFlights[flight.id].punctualityRate}</p>
+                            <p className="text-blue-700">乘客评价: {aiEnhancedFlights[flight.id].passengerReview}</p>
+                          </div>
+                          <div>
+                            <p className="text-blue-700">服务特色:</p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {aiEnhancedFlights[flight.id].additionalServices?.slice(0, 3).map((service: string, index: number) => (
+                                <Badge key={index} variant="outline" className="text-xs">{service}</Badge>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </div>
