@@ -10,13 +10,14 @@ import ThemeToggle from './ThemeToggle';
 import APIKeySettings from './APIKeySettings';
 import { DailyCheckIn } from './DailyCheckIn';
 import UserTypeSelection from './UserTypeSelection';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const [isAPISettingsOpen, setIsAPISettingsOpen] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isUserTypeSelectionOpen, setIsUserTypeSelectionOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // 检查是否在合作伙伴相关页面
   const isPartnerPage = location.pathname.includes('/partner') || 
@@ -36,6 +37,22 @@ const Navbar = () => {
     console.log('API key saved successfully');
   };
 
+  const handleLogoClick = () => {
+    navigate('/supply-chain-partner');
+  };
+
+  const handleAccountClick = () => {
+    // 检查是否已登录合作伙伴账号
+    const savedUser = localStorage.getItem('partner-user');
+    if (savedUser) {
+      // 已登录，跳转到供应商管理页面
+      navigate('/supplier-dashboard');
+    } else {
+      // 未登录，跳转到供应链账号登录页面
+      navigate('/partner-login');
+    }
+  };
+
   if (isPartnerPage) {
     return (
       <>
@@ -43,7 +60,7 @@ const Navbar = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               {/* 左侧 Logo 和 Glocal 文字 */}
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 cursor-pointer" onClick={handleLogoClick}>
                 <div className="w-8 h-8 flex items-center justify-center">
                   <img 
                     src="/lovable-uploads/7cb822ca-c94a-4ca1-9f2e-7ffe6cd2c3d9.png" 
@@ -81,6 +98,7 @@ const Navbar = () => {
                   variant="outline"
                   size="sm"
                   className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  onClick={handleAccountClick}
                 >
                   <User className="h-4 w-4 mr-1" />
                   Glocal合作伙伴账号
