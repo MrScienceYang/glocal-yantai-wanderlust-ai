@@ -7,9 +7,20 @@ type Train = Database['public']['Tables']['trains']['Row'];
 type Hotel = Database['public']['Tables']['hotels']['Row'];
 type Ticket = Database['public']['Tables']['tickets']['Row'];
 
+interface SearchParams {
+  [key: string]: any;
+  limit?: number;
+}
+
+interface ApiResponse<T> {
+  data: T[];
+  source: 'api' | 'cache' | 'fallback';
+  cached: boolean;
+}
+
 export const travelDataService = {
   // 统一的数据获取方法
-  async fetchData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
+  async fetchData<T>(type: string, searchParams?: SearchParams): Promise<ApiResponse<T>> {
     try {
       console.log(`正在获取${type}数据，参数:`, searchParams);
       
@@ -56,7 +67,7 @@ export const travelDataService = {
   },
 
   // 从缓存获取数据
-  async getCachedData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
+  async getCachedData(type: string, searchParams?: SearchParams): Promise<any[]> {
     try {
       let query = supabase
         .from(type)
@@ -121,8 +132,8 @@ export const travelDataService = {
     from?: string;
     to?: string;
     date?: string;
-  }) {
-    const result = await this.fetchData('flights', searchParams);
+  }): Promise<Flight[]> {
+    const result = await this.fetchData<Flight>('flights', searchParams);
     return result.data;
   },
 
@@ -131,8 +142,8 @@ export const travelDataService = {
     from?: string;
     to?: string;
     date?: string;
-  }) {
-    const result = await this.fetchData('trains', searchParams);
+  }): Promise<Train[]> {
+    const result = await this.fetchData<Train>('trains', searchParams);
     return result.data;
   },
 
@@ -141,8 +152,8 @@ export const travelDataService = {
     location?: string;
     checkin?: string;
     checkout?: string;
-  }) {
-    const result = await this.fetchData('hotels', searchParams);
+  }): Promise<Hotel[]> {
+    const result = await this.fetchData<Hotel>('hotels', searchParams);
     return result.data;
   },
 
@@ -151,13 +162,13 @@ export const travelDataService = {
     location?: string;
     category?: string;
     date?: string;
-  }) {
-    const result = await this.fetchData('tickets', searchParams);
+  }): Promise<Ticket[]> {
+    const result = await this.fetchData<Ticket>('tickets', searchParams);
     return result.data;
   },
 
   // 强制刷新数据（手动触发API调用）
-  async refreshData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
+  async refreshData(type: string, searchParams?: SearchParams): Promise<any[]> {
     try {
       console.log(`强制刷新${type}数据`);
       const { data: apiResponse, error } = await supabase.functions.invoke('travel-api', {
@@ -180,7 +191,7 @@ export const travelDataService = {
   },
 
   // 记录搜索日志
-  async logSearch(searchType: string, searchParams: any, userId?: string) {
+  async logSearch(searchType: string, searchParams: any, userId?: string): Promise<void> {
     try {
       const { error } = await supabase
         .from('search_logs')
@@ -204,7 +215,7 @@ export const travelDataService = {
     total_price: number;
     booking_details?: any;
     user_id?: string;
-  }) {
+  }): Promise<any> {
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -221,15 +232,20 @@ export const travelDataService = {
   },
 
   // 批量获取所有数据（用于首页展示）
-  async getAllTravelData() {
+  async getAllTravelData(): Promise<{
+    flights: Flight[];
+    trains: Train[];
+    hotels: Hotel[];
+    tickets: Ticket[];
+  }> {
     try {
       console.log('批量获取所有旅行数据');
       
       const [flightsResult, trainsResult, hotelsResult, ticketsResult] = await Promise.allSettled([
-        this.fetchData('flights', { limit: 6 }),
-        this.fetchData('trains', { limit: 6 }),
-        this.fetchData('hotels', { limit: 6 }),
-        this.fetchData('tickets', { limit: 6 })
+        this.fetchData<Flight>('flights', { limit: 6 }),
+        this.fetchData<Train>('trains', { limit: 6 }),
+        this.fetchData<Hotel>('hotels', { limit: 6 }),
+        this.fetchData<Ticket>('tickets', { limit: 6 })
       ]);
 
       return {
