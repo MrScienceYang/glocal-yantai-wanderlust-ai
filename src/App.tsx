@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -17,6 +16,7 @@ import LocalExperts from './pages/LocalExperts';
 import Community from './pages/Community';
 import Membership from './pages/Membership';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import PartnerHub from './pages/PartnerHub';
 import PartnerLogin from './pages/PartnerLogin';
 import PartnerDashboard from './pages/PartnerDashboard';
@@ -55,6 +55,7 @@ function App() {
                 <Route path="/community" element={<Community />} />
                 <Route path="/membership" element={<Membership />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/partner-hub" element={<PartnerHub />} />
                 <Route path="/partner-login" element={<PartnerLogin />} />
                 <Route path="/partner-dashboard" element={<PartnerDashboard />} />
