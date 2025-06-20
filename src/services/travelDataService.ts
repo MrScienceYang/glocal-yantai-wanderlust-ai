@@ -193,16 +193,19 @@ export const travelDataService = {
     }
   },
 
-  // 记录搜索日志
+  // 记录搜索日志 - 简化类型处理
   async logSearch(searchType: string, searchParams: any, userId?: string): Promise<void> {
     try {
+      // 直接使用简单的插入操作，避免复杂的类型推断
+      const insertData = {
+        search_type: searchType,
+        search_params: searchParams,
+        user_id: userId || null
+      };
+      
       const { error } = await supabase
         .from('search_logs')
-        .insert({
-          search_type: searchType,
-          search_params: searchParams,
-          user_id: userId || null
-        });
+        .insert(insertData);
       
       if (error) throw error;
     } catch (error) {
@@ -210,7 +213,7 @@ export const travelDataService = {
     }
   },
 
-  // 创建订单
+  // 创建订单 - 简化类型处理
   async createOrder(orderData: {
     order_type: string;
     item_id: string;
