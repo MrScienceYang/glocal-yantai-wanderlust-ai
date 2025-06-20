@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Globe, ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Globe, ChevronDown, MapPin, Loader2 } from 'lucide-react';
 import { useCityContext } from './CityProvider';
 
 // 扩展的城市数据结构 - 包含全球主要旅游城市
@@ -52,7 +51,7 @@ const cityData = {
     '东北地方': ['仙台市', '青森市', '盛冈市', '秋田市', '山形市', '福岛市'],
     '中国地方': ['广岛市', '冈山市', '山口市', '鸟取市', '松江市'],
     '四国地方': ['高松市', '松山市', '高知市', '德岛市'],
-    '北海道地方': ['札幌市', '函馆市', '旭川市', '釧路市', '帯広市'],
+    '北海道地方': ['札幌市', '函馆市', '旭川市', '釧路市', '帯广市'],
     '冲绳地方': ['那霸市', '石垣市', '宫古岛市']
   },
   '韩国': {
@@ -430,7 +429,7 @@ interface CitySelectorProps {
 }
 
 const CitySelector = ({ onCityChange }: CitySelectorProps) => {
-  const { selectedCountry, selectedProvince, selectedCity, updateCity } = useCityContext();
+  const { selectedCountry, selectedProvince, selectedCity, isLoadingLocation, updateCity, requestUserLocation } = useCityContext();
   const [isOpen, setIsOpen] = useState(false);
 
   const getProvinces = () => {
@@ -462,17 +461,48 @@ const CitySelector = ({ onCityChange }: CitySelectorProps) => {
     setIsOpen(false);
   };
 
+  const handleLocationRequest = async () => {
+    await requestUserLocation();
+  };
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="flex items-center">
           <Globe className="h-4 w-4 mr-2" />
-          {selectedCity}
+          {isLoadingLocation ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              定位中...
+            </>
+          ) : (
+            selectedCity
+          )}
           <ChevronDown className="h-4 w-4 ml-2" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80 p-4 bg-white border shadow-lg z-[9999] fixed">
         <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="font-medium text-gray-900">选择地点</h3>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleLocationRequest}
+              disabled={isLoadingLocation}
+              className="flex items-center"
+            >
+              {isLoadingLocation ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <MapPin className="h-3 w-3 mr-1" />
+              )}
+              {isLoadingLocation ? '定位中' : '重新定位'}
+            </Button>
+          </div>
+          
+          <DropdownMenuSeparator />
+
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-2">国家</label>
             <Select value={selectedCountry} onValueChange={handleCountryChange}>
