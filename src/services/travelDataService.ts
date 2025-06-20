@@ -66,68 +66,95 @@ export const travelDataService = {
     }
   },
 
-  // 从缓存获取数据
+  // 从缓存获取数据 - 进一步简化类型处理
   async getCachedData(type: string, searchParams?: SearchParams): Promise<any[]> {
     try {
-      // 使用类型断言来处理动态表名
-      const tableName = type as 'flights' | 'trains' | 'hotels' | 'tickets';
-      
-      let query = supabase
-        .from(tableName)
-        .select('*')
-        .limit(20);
-
-      // 根据类型添加排序
+      // 分别处理每种类型，避免复杂的泛型推断
       if (type === 'flights') {
-        query = query.order('departure_time', { ascending: true });
+        return await this.getFlightCache(searchParams);
       } else if (type === 'trains') {
-        query = query.order('departure_time', { ascending: true });
+        return await this.getTrainCache(searchParams);
       } else if (type === 'hotels') {
-        query = query.order('rating', { ascending: false });
+        return await this.getHotelCache(searchParams);
       } else if (type === 'tickets') {
-        query = query.order('price', { ascending: true });
+        return await this.getTicketCache(searchParams);
       }
-
-      // 添加搜索过滤
-      if (searchParams) {
-        if (type === 'flights') {
-          if (searchParams.from) {
-            query = query.ilike('departure_airport', `%${searchParams.from}%`);
-          }
-          if (searchParams.to) {
-            query = query.ilike('arrival_airport', `%${searchParams.to}%`);
-          }
-        } else if (type === 'trains') {
-          if (searchParams.from) {
-            query = query.ilike('departure_station', `%${searchParams.from}%`);
-          }
-          if (searchParams.to) {
-            query = query.ilike('arrival_station', `%${searchParams.to}%`);
-          }
-        } else if (type === 'hotels') {
-          if (searchParams.location) {
-            query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
-          }
-        } else if (type === 'tickets') {
-          if (searchParams.location) {
-            query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
-          }
-          if (searchParams.category) {
-            query = query.eq('category', searchParams.category);
-          }
-        }
-      }
-
-      const { data, error } = await query;
-      if (error) {
-        console.error(`获取缓存${type}数据失败:`, error);
-        return [];
-      }
-      return data || [];
+      
+      return [];
     } catch (error) {
       console.error(`获取缓存${type}数据异常:`, error);
       return [];
     }
+  },
+
+  // 专门的缓存获取方法
+  async getFlightCache(searchParams?: SearchParams): Promise<any[]> {
+    let query = supabase.from('flights').select('*').limit(20).order('departure_time', { ascending: true });
+    
+    if (searchParams?.from) {
+      query = query.ilike('departure_airport', `%${searchParams.from}%`);
+    }
+    if (searchParams?.to) {
+      query = query.ilike('arrival_airport', `%${searchParams.to}%`);
+    }
+    
+    const { data, error } = await query;
+    if (error) {
+      console.error('获取航班缓存数据失败:', error);
+      return [];
+    }
+    return data || [];
+  },
+
+  async getTrainCache(searchParams?: SearchParams): Promise<any[]> {
+    let query = supabase.from('trains').select('*').limit(20).order('departure_time', { ascending: true });
+    
+    if (searchParams?.from) {
+      query = query.ilike('departure_station', `%${searchParams.from}%`);
+    }
+    if (searchParams?.to) {
+      query = query.ilike('arrival_station', `%${searchParams.to}%`);
+    }
+    
+    const { data, error } = await query;
+    if (error) {
+      console.error('获取火车缓存数据失败:', error);
+      return [];
+    }
+    return data || [];
+  },
+
+  async getHotelCache(searchParams?: SearchParams): Promise<any[]> {
+    let query = supabase.from('hotels').select('*').limit(20).order('rating', { ascending: false });
+    
+    if (searchParams?.location) {
+      query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
+    }
+    
+    const { data, error } = await query;
+    if (error) {
+      console.error('获取酒店缓存数据失败:', error);
+      return [];
+    }
+    return data || [];
+  },
+
+  async getTicketCache(searchParams?: SearchParams): Promise<any[]> {
+    let query = supabase.from('tickets').select('*').limit(20).order('price', { ascending: true });
+    
+    if (searchParams?.location) {
+      query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
+    }
+    if (searchParams?.category) {
+      query = query.eq('category', searchParams.category);
+    }
+    
+    const { data, error } = await query;
+    if (error) {
+      console.error('获取门票缓存数据失败:', error);
+      return [];
+    }
+    return data || [];
   },
 
   // 航班相关API
