@@ -8,44 +8,122 @@ type Hotel = Database['public']['Tables']['hotels']['Row'];
 type Ticket = Database['public']['Tables']['tickets']['Row'];
 
 export const travelDataService = {
+  // 统一的数据获取方法
+  async fetchData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
+    try {
+      console.log(`正在获取${type}数据，参数:`, searchParams);
+      
+      // 首先尝试从实时API获取数据
+      const { data: apiResponse, error: apiError } = await supabase.functions.invoke('travel-api', {
+        body: { 
+          type, 
+          params: { 
+            ...searchParams,
+            limit: 20 // 默认获取20条数据
+          }
+        }
+      });
+
+      if (apiResponse?.success && apiResponse.data?.length > 0) {
+        console.log(`使用实时${type}数据:`, apiResponse.data.length, '条记录');
+        return {
+          data: apiResponse.data,
+          source: 'api',
+          cached: apiResponse.cached || false
+        };
+      }
+
+      // 如果API调用失败，使用数据库中的缓存数据
+      console.log(`API调用失败，使用${type}缓存数据`);
+      const fallbackData = await this.getCachedData(type, searchParams);
+      
+      return {
+        data: fallbackData,
+        source: 'cache',
+        cached: true
+      };
+    } catch (error) {
+      console.error(`获取${type}数据失败:`, error);
+      
+      // 最后尝试缓存数据
+      const fallbackData = await this.getCachedData(type, searchParams);
+      return {
+        data: fallbackData,
+        source: 'fallback',
+        cached: true
+      };
+    }
+  },
+
+  // 从缓存获取数据
+  async getCachedData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
+    try {
+      let query = supabase
+        .from(type)
+        .select('*')
+        .limit(20);
+
+      // 根据类型添加排序
+      if (type === 'flights') {
+        query = query.order('departure_time', { ascending: true });
+      } else if (type === 'trains') {
+        query = query.order('departure_time', { ascending: true });
+      } else if (type === 'hotels') {
+        query = query.order('rating', { ascending: false });
+      } else if (type === 'tickets') {
+        query = query.order('price', { ascending: true });
+      }
+
+      // 添加搜索过滤
+      if (searchParams) {
+        if (type === 'flights') {
+          if (searchParams.from) {
+            query = query.ilike('departure_airport', `%${searchParams.from}%`);
+          }
+          if (searchParams.to) {
+            query = query.ilike('arrival_airport', `%${searchParams.to}%`);
+          }
+        } else if (type === 'trains') {
+          if (searchParams.from) {
+            query = query.ilike('departure_station', `%${searchParams.from}%`);
+          }
+          if (searchParams.to) {
+            query = query.ilike('arrival_station', `%${searchParams.to}%`);
+          }
+        } else if (type === 'hotels') {
+          if (searchParams.location) {
+            query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
+          }
+        } else if (type === 'tickets') {
+          if (searchParams.location) {
+            query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
+          }
+          if (searchParams.category) {
+            query = query.eq('category', searchParams.category);
+          }
+        }
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        console.error(`获取缓存${type}数据失败:`, error);
+        return [];
+      }
+      return data || [];
+    } catch (error) {
+      console.error(`获取缓存${type}数据异常:`, error);
+      return [];
+    }
+  },
+
   // 航班相关API
   async getFlights(searchParams?: {
     from?: string;
     to?: string;
     date?: string;
   }) {
-    try {
-      // 首先尝试从实时API获取数据
-      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
-        body: { type: 'flights', params: searchParams }
-      });
-
-      if (apiData?.success && apiData.data?.length > 0) {
-        console.log('使用实时航班数据:', apiData.data.length, '条记录');
-        return apiData.data;
-      }
-
-      // 如果API调用失败，使用数据库中的缓存数据
-      console.log('API调用失败，使用缓存数据');
-      let query = supabase
-        .from('flights')
-        .select('*')
-        .order('departure_time', { ascending: true });
-
-      if (searchParams?.from) {
-        query = query.ilike('departure_airport', `%${searchParams.from}%`);
-      }
-      if (searchParams?.to) {
-        query = query.ilike('arrival_airport', `%${searchParams.to}%`);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('获取航班数据失败:', error);
-      return [];
-    }
+    const result = await this.fetchData('flights', searchParams);
+    return result.data;
   },
 
   // 火车相关API
@@ -54,38 +132,8 @@ export const travelDataService = {
     to?: string;
     date?: string;
   }) {
-    try {
-      // 首先尝试从实时API获取数据
-      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
-        body: { type: 'trains', params: searchParams }
-      });
-
-      if (apiData?.success && apiData.data?.length > 0) {
-        console.log('使用实时火车数据:', apiData.data.length, '条记录');
-        return apiData.data;
-      }
-
-      // 如果API调用失败，使用数据库中的缓存数据
-      console.log('API调用失败，使用缓存数据');
-      let query = supabase
-        .from('trains')
-        .select('*')
-        .order('departure_time', { ascending: true });
-
-      if (searchParams?.from) {
-        query = query.ilike('departure_station', `%${searchParams.from}%`);
-      }
-      if (searchParams?.to) {
-        query = query.ilike('arrival_station', `%${searchParams.to}%`);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('获取火车数据失败:', error);
-      return [];
-    }
+    const result = await this.fetchData('trains', searchParams);
+    return result.data;
   },
 
   // 酒店相关API
@@ -94,35 +142,8 @@ export const travelDataService = {
     checkin?: string;
     checkout?: string;
   }) {
-    try {
-      // 首先尝试从实时API获取数据
-      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
-        body: { type: 'hotels', params: searchParams }
-      });
-
-      if (apiData?.success && apiData.data?.length > 0) {
-        console.log('使用实时酒店数据:', apiData.data.length, '条记录');
-        return apiData.data;
-      }
-
-      // 如果API调用失败，使用数据库中的缓存数据
-      console.log('API调用失败，使用缓存数据');
-      let query = supabase
-        .from('hotels')
-        .select('*')
-        .order('rating', { ascending: false });
-
-      if (searchParams?.location) {
-        query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('获取酒店数据失败:', error);
-      return [];
-    }
+    const result = await this.fetchData('hotels', searchParams);
+    return result.data;
   },
 
   // 门票相关API
@@ -131,37 +152,30 @@ export const travelDataService = {
     category?: string;
     date?: string;
   }) {
+    const result = await this.fetchData('tickets', searchParams);
+    return result.data;
+  },
+
+  // 强制刷新数据（手动触发API调用）
+  async refreshData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
     try {
-      // 首先尝试从实时API获取数据
-      const { data: apiData, error: apiError } = await supabase.functions.invoke('travel-api', {
-        body: { type: 'tickets', params: searchParams }
+      console.log(`强制刷新${type}数据`);
+      const { data: apiResponse, error } = await supabase.functions.invoke('travel-api', {
+        body: { 
+          type, 
+          params: { 
+            ...searchParams,
+            limit: 20,
+            forceRefresh: true
+          }
+        }
       });
 
-      if (apiData?.success && apiData.data?.length > 0) {
-        console.log('使用实时门票数据:', apiData.data.length, '条记录');
-        return apiData.data;
-      }
-
-      // 如果API调用失败，使用数据库中的缓存数据
-      console.log('API调用失败，使用缓存数据');
-      let query = supabase
-        .from('tickets')
-        .select('*')
-        .order('price', { ascending: true });
-
-      if (searchParams?.location) {
-        query = query.or(`city.ilike.%${searchParams.location}%,name.ilike.%${searchParams.location}%`);
-      }
-      if (searchParams?.category) {
-        query = query.eq('category', searchParams.category);
-      }
-
-      const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return apiResponse?.data || [];
     } catch (error) {
-      console.error('获取门票数据失败:', error);
-      return [];
+      console.error(`刷新${type}数据失败:`, error);
+      throw error;
     }
   },
 
@@ -206,18 +220,32 @@ export const travelDataService = {
     }
   },
 
-  // 强制刷新数据（手动触发API调用）
-  async refreshData(type: 'flights' | 'trains' | 'hotels' | 'tickets', searchParams?: any) {
+  // 批量获取所有数据（用于首页展示）
+  async getAllTravelData() {
     try {
-      const { data: apiData, error } = await supabase.functions.invoke('travel-api', {
-        body: { type, params: searchParams || {} }
-      });
+      console.log('批量获取所有旅行数据');
+      
+      const [flightsResult, trainsResult, hotelsResult, ticketsResult] = await Promise.allSettled([
+        this.fetchData('flights', { limit: 6 }),
+        this.fetchData('trains', { limit: 6 }),
+        this.fetchData('hotels', { limit: 6 }),
+        this.fetchData('tickets', { limit: 6 })
+      ]);
 
-      if (error) throw error;
-      return apiData?.data || [];
+      return {
+        flights: flightsResult.status === 'fulfilled' ? flightsResult.value.data : [],
+        trains: trainsResult.status === 'fulfilled' ? trainsResult.value.data : [],
+        hotels: hotelsResult.status === 'fulfilled' ? hotelsResult.value.data : [],
+        tickets: ticketsResult.status === 'fulfilled' ? ticketsResult.value.data : []
+      };
     } catch (error) {
-      console.error(`刷新${type}数据失败:`, error);
-      throw error;
+      console.error('批量获取旅行数据失败:', error);
+      return {
+        flights: [],
+        trains: [],
+        hotels: [],
+        tickets: []
+      };
     }
   }
 };

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Ticket, MapPin, Clock, Calendar } from 'lucide-react';
+import { Ticket, MapPin, Clock, Calendar, RefreshCw } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
@@ -18,6 +18,7 @@ const Tickets = () => {
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [tickets, setTickets] = useState<TicketType[]>([]);
   const [searchParams, setSearchParams] = useState({
     location: '',
@@ -36,6 +37,7 @@ const Tickets = () => {
     try {
       const data = await travelDataService.getTickets();
       setTickets(data);
+      toast.success(`加载了 ${data.length} 张门票`);
     } catch (error) {
       toast.error('加载门票数据失败');
     } finally {
@@ -66,6 +68,19 @@ const Tickets = () => {
       toast.error('搜索失败，请重试');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const data = await travelDataService.refreshData('tickets', searchParams);
+      setTickets(data);
+      toast.success('门票数据已刷新');
+    } catch (error) {
+      toast.error('刷新数据失败');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -105,9 +120,21 @@ const Tickets = () => {
         {/* 搜索区域 */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Ticket className="mr-2 h-5 w-5" />
-              门票搜索
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Ticket className="mr-2 h-5 w-5" />
+                门票搜索
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                刷新数据
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -138,6 +165,8 @@ const Tickets = () => {
                   <option value="">全部分类</option>
                   <option value="文化景点">文化景点</option>
                   <option value="主题乐园">主题乐园</option>
+                  <option value="观光景点">观光景点</option>
+                  <option value="自然景观">自然景观</option>
                   <option value="演出">演出</option>
                   <option value="展览">展览</option>
                   <option value="体验">体验</option>
@@ -157,7 +186,13 @@ const Tickets = () => {
         {/* 门票列表 */}
         {selectedCountry === '中国' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold mb-4">热门门票</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold mb-4">热门门票</h2>
+              <Badge variant="outline" className="text-sm">
+                实时数据 · 共 {tickets.length} 张门票
+              </Badge>
+            </div>
+            
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>

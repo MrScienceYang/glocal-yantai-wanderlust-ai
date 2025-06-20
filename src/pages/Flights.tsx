@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plane, MapPin, Clock, Users, Shield } from 'lucide-react';
+import { Plane, MapPin, Clock, Users, Shield, RefreshCw } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useCityContext } from '@/components/CityProvider';
 import ForeignTransition from '@/components/ForeignTransition';
@@ -18,6 +18,7 @@ const Flights = () => {
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [flights, setFlights] = useState<Flight[]>([]);
   const [searchParams, setSearchParams] = useState({
     from: '',
@@ -37,6 +38,7 @@ const Flights = () => {
     try {
       const data = await travelDataService.getFlights();
       setFlights(data);
+      toast.success(`加载了 ${data.length} 个航班`);
     } catch (error) {
       toast.error('加载航班数据失败');
     } finally {
@@ -67,6 +69,19 @@ const Flights = () => {
       toast.error('搜索失败，请重试');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const data = await travelDataService.refreshData('flights', searchParams);
+      setFlights(data);
+      toast.success('航班数据已刷新');
+    } catch (error) {
+      toast.error('刷新数据失败');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -128,9 +143,21 @@ const Flights = () => {
         {/* 搜索区域 */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Plane className="mr-2 h-5 w-5" />
-              航班搜索
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Plane className="mr-2 h-5 w-5" />
+                航班搜索
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                刷新数据
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -182,7 +209,13 @@ const Flights = () => {
         {/* 航班列表 */}
         {selectedCountry === '中国' && (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">可预订航班</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">可预订航班</h2>
+              <Badge variant="outline" className="text-sm">
+                实时数据 · 共 {flights.length} 个航班
+              </Badge>
+            </div>
+            
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
