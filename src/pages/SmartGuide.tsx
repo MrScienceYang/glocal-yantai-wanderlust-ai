@@ -4,7 +4,7 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Navigation, Compass, Star, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { MapPin, Navigation, Compass, Star, Play, Pause, Volume2, VolumeX, Square } from 'lucide-react';
 import { geolocationService } from '@/services/geolocationService';
 import { smartGuideService, Attraction } from '@/services/smartGuideService';
 import { toast } from 'sonner';
@@ -237,8 +237,25 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
     });
   };
 
+  const stopAudio = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+    setIsPlaying(false);
+    
+    // 停止浏览器TTS
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+  };
+
   const handleUserResponse = async () => {
     if (!userInput.trim()) return;
+    
+    // 自动停止当前播放的音频
+    stopAudio();
     
     // 添加用户消息
     const newConversation = [...conversation, { text: userInput, isUser: true }];
@@ -318,13 +335,31 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
           {/* AI对话区域 */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Compass className="w-6 h-6 mr-2 text-cyan-600" />
-                AI智慧导游
-                {ttsMode === 'none' && (
-                  <span className="ml-2 text-sm text-orange-600">(音频功能暂时不可用)</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Compass className="w-6 h-6 mr-2 text-cyan-600" />
+                  <CardTitle>AI智慧导游</CardTitle>
+                  {ttsMode === 'none' && (
+                    <span className="ml-2 text-sm text-orange-600">(音频功能暂时不可用)</span>
+                  )}
+                </div>
+                {/* 音频控制按钮 */}
+                {ttsMode !== 'none' && (
+                  <div className="flex items-center space-x-2">
+                    {isPlaying && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={stopAudio}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Square className="w-4 h-4 mr-1" />
+                        停止播放
+                      </Button>
+                    )}
+                  </div>
                 )}
-              </CardTitle>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
@@ -337,14 +372,17 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
                     }`}>
                       <p className="text-sm">{message.text}</p>
                       {!message.isUser && message.audioUrl && ttsMode === 'edge' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="mt-2 p-1 h-8 text-cyan-600"
-                          onClick={() => playAudio(message.audioUrl!)}
-                        >
-                          <Volume2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center mt-2 space-x-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="p-1 h-8 text-cyan-600"
+                            onClick={() => playAudio(message.audioUrl!)}
+                            disabled={isPlaying}
+                          >
+                            <Volume2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
