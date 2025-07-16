@@ -162,7 +162,7 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [userInput, setUserInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [audioSupported, setAudioSupported] = useState(true);
+  const [ttsMode, setTtsMode] = useState<'edge' | 'browser' | 'none'>('edge');
 
   useEffect(() => {
     // 初始化时播放景区介绍
@@ -176,22 +176,27 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
       const introduction = await smartGuideService.getAttractionIntroduction(attraction.id);
       console.log('获取景区介绍成功:', introduction.substring(0, 50) + '...');
       
-      // 尝试生成音频，但不因为音频失败而阻止整个功能
+      // 尝试生成音频
       const audioUrl = await smartGuideService.generateAudio(introduction);
       
       if (audioUrl === null) {
-        setAudioSupported(false);
+        setTtsMode('none');
         toast.info('音频功能暂时不可用，您仍可以查看文字介绍');
+      } else if (audioUrl === 'browser-tts') {
+        setTtsMode('browser');
+        toast.info('正在使用浏览器内置语音播放');
+      } else {
+        setTtsMode('edge');
       }
       
       setConversation([{
         text: introduction,
         isUser: false,
-        audioUrl: audioUrl
+        audioUrl: audioUrl === 'browser-tts' ? null : audioUrl
       }]);
       
-      // 如果有音频URL，自动播放欢迎语音
-      if (audioUrl) {
+      // 如果有音频URL且不是浏览器TTS，自动播放欢迎语音
+      if (audioUrl && audioUrl !== 'browser-tts') {
         playAudio(audioUrl);
       }
       
@@ -243,16 +248,16 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
     
     try {
       const aiResponse = await smartGuideService.askNextDestination(attraction.name, userInput);
-      const audioUrl = audioSupported ? await smartGuideService.generateAudio(aiResponse) : null;
+      const audioUrl = ttsMode !== 'none' ? await smartGuideService.generateAudio(aiResponse) : null;
       
       setConversation([...newConversation, {
         text: aiResponse,
         isUser: false,
-        audioUrl: audioUrl
+        audioUrl: audioUrl === 'browser-tts' ? null : audioUrl
       }]);
       
-      // 如果有音频URL，自动播放AI回应
-      if (audioUrl) {
+      // 如果有音频URL且不是浏览器TTS，自动播放AI回应
+      if (audioUrl && audioUrl !== 'browser-tts') {
         playAudio(audioUrl);
       }
     } catch (error) {
@@ -260,6 +265,32 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
       toast.error('AI导游响应失败，请稍后重试');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const getTtsStatusBadge = () => {
+    switch (ttsMode) {
+      case 'edge':
+        return (
+          <Badge variant="default" className="text-green-600">
+            <Volume2 className="w-3 h-3 mr-1" />
+            Edge TTS
+          </Badge>
+        );
+      case 'browser':
+        return (
+          <Badge variant="outline" className="text-blue-600">
+            <Volume2 className="w-3 h-3 mr-1" />
+            浏览器TTS
+          </Badge>
+        );
+      case 'none':
+        return (
+          <Badge variant="outline" className="text-orange-600">
+            <VolumeX className="w-3 h-3 mr-1" />
+            文字模式
+          </Badge>
+        );
     }
   };
 
@@ -277,12 +308,7 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
                 <CardTitle className="text-2xl">{attraction.name}</CardTitle>
                 <div className="flex items-center space-x-2">
                   <Badge>{attraction.category}</Badge>
-                  {!audioSupported && (
-                    <Badge variant="outline" className="text-orange-600">
-                      <VolumeX className="w-3 h-3 mr-1" />
-                      文字模式
-                    </Badge>
-                  )}
+                  {getTtsStatusBadge()}
                 </div>
               </div>
               <CardDescription>{attraction.description}</CardDescription>
@@ -295,7 +321,7 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
               <CardTitle className="flex items-center">
                 <Compass className="w-6 h-6 mr-2 text-cyan-600" />
                 AI智慧导游
-                {!audioSupported && (
+                {ttsMode === 'none' && (
                   <span className="ml-2 text-sm text-orange-600">(音频功能暂时不可用)</span>
                 )}
               </CardTitle>
@@ -310,7 +336,7 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
                         : 'bg-gray-100 text-gray-800'
                     }`}>
                       <p className="text-sm">{message.text}</p>
-                      {!message.isUser && message.audioUrl && (
+                      {!message.isUser && message.audioUrl && ttsMode === 'edge' && (
                         <Button
                           size="sm"
                           variant="ghost"

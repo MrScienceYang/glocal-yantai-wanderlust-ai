@@ -18,8 +18,6 @@ export interface LocationInfo {
 }
 
 export class SmartGuideService {
-  private elevenLabsApiKey = 'sk_b0e9c2bd873fe7dc30adffbcf3b22a3f3dbe6c93967c52b8';
-
   async getNearbyAttractions(location: LocationInfo): Promise<Attraction[]> {
     // 模拟数据，实际应该调用真实的景区API
     const mockAttractions: Attraction[] = [
@@ -73,47 +71,88 @@ export class SmartGuideService {
     return attractions[attractionId] || '欢迎来到这个美丽的景区！我是您的AI智慧导游，很高兴为您服务。';
   }
 
-  async generateAudio(text: string, voice: string = 'alloy'): Promise<string | null> {
+  async generateAudio(text: string, voice: string = 'zh-CN-XiaoxiaoNeural'): Promise<string | null> {
     try {
-      console.log('尝试生成音频，文本长度:', text.length);
+      console.log('尝试使用Edge TTS生成音频，文本长度:', text.length);
       
-      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM', {
+      // 使用Edge TTS的免费API
+      const response = await fetch('https://speech.platform.bing.com/synthesize', {
         method: 'POST',
         headers: {
-          'Accept': 'audio/mpeg',
-          'Content-Type': 'application/json',
-          'xi-api-key': this.elevenLabsApiKey
+          'Content-Type': 'application/ssml+xml',
+          'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         },
-        body: JSON.stringify({
-          text: text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.5
-          }
-        })
+        body: `<speak version='1.0' xml:lang='zh-CN'>
+                <voice xml:lang='zh-CN' xml:gender='Female' name='${voice}'>
+                  ${text}
+                </voice>
+               </speak>`
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('ElevenLabs API错误:', response.status, errorText);
+        console.error('Edge TTS API错误:', response.status, response.statusText);
         
-        // 如果是401错误，可能是API密钥问题或免费额度限制
-        if (response.status === 401) {
-          console.warn('ElevenLabs API密钥无效或免费额度已用完，将跳过音频生成');
-          return null; // 返回null表示音频生成失败，但不抛出错误
-        }
-        
-        throw new Error(`ElevenLabs API错误: ${response.status}`);
+        // 如果Edge TTS不可用，尝试使用浏览器内置的Speech Synthesis API
+        return this.generateBrowserAudio(text);
       }
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
-      console.log('音频生成成功');
+      console.log('Edge TTS音频生成成功');
       return audioUrl;
     } catch (error) {
-      console.error('生成音频时出错:', error);
-      // 不抛出错误，只是返回null，让应用继续运行
+      console.error('Edge TTS生成音频时出错:', error);
+      // 降级到浏览器内置的Speech Synthesis API
+      return this.generateBrowserAudio(text);
+    }
+  }
+
+  private async generateBrowserAudio(text: string): Promise<string | null> {
+    try {
+      console.log('使用浏览器内置TTS生成音频');
+      
+      // 检查浏览器是否支持Speech Synthesis API
+      if (!('speechSynthesis' in window)) {
+        console.warn('浏览器不支持Speech Synthesis API');
+        return null;
+      }
+
+      return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        // 尝试选择中文语音
+        const voices = speechSynthesis.getVoices();
+        const chineseVoice = voices.find(voice => 
+          voice.lang.includes('zh') || voice.lang.includes('CN')
+        );
+        if (chineseVoice) {
+          utterance.voice = chineseVoice;
+        }
+
+        utterance.onstart = () => {
+          console.log('浏览器TTS开始播放');
+        };
+
+        utterance.onend = () => {
+          console.log('浏览器TTS播放完成');
+        };
+
+        utterance.onerror = (event) => {
+          console.error('浏览器TTS播放错误:', event.error);
+        };
+
+        speechSynthesis.speak(utterance);
+        
+        // 对于浏览器TTS，我们返回一个特殊标识符
+        resolve('browser-tts');
+      });
+    } catch (error) {
+      console.error('浏览器TTS生成失败:', error);
       return null;
     }
   }
