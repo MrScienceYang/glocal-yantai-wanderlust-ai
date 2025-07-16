@@ -19,6 +19,7 @@ const NavbarNavigation = () => {
 
   const travelOptions = [
     { name: 'AI规划', href: '/ai-planning', icon: MapPin },
+    { name: '智慧导游', href: '/smart-guide', icon: MapPin, isNew: true },
     { name: '机票', href: '/flights', icon: Plane },
     { name: '火车票', href: '/trains', icon: Train },
     { name: '酒店', href: '/hotels', icon: Hotel },
@@ -50,10 +51,15 @@ const NavbarNavigation = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="flex items-center space-x-3 rounded-md p-3 hover:bg-gray-50 transition-colors"
+                    className="flex items-center space-x-3 rounded-md p-3 hover:bg-gray-50 transition-colors relative"
                   >
                     <item.icon className="h-5 w-5 text-ocean-600" />
                     <span className="text-sm font-medium">{item.name}</span>
+                    {item.isNew && (
+                      <span className="absolute right-2 top-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                        NEW
+                      </span>
+                    )}
                   </Link>
                 ))}
               </div>
@@ -85,14 +91,14 @@ const NavbarNavigation = () => {
             特色商城
           </Link>
           <Link
-            to="/mystery-box"
+            to="/smart-guide"
             className={`px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-              isActive('/mystery-box')
+              isActive('/smart-guide')
                 ? 'text-ocean-600 bg-ocean-50'
                 : 'text-gray-700 hover:text-ocean-600'
             }`}
           >
-            盲盒旅行
+            智慧导游
           </Link>
         </>
       )}

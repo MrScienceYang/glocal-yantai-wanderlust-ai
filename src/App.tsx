@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -32,6 +33,7 @@ import Careers from './pages/Careers';
 import InnovationCompetition from './pages/InnovationCompetition';
 import SupplyChainPartner from './pages/SupplyChainPartner';
 import CooperationApplication from './pages/CooperationApplication';
+import SmartGuide from './pages/SmartGuide';
 
 function App() {
   return (
@@ -51,7 +53,7 @@ function App() {
                 <Route path="/tickets" element={<Tickets />} />
                 <Route path="/local-experts" element={<LocalExperts />} />
                 <Route path="/shop" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-2xl">特色商城页面开发中...</h1></div>} />
-                <Route path="/mystery-box" element={<div className="min-h-screen flex items-center justify-center"><h1 className="text-2xl">盲盒旅行页面开发中...</h1></div>} />
+                <Route path="/smart-guide" element={<SmartGuide />} />
                 <Route path="/community" element={<Community />} />
                 <Route path="/membership" element={<Membership />} />
                 <Route path="/login" element={<Login />} />

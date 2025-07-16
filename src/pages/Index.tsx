@@ -1,11 +1,9 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import PopularDestinations from '@/components/PopularDestinations';
 import LocalExperts from '@/components/LocalExperts';
-import MysteryBox from '@/components/MysteryBox';
 import { useCityContext } from '@/components/CityProvider';
 import { useUser } from '@/components/UserProvider';
 import { BannerAd } from '@/components/BannerAd';
@@ -116,7 +114,6 @@ const Index = () => {
       <Features />
       <PopularDestinations />
       {selectedCountry === '中国' && <LocalExperts />}
-      {selectedCountry === '中国' && <MysteryBox />}
       
       {/* 合作伙伴入驻专区 */}
       <section className="py-16 bg-gradient-to-r from-gray-900 to-blue-900">

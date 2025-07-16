@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Users, ShoppingCart, Trophy, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Users, ShoppingCart, Trophy, ArrowRight, Compass } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCityContext } from '@/components/CityProvider';
 import UserTypeSelection from './UserTypeSelection';
@@ -137,13 +136,13 @@ const Hero = () => {
               </div>
             </Link>
             
-            <Link to="/mystery-box" className="block">
+            <Link to="/smart-guide" className="block">
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-colors">
                 <div className="w-12 h-12 rounded-full gradient-ocean flex items-center justify-center mb-4 mx-auto">
-                  <ShoppingCart className="h-6 w-6 text-white" />
+                  <Compass className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">盲盒旅行</h3>
-                <p className="text-gray-300 text-sm">充满惊喜的随机旅行体验，每次都有意想不到的发现</p>
+                <h3 className="text-lg font-semibold mb-2">智慧导游</h3>
+                <p className="text-gray-300 text-sm">AI智能语音导游，为您提供个性化的景区讲解和导览服务</p>
               </div>
             </Link>
 
