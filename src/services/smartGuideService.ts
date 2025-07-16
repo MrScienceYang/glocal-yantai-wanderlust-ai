@@ -73,8 +73,10 @@ export class SmartGuideService {
     return attractions[attractionId] || '欢迎来到这个美丽的景区！我是您的AI智慧导游，很高兴为您服务。';
   }
 
-  async generateAudio(text: string, voice: string = 'alloy'): Promise<string> {
+  async generateAudio(text: string, voice: string = 'alloy'): Promise<string | null> {
     try {
+      console.log('尝试生成音频，文本长度:', text.length);
+      
       const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM', {
         method: 'POST',
         headers: {
@@ -93,14 +95,26 @@ export class SmartGuideService {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate audio');
+        const errorText = await response.text();
+        console.error('ElevenLabs API错误:', response.status, errorText);
+        
+        // 如果是401错误，可能是API密钥问题或免费额度限制
+        if (response.status === 401) {
+          console.warn('ElevenLabs API密钥无效或免费额度已用完，将跳过音频生成');
+          return null; // 返回null表示音频生成失败，但不抛出错误
+        }
+        
+        throw new Error(`ElevenLabs API错误: ${response.status}`);
       }
 
       const audioBlob = await response.blob();
-      return URL.createObjectURL(audioBlob);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      console.log('音频生成成功');
+      return audioUrl;
     } catch (error) {
-      console.error('Error generating audio:', error);
-      throw error;
+      console.error('生成音频时出错:', error);
+      // 不抛出错误，只是返回null，让应用继续运行
+      return null;
     }
   }
 

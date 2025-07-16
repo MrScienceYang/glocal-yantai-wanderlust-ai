@@ -4,7 +4,7 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Navigation, Compass, Star, Play, Pause, Volume2 } from 'lucide-react';
+import { MapPin, Navigation, Compass, Star, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { geolocationService } from '@/services/geolocationService';
 import { smartGuideService, Attraction } from '@/services/smartGuideService';
 import { toast } from 'sonner';
@@ -157,11 +157,12 @@ const SmartGuide = () => {
 
 // 景区详情和AI导游组件
 const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBack: () => void }) => {
-  const [conversation, setConversation] = useState<{text: string, isUser: boolean, audioUrl?: string}[]>([]);
+  const [conversation, setConversation] = useState<{text: string, isUser: boolean, audioUrl?: string | null}[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [userInput, setUserInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [audioSupported, setAudioSupported] = useState(true);
 
   useEffect(() => {
     // 初始化时播放景区介绍
@@ -171,8 +172,17 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
   const initializeGuide = async () => {
     setIsGenerating(true);
     try {
+      console.log('初始化智慧导游...');
       const introduction = await smartGuideService.getAttractionIntroduction(attraction.id);
+      console.log('获取景区介绍成功:', introduction.substring(0, 50) + '...');
+      
+      // 尝试生成音频，但不因为音频失败而阻止整个功能
       const audioUrl = await smartGuideService.generateAudio(introduction);
+      
+      if (audioUrl === null) {
+        setAudioSupported(false);
+        toast.info('音频功能暂时不可用，您仍可以查看文字介绍');
+      }
       
       setConversation([{
         text: introduction,
@@ -180,11 +190,15 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
         audioUrl: audioUrl
       }]);
       
-      // 自动播放欢迎语音
-      playAudio(audioUrl);
+      // 如果有音频URL，自动播放欢迎语音
+      if (audioUrl) {
+        playAudio(audioUrl);
+      }
+      
+      console.log('智慧导游初始化成功');
     } catch (error) {
       console.error('初始化导游失败:', error);
-      toast.error('AI导游初始化失败');
+      toast.error('AI导游初始化失败，请稍后重试');
     } finally {
       setIsGenerating(false);
     }
@@ -204,9 +218,17 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
       setCurrentAudio(null);
     };
     
+    audio.onerror = () => {
+      console.error('音频播放失败');
+      setIsPlaying(false);
+      setCurrentAudio(null);
+      toast.error('音频播放失败');
+    };
+    
     audio.play().catch(error => {
       console.error('播放音频失败:', error);
       setIsPlaying(false);
+      toast.error('音频播放失败');
     });
   };
 
@@ -221,7 +243,7 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
     
     try {
       const aiResponse = await smartGuideService.askNextDestination(attraction.name, userInput);
-      const audioUrl = await smartGuideService.generateAudio(aiResponse);
+      const audioUrl = audioSupported ? await smartGuideService.generateAudio(aiResponse) : null;
       
       setConversation([...newConversation, {
         text: aiResponse,
@@ -229,11 +251,13 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
         audioUrl: audioUrl
       }]);
       
-      // 自动播放AI回应
-      playAudio(audioUrl);
+      // 如果有音频URL，自动播放AI回应
+      if (audioUrl) {
+        playAudio(audioUrl);
+      }
     } catch (error) {
       console.error('生成AI回应失败:', error);
-      toast.error('AI导游响应失败');
+      toast.error('AI导游响应失败，请稍后重试');
     } finally {
       setIsGenerating(false);
     }
@@ -251,7 +275,15 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl">{attraction.name}</CardTitle>
-                <Badge>{attraction.category}</Badge>
+                <div className="flex items-center space-x-2">
+                  <Badge>{attraction.category}</Badge>
+                  {!audioSupported && (
+                    <Badge variant="outline" className="text-orange-600">
+                      <VolumeX className="w-3 h-3 mr-1" />
+                      文字模式
+                    </Badge>
+                  )}
+                </div>
               </div>
               <CardDescription>{attraction.description}</CardDescription>
             </CardHeader>
@@ -263,6 +295,9 @@ const AttractionDetail = ({ attraction, onBack }: { attraction: Attraction, onBa
               <CardTitle className="flex items-center">
                 <Compass className="w-6 h-6 mr-2 text-cyan-600" />
                 AI智慧导游
+                {!audioSupported && (
+                  <span className="ml-2 text-sm text-orange-600">(音频功能暂时不可用)</span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
